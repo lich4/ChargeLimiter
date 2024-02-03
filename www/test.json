@@ -1,0 +1,24 @@
+{
+    "get_bat_info": {
+        "status": 0,
+        "data": {
+            "BootVoltage": 3980,
+            "Serial": "F5D44671CH6FW5VBY",
+            "NominalChargeCapacity": 1185,
+            "InstantAmperage": 295,
+            "IsCharging": true,
+            "CycleCount": 689,
+            "DesignCapacity": 1751,
+            "CurrentCapacity": 67,
+            "Temperature": 1930,
+            "Voltage": 4308
+        }
+    },
+    "get_conf": {
+        "status": 0,
+        "data": {
+            "charge_below": 30,
+            "charge_above": 70
+        }
+    }
+}

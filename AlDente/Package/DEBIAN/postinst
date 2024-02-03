@@ -1,0 +1,19 @@
+#!/bin/bash
+
+PROJECT_NAME=AlDente
+if [ -d /var/jb ]; then
+    ROOT=/var/jb
+fi
+DSTAPPDIR=$ROOT/Applications/${PROJECT_NAME}.app
+chown -R root:wheel ${DSTAPPDIR}
+chmod +s ${DSTAPPDIR}/${PROJECT_NAME}
+killall -9 ${PROJECT_NAME}
+
+BID=chaoge.${PROJECT_NAME}
+PLIST=/Library/LaunchDaemons/${BID}.plist
+chown root:wheel ${PLIST}
+launchctl load ${PLIST}
+uicache mobile
+
+exit 0
+

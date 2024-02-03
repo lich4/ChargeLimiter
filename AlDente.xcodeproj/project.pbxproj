@@ -1,0 +1,451 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1860F2C42B5809510094AAC8 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
+		1878863B2B51976A00E48B28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
+		1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
+		187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
+		187886432B51976B00E48B28 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
+		187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
+		187886552B519B2100E48B28 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1878864E2B5199EC00E48B28 /* UIKit.framework */; };
+		187886572B519B2400E48B28 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886562B519B2400E48B28 /* WebKit.framework */; };
+		18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
+		18C50C662B6D2D5D00793FA9 /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
+		18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
+		18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
+		18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		18497C5D2B541D6100A6C5E3 /* md-trollstore */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "md-trollstore"; sourceTree = "<group>"; };
+		18497C5E2B541D8000A6C5E3 /* AlDente.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlDente.entitlements; sourceTree = "<group>"; };
+		1878862D2B51976A00E48B28 /* AlDente.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlDente.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1878863A2B51976A00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		1878863C2B51976B00E48B28 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1878863F2B51976B00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		187886412B51976B00E48B28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		187886422B51976B00E48B28 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		1878864E2B5199EC00E48B28 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		187886522B519A5B00E48B28 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
+		187886532B519B1600E48B28 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		187886562B519B2400E48B28 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		187BEA1F2B6A5F6100BD5C8F /* Package */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Package; sourceTree = "<group>"; };
+		18B757232B57FDB2008A67D1 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
+		18C50C632B6CE41800793FA9 /* IOKit.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = IOKit.tbd; sourceTree = "<group>"; };
+		18C50C652B6D2D5D00793FA9 /* utils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = utils.mm; sourceTree = "<group>"; };
+		18C50C672B6D2D6E00793FA9 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GCDWebServers.framework; path = ../../../../../opt/framework/GCDWebServers.framework; sourceTree = "<group>"; };
+		18C50C792B6DFD6000793FA9 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1878862A2B51976A00E48B28 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
+				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
+				187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */,
+				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
+				187886552B519B2100E48B28 /* UIKit.framework in Frameworks */,
+				187886572B519B2400E48B28 /* WebKit.framework in Frameworks */,
+				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		187886242B51976A00E48B28 = {
+			isa = PBXGroup;
+			children = (
+				18B757232B57FDB2008A67D1 /* Readme.md */,
+				18497C5D2B541D6100A6C5E3 /* md-trollstore */,
+				187886522B519A5B00E48B28 /* www */,
+				1878862F2B51976A00E48B28 /* AlDente */,
+				1878862E2B51976A00E48B28 /* Products */,
+				187886492B5199D800E48B28 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		1878862E2B51976A00E48B28 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1878862D2B51976A00E48B28 /* AlDente.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1878862F2B51976A00E48B28 /* AlDente */ = {
+			isa = PBXGroup;
+			children = (
+				187BEA1F2B6A5F6100BD5C8F /* Package */,
+				18497C5E2B541D8000A6C5E3 /* AlDente.entitlements */,
+				187886392B51976A00E48B28 /* Main.storyboard */,
+				1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */,
+				1878863C2B51976B00E48B28 /* Assets.xcassets */,
+				187886412B51976B00E48B28 /* Info.plist */,
+				187886422B51976B00E48B28 /* main.mm */,
+				18C50C632B6CE41800793FA9 /* IOKit.tbd */,
+				18C50C652B6D2D5D00793FA9 /* utils.mm */,
+				18C50C672B6D2D6E00793FA9 /* utils.h */,
+			);
+			path = AlDente;
+			sourceTree = "<group>";
+		};
+		187886492B5199D800E48B28 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */,
+				18C50C792B6DFD6000793FA9 /* libz.tbd */,
+				18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */,
+				187886562B519B2400E48B28 /* WebKit.framework */,
+				187886532B519B1600E48B28 /* CFNetwork.framework */,
+				1878864E2B5199EC00E48B28 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1878862C2B51976A00E48B28 /* AlDente */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 187886462B51976B00E48B28 /* Build configuration list for PBXNativeTarget "AlDente" */;
+			buildPhases = (
+				187886292B51976A00E48B28 /* Sources */,
+				1878862A2B51976A00E48B28 /* Frameworks */,
+				1878862B2B51976A00E48B28 /* Resources */,
+				18161F122B54ED46006C6C0F /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AlDente;
+			productName = AlDente;
+			productReference = 1878862D2B51976A00E48B28 /* AlDente.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		187886252B51976A00E48B28 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1170;
+				ORGANIZATIONNAME = chaoge;
+				TargetAttributes = {
+					1878862C2B51976A00E48B28 = {
+						CreatedOnToolsVersion = 11.7;
+					};
+				};
+			};
+			buildConfigurationList = 187886282B51976A00E48B28 /* Build configuration list for PBXProject "AlDente" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 187886242B51976A00E48B28;
+			productRefGroup = 1878862E2B51976A00E48B28 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1878862C2B51976A00E48B28 /* AlDente */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1878862B2B51976A00E48B28 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1860F2C42B5809510094AAC8 /* www in Resources */,
+				1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */,
+				187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */,
+				1878863B2B51976A00E48B28 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		18161F122B54ED46006C6C0F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$PWD/md-trollstore # build tipa\n#/opt/MonkeyDev/bin/md --xcbp # build deb\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		187886292B51976A00E48B28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				187886432B51976B00E48B28 /* main.mm in Sources */,
+				18C50C662B6D2D5D00793FA9 /* utils.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		187886392B51976A00E48B28 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1878863A2B51976A00E48B28 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1878863F2B51976B00E48B28 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		187886442B51976B00E48B28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = /opt/framework;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		187886452B51976B00E48B28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = /opt/framework;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		187886472B51976B00E48B28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YZGT4R4484;
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = "${TARGET_NAME}/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/AlDente",
+				);
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 127.0.0.1;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos;
+				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TROLLSTORE_DEVICE_IP = 192.168.0.241;
+			};
+			name = Debug;
+		};
+		187886482B51976B00E48B28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YZGT4R4484;
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = "${TARGET_NAME}/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/AlDente",
+				);
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 127.0.0.1;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos;
+				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TROLLSTORE_DEVICE_IP = 192.168.0.241;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		187886282B51976A00E48B28 /* Build configuration list for PBXProject "AlDente" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				187886442B51976B00E48B28 /* Debug */,
+				187886452B51976B00E48B28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		187886462B51976B00E48B28 /* Build configuration list for PBXNativeTarget "AlDente" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				187886472B51976B00E48B28 /* Debug */,
+				187886482B51976B00E48B28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 187886252B51976A00E48B28 /* Project object */;
+}
