@@ -163,12 +163,12 @@
           <el-row class="px-3 py-2 col-item">
             <el-col></el-col>
             <el-label>{{$t("charge_below")}}</el-label>
-            <el-slider v-model="charge_below" :min="0" :max="80" :step="5" :marks="marks" @change="set_charge_below"></el-slider>
+            <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="5" :marks="marks" @change="set_charge_below"></el-slider>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("nocharge_above")}}</el-label>
-            <el-slider v-model="charge_above" :min="charge_below+5" :max="100" :step="5" :marks="marks" @change="set_charge_above"></el-slider>
+            <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="5" :marks="marks" @change="set_charge_above"></el-slider>
           </el-row>
         </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>

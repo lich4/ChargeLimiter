@@ -133,7 +133,6 @@ const App = {
             this.loading = flag;
         },
         get_bat_info_cb: function(jdata) {
-            console.log(jdata)
             if (jdata.status == 0) {
                 jdata.data.BootVoltage /= 1000;
                 jdata.data.Voltage /= 1000;

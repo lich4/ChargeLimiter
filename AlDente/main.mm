@@ -8,7 +8,7 @@
 #define PRODUCT         "aldente"
 #define GSERV_PORT      1230
 
-static NSString* log_prefix = @(PRODUCT "logger");
+NSString* log_prefix = @(PRODUCT "logger");
 static NSDictionary* bat_info = nil;
 static NSTimer* update_timer = nil;
 static int update_freq = 60;
@@ -282,36 +282,16 @@ int main(int argc, char** argv) {
             if (jbtype == 2) { // jb daemon自动启动; trollstore需要手动启动
                 dispatch_async(dispatch_get_global_queue(0, 0), ^{
                     if (!localPortOpen(GSERV_PORT)) {
-                        spawn(@[getAppEXEPath(), @"nohup"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
+                        spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
                     }
                 });
             }
             return UIApplicationMain(argc, argv, nil, @"AppDelegate");
         } else if (argc > 1) {
-            if (0 == strcmp(argv[1], "nohup")) { // trollstore执行此处
-                NSLog(@"%@ nohup", log_prefix);
-                runAsDaemon(^{
-                    signal(SIGHUP, SIG_IGN);
-                    NSString* exe_path = getAppEXEPath();
-                    char* const sub_argv[3] = {(char*)exe_path.UTF8String, (char*)"daemon", 0};
-                    execvp(sub_argv[0], sub_argv);
-                });
-            } else if (0 == strcmp(argv[1], "daemon")) {
-                NSLog(@"%@ daemon", log_prefix);
+            if (0 == strcmp(argv[1], "daemon")) { // trollstore执行此处
                 platformize_me();
                 [Service.inst serve];
                 [NSRunLoop.mainRunLoop run];
-            } else if (0 == strcmp(argv[1], "get_bat_info")) {
-                int status = getBatInfo(&bat_info);
-                if (status == 0) {
-                    NSLog(@"%@", bat_info);
-                } else {
-                    NSLog(@"%d", status);
-                }
-            } else if (0 == strcmp(argv[1], "set_charge_status")) {
-                bool flag = argv[2][0] != '0';
-                int status = setChargeStatus(flag);
-                NSLog(@"%d", status);
             }
         }
         return -1;

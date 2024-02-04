@@ -9,6 +9,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString* log_prefix;
+
 @interface LSApplicationProxy : NSObject
 @property (nonatomic, readonly) NSString* bundleIdentifier;
 @end

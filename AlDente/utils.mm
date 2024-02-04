@@ -91,14 +91,14 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     }
     int status = -200;
     int spawnError = posix_spawnp(task_pid_ptr, [file UTF8String], &action, &attr, (char* const*)argsC, environ);
-    NSLog(@"posix_spawn %@ ret=%d -> %d", args.firstObject, spawnError, task_pid);
+    NSLog(@"%@ posix_spawn %@ ret=%d -> %d", log_prefix, args.firstObject, spawnError, task_pid);
     posix_spawnattr_destroy(&attr);
     for (NSUInteger i = 0; i < argCount; i++) {
         free(argsC[i]);
     }
     free(argsC);
     if(spawnError != 0) {
-        NSLog(@"posix_spawn error %d\n", spawnError);
+        NSLog(@"%@ posix_spawn error %d\n", log_prefix, spawnError);
         return spawnError;
     }
     if ((flag & SPAWN_FLAG_NOWAIT) != 0) {
@@ -132,7 +132,7 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     }
     do {
         if (waitpid(task_pid, &status, 0) != -1) {
-            NSLog(@"Child status %d", WEXITSTATUS(status));
+            NSLog(@"%@ Child status %d", log_prefix, WEXITSTATUS(status));
         } else {
             perror("waitpid");
             _isRunning = NO;
@@ -221,6 +221,7 @@ void runAsDaemon(void(^Block)(), int flag) {
     flag_ = fcntl(fds[1], F_GETFL, 0);
     fcntl(fds[1], F_SETFL, flag_ | O_NONBLOCK);
     int forkpid = fork();
+    NSLog(@"%@ run_as_daemon -> %d", log_prefix, forkpid);
     if (forkpid < 0) {
         return;
     } else if (forkpid > 0) { // father
