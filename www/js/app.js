@@ -192,6 +192,7 @@ const App = {
         get_conf_cb: function(jdata) {
             this.charge_below = jdata.data.charge_below;
             this.charge_above = jdata.data.charge_above;
+            this.update_freq = jdata.data.update_freq;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, 60000);
         },

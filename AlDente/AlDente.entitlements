@@ -6,31 +6,33 @@
 	<true/>
 	<key>application-identifier</key>
 	<string>chaoge.AlDente</string>
-	<key>com.apple.private.security.no-container</key>
+	<key>com.apple.private.MobileContainerManager.allowed</key>
 	<true/>
-	<key>com.apple.private.security.no-sandbox</key>
+	<key>com.apple.private.persona-mgmt</key>
 	<true/>
 	<key>com.apple.private.powersource-read</key>
 	<true/>
 	<key>com.apple.private.powersource-write</key>
 	<true/>
+	<key>com.apple.private.security.container-manager</key>
+	<true/>
+	<key>com.apple.private.security.no-container</key>
+	<true/>
+	<key>com.apple.private.security.no-sandbox</key>
+	<true/>
+	<key>com.apple.private.security.storage.AppBundles</key>
+	<true/>
+	<key>com.apple.private.security.storage.AppDataContainers</key>
+	<true/>
 	<key>com.apple.security.exception.files.absolute-path.read-write</key>
-    <array>
-        <string>/</string>
-    </array>
-    <key>com.apple.security.iokit-user-client-class</key>
-    <array>
-        <string>IOUserClient</string>
-    </array>
-    <key>com.apple.private.MobileContainerManager.allowed</key>
-    <true/>
-    <key>com.apple.private.security.container-manager</key>
-    <true/>
-    <key>com.apple.private.security.storage.AppBundles</key>
-    <true/>
-    <key>com.apple.private.security.storage.AppDataContainers</key>
-    <true/>
-    <key>com.apple.private.persona-mgmt</key>
-    <true/>
+	<array>
+		<string>/</string>
+	</array>
+	<key>com.apple.security.iokit-user-client-class</key>
+	<array>
+		<string>IOUserClient</string>
+	</array>
+	<key>com.apple.springboard.launchapplications</key>
+	<true/>
 </dict>
 </plist>

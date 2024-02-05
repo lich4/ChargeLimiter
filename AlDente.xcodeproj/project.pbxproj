@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		184FE8042B70BE8100525080 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		1860F2C42B5809510094AAC8 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
 		1878863B2B51976A00E48B28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
@@ -14,7 +15,6 @@
 		187886432B51976B00E48B28 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
 		187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
 		187886552B519B2100E48B28 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1878864E2B5199EC00E48B28 /* UIKit.framework */; };
-		187886572B519B2400E48B28 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886562B519B2400E48B28 /* WebKit.framework */; };
 		18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
 		18C50C662B6D2D5D00793FA9 /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
 		18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		18497C5D2B541D6100A6C5E3 /* md-trollstore */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "md-trollstore"; sourceTree = "<group>"; };
 		18497C5E2B541D8000A6C5E3 /* AlDente.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlDente.entitlements; sourceTree = "<group>"; };
+		184FE8032B70BE8100525080 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		1878862D2B51976A00E48B28 /* AlDente.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlDente.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1878863A2B51976A00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1878863C2B51976B00E48B28 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -50,13 +51,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
-				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
 				187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */,
+				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
+				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
+				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
 				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
 				187886552B519B2100E48B28 /* UIKit.framework in Frameworks */,
-				187886572B519B2400E48B28 /* WebKit.framework in Frameworks */,
-				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
+				184FE8042B70BE8100525080 /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,6 +104,7 @@
 		187886492B5199D800E48B28 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				184FE8032B70BE8100525080 /* UserNotifications.framework */,
 				18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */,
 				18C50C792B6DFD6000793FA9 /* libz.tbd */,
 				18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */,
@@ -196,7 +198,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$PWD/md-trollstore # build tipa\n#/opt/MonkeyDev/bin/md --xcbp # build deb\n";
+			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -289,7 +291,7 @@
 					/opt/theos/vendor/include,
 					/opt/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -349,7 +351,7 @@
 					/opt/theos/vendor/include,
 					/opt/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -390,7 +392,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = "";
+				TROLLSTORE_DEVICE_IP = 192.168.0.241;
 			};
 			name = Debug;
 		};
@@ -425,7 +427,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = "";
+				TROLLSTORE_DEVICE_IP = 192.168.0.241;
 			};
 			name = Release;
 		};
