@@ -20,3 +20,18 @@ iOS>=15需要TrollStore+安装tipa使用
 
 ![](https://raw.githubusercontent.com/lich4/AlDente/main/snapshot.png)
 ![](https://raw.githubusercontent.com/lich4/AlDente/main/snapshot1.png)
+
+
+## Instruction
+
+This app is inspired by MacOS version AlDente, used to prevent iPhone/iPad long-time overcharge, which will cause damage to the battery, one can specify the max capacity to stop charging, and min capacity to start charging, and max temparature to stop charging. Once set, the daemon will monitor capacity in background.
+
+Download URL: (https://github.com/lich4/AlDente/releases)      
+iOS<=14 require Jailbreak and install the deb version    
+iOS>=15 require TrollStore and install the tipa version    
+
+
+![](https://raw.githubusercontent.com/lich4/AlDente/main/snapshot_en.png)
+![](https://raw.githubusercontent.com/lich4/AlDente/main/snapshot_en1.png)
+
+
