@@ -1,6 +1,6 @@
 Package: chaoge.AlDente
 Name: AlDente
-Version: 0.1-1
+Version: 1.1
 Description: AlDente
 Section: System
 Depends: firmware (>= 5.0)
