@@ -16,7 +16,7 @@ iOS>=15需要TrollStore+安装tipa使用
 注意:
 * 由于是定时轮询因此更新频率影响精确度,1min的情况下差1-2%是正常的
 * Mac上使用的温控接口可以进行更底层的温控和风扇速度控制,但iOS上并无此功能,因此本工具几乎是iOS上防过充唯一选择,其实这种工具十年前就应该出现了,只是一直没人研究
-* 如果有兴趣参与本项目或者对本项目有建议的的欢迎参与本项目的开发
+* 如果有兴趣参与本项目或者对本项目有建议的的欢迎参提交代码
 
 ![](https://raw.githubusercontent.com/lich4/AlDente/main/snapshot.png)
 ![](https://raw.githubusercontent.com/lich4/AlDente/main/snapshot1.png)
