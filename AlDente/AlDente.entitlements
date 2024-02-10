@@ -6,8 +6,6 @@
 	<true/>
 	<key>application-identifier</key>
 	<string>chaoge.AlDente</string>
-	<key>com.apple.powerd.lowpowermode.allow</key>
-	<true/>
 	<key>com.apple.private.MobileContainerManager.allowed</key>
 	<true/>
 	<key>com.apple.private.persona-mgmt</key>
@@ -32,54 +30,9 @@
 	</array>
 	<key>com.apple.security.iokit-user-client-class</key>
 	<array>
-		<string>AGXCommandQueue</string>
-		<string>AGXDevice</string>
-		<string>AGXDeviceUserClient</string>
-		<string>AGXSharedUserClient</string>
-		<string>ApplePPMUserClient</string>
-		<string>AppleSmartBattery</string>
-		<string>AppleSmartBatteryManagerUserClient</string>
-		<string>AppleSMCClient</string>
-		<string>H11ANEInDirectPathClient</string>
-		<string>IOReportUserClient</string>
-		<string>IOSurfaceRootUserClient</string>
 		<string>IOUserClient</string>
-		<string>RootDomainUserClient</string>
 	</array>
-
-	<key>com.apple.PerfPowerTelemetry.data-donation</key>
+	<key>com.apple.springboard.launchapplications</key>
 	<true/>
-	<key>com.apple.coreduetd.allow</key>
-	<true/>
-	<key>com.apple.coreduetd.context</key>
-	<true/>
-	<key>com.apple.private.applesmc.user-access</key>
-	<true/>
-	<key>com.apple.private.btm.client</key>
-	<true/>
-	<key>com.apple.private.hid.client.event-monitor</key>
-	<true/>
-	<key>com.apple.private.iokit.rootdomain-set-property</key>
-	<true/>
-	<key>com.apple.private.ppm.superclient</key>
-	<true/>
-	<key>com.apple.private.vfs.setsize</key>
-	<true/>
-	<key>com.apple.security.system-groups</key>
-	<array>
-		<string>systemgroup.com.apple.powerlog</string>
-	</array>
-	<key>com.apple.trial.client</key>
-	<array>
-		<string>253</string>
-	</array>
-	<key>com.apple.security.exception.mach-lookup.global-name</key>
-	<array>
-		<string>com.apple.usernotifications.usernotificationservice</string>
-		<string>com.apple.coreduetd.context</string>
-		<string>com.apple.iokit.powerdxpc</string>
-		<string>com.apple.powerd.lowpowermode</string>
-		<string>com.apple.PowerManagement.control</string>
-	</array>
 </dict>
 </plist>
