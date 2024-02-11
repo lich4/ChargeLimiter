@@ -139,8 +139,8 @@ const i18n = new VueI18n({
             "pd charger": "PD charger",
             "usb charger": "USB charger",
         },
-        zh: { // html
-            label: "中文",
+        zh_CN: { // html
+            label: "简体中文",
             lang: "语言",
             suc: "成功",
             fail: "失败",
