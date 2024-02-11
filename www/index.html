@@ -91,6 +91,10 @@
       text-align: center;
     }
 
+    .page-icon-sm {
+      font-size: 20px;
+    }
+
     .page-icon {
       font-size: 25px;
     }
@@ -103,6 +107,10 @@
 
     .right {
       float: right;
+    }
+
+    .click {
+      color: #409EFF;
     }
 
     .wordwrap { 
@@ -165,18 +173,30 @@
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="px-3 py-2 col-item">
+            <el-label>{{$t("mode")}}</el-label>
+            <el-tooltip class="item" effect="dark" :content="$t(mode+'_desc')">
+              <span class="el-icon-warning-outline page-icon-sm"></span>
+            </el-tooltip>
+            <el-select v-model="mode" size="mini" class="right" style="width:50%" @change="change_mode">
+              <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
+            </el-select>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("update_freq")}}</el-label>
             <el-select v-model="update_freq" size="mini" class="right" style="width:50%" @change="change_update_freq">
               <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
             </el-select>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="px-3 py-2 col-item">
-            <el-col></el-col>
-            <el-label>{{$t("charge_below")}}</el-label>
-            <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="5" :marks="marks_perc" @change="set_charge_below"></el-slider>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <template v-if="mode=='edge_trigger'">
+            <el-row class="px-3 py-2 col-item">
+              <el-col></el-col>
+              <el-label>{{$t("charge_below")}}</el-label>
+              <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="5" :marks="marks_perc" @change="set_charge_below"></el-slider>
+            </el-row>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+          </template>
           <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("nocharge_above")}}</el-label>
             <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="5" :marks="marks_perc" @change="set_charge_above"></el-slider>
@@ -224,8 +244,11 @@
             </el-col>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="px-3 py-2 col-item">
+          <el-row class="px-3 py-2 col-item click">
             <el-label>{{$t("IsCharging")}}</el-label>
+            <el-tooltip class="item" effect="dark" :content="$t('charge_btn_desc')">
+              <span class="el-icon-warning-outline page-icon-sm"></span>
+            </el-tooltip>
             <el-switch :value="bat_info.IsCharging" class="right" @change="set_charge_status"></el-switch>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>

@@ -27,7 +27,16 @@ function get_local_val(path, key) {
 function get_local_lang() {
     var lang = get_local_val("conf", "lang")
     if (!lang) {
-        lang = navigator.language.split("-")[0];
+        var sp = navigator.language.split("-");
+        if (sp[0] == "zh") {
+            if (sp[1] == "TW") {
+                lang = "zh_TW";
+            } else {
+                lang = "zh_CN";
+            }
+        } else {
+            lang = sp[0];
+        }
         set_local_val("conf", "lang", lang);
     }
     return lang;
@@ -38,7 +47,7 @@ function range (start, stop, step) {
 }
 
 function ts_to_date(timestamp) {
-    var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+    var date = new Date(timestamp * 1000);
     var Y = date.getFullYear();
     var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
     var D = (date.getDate() < 10)?'0' + date.getDate() : date.getDate();
@@ -108,7 +117,16 @@ const i18n = new VueI18n({
             charge_below: "Start charge capacity below(%)",
             nocharge_above: "Stop charge capacity above(%)",
             nocharge_temp_above: "Stop charge temperature above(°C)",
+            charge_btn_desc: "This button used to manually start or stop charging",
             start_serv: "Start service",
+            mode: "mode",
+            charge_on_plug: "Plug and charge",
+            charge_on_plug_desc: "iDevice will start charging each time adaptor plug in, and stop charging when capacity increase to max threshhold specified",
+            edge_trigger: "Edge trigger",
+            edge_trigger_desc: "iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified",
+            system: "system",
+            sec: "sec",
+            min: "min",
             Serial: "Serial",
             BootVoltage: "Boot voltage(V)",
             Voltage: "Voltage(V)",
@@ -120,7 +138,7 @@ const i18n = new VueI18n({
             CurrentCapacity: "Current capacity",
             Temperature: "Temperature(°C)",
             CycleCount: "Cycle count",
-            IsCharging: "Is charging",  
+            IsCharging: "Charging",  
             BatteryInstalled: "Battery installed",
             ExternalChargeCapable: "External charge capable",
             ExternalConnected: "External connected",
@@ -151,7 +169,18 @@ const i18n = new VueI18n({
             charge_below: "电量低于(%)开始充电",
             nocharge_above: "电量高于(%)停止充电",
             nocharge_temp_above: "温度高于(°C)停止充电",
+            charge_btn_desc: "此按钮用于手动开始或停止充电",
             start_serv: "启动服务",
+            mode: "模式",
+            charge_on_plug: "插电即充",
+            charge_on_plug_desc: "插入电源后开始充电,到达指定的最大阈值时停止充电",
+            edge_trigger: "边缘触发",
+            edge_trigger_desc: "到达最大阈值时停止充电,当且仅当电量低于最小阈值时开始充电",
+            charge_on_plug: "插电即充",
+            edge_trigger: "边缘触发",
+            system: "系统",
+            sec: "秒",
+            min: "分种",
             Serial: "序列号",
             BootVoltage: "开机电压(V)",
             Voltage: "电压(V)",
@@ -181,6 +210,7 @@ const i18n = new VueI18n({
             "baseline arcas": "无线充电器",
             "pd charger": "PD快充器",
             "usb charger": "USB充电器",
+            
         },
         zh_TW: { // html
             label: "繁體中文",
@@ -194,7 +224,16 @@ const i18n = new VueI18n({
             charge_below: "電量低於(%)開始充電",
             nocharge_above: "電量高於(%)停止充電",
             nocharge_temp_above: "溫度高於(°C)停止充電",
+            charge_btn_desc: "此按鈕用於手動開始或停止充電",
             start_serv: "啟動服務",
+            mode: "模式",
+            charge_on_plug: "插電即充",
+            charge_on_plug_desc: "插入電源後開始充電,到達指定的最大閾值時停止充電",
+            edge_trigger: "邊緣觸發",
+            edge_trigger_desc: "到達最大閾值時停止充電,當且僅當電量低於最小閾值時開始充電",
+            system: "系統",
+            sec: "秒",
+            min: "分鐘",
             Serial: "序號",
             BootVoltage: "開機電壓(V)",
             Voltage: "電壓(V)",
@@ -224,6 +263,7 @@ const i18n = new VueI18n({
             "baseline arcas": "無線充電器",
             "pd charger": "PD 快充器",
             "usb charger": "USB 充電器",
+            
         }
     },
 })
@@ -236,6 +276,7 @@ const App = {
             title: "AlDente",
             loading: false,
             daemon_alive: false,
+            mode: "charge_on_plug",
             msg_list: [],
             bat_info: {},
             adaptor_info: {},
@@ -248,11 +289,8 @@ const App = {
             timer: null,
             marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
             marks_temp: range(20, 60, 5).reduce((m, o)=>{m[o] = o + "°C"; return m;}, {}),
-            freqs: [
-                {"label": "20 sec(system)", "value": 20},
-                {"label": "1 min", "value": 60},
-                {"label": "10 min", "value": 600},
-            ]
+            freqs: null,
+            modes: null,
         }
     },
     methods: {
@@ -392,6 +430,13 @@ const App = {
                 val: v,
             });
         },
+        change_mode: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "mode",
+                val: v,
+            });
+        },
         get_health: function(item) {
             return Math.floor(item["NominalChargeCapacity"] / item["DesignCapacity"] * 100);
         },
@@ -409,11 +454,6 @@ const App = {
             return s;
         },
         change_update_freq: function(v) {
-            this.ipc_send_wrapper({
-                api: "set_conf",
-                key: "update_freq",
-                val: v,
-            });
             clearInterval(this.timer);
             this.timer = setInterval(this.get_bat_info, v * 1000);
         },
@@ -434,6 +474,7 @@ const App = {
             });
         },
         get_conf_cb: function(jdata) {
+            this.mode = jdata.data.mode;
             this.charge_below = jdata.data.charge_below;
             this.charge_above = jdata.data.charge_above;
             if (this.update_freq != jdata.data.update_freq) {
@@ -453,7 +494,19 @@ const App = {
         },
         change_lang: function(v) {
             set_local_val("conf", "lang", v);
+            this.reload_locale();
         },
+        reload_locale: function() {
+            this.freqs = [
+                {"label": "20 " + this.$t("sec"), "value": 20},
+                {"label": "1 " + this.$t("min"), "value": 60},
+                {"label": "10 " + this.$t("min"), "value": 600},
+            ];
+            this.modes = [
+                {"label": this.$t("charge_on_plug"), "value": "charge_on_plug"},
+                {"label": this.$t("edge_trigger"), "value": "edge_trigger"},
+            ];
+        }
     },
     directives: {
         timeout: {
@@ -471,7 +524,8 @@ const App = {
         }
     },
     mounted: function () {
-        this.get_conf()
+        this.get_conf();
+        this.reload_locale();
     }
 };
 

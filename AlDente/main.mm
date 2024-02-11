@@ -13,8 +13,6 @@
 
 NSString* log_prefix = @(PRODUCT "logger");
 static NSDictionary* bat_info = nil;
-static NSTimer* update_timer = nil;
-static int update_freq = 60;
 static NSDictionary* handleReq(NSDictionary* nsreq);
 
 
@@ -90,6 +88,38 @@ static io_service_t getIOPMPSServ() {
     return serv;
 }
 
+static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) {
+    CFMutableDictionaryRef prop = nil;
+    IORegistryEntryCreateCFProperties(serv, &prop, kCFAllocatorDefault, 0);
+    if (prop == nil) {
+        return -2;
+    }
+    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
+    NSMutableDictionary* filtered_info = [NSMutableDictionary dictionary];
+    NSArray* keep = @[
+        @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
+        @"InstantAmperage", @"IsCharging", @"NominalChargeCapacity", @"PostChargeWaitSeconds", @"PostDischargeWaitSeconds", @"Serial", @"Temperature",
+        @"UpdateTime", @"Voltage"];
+    for (NSString* key in info) {
+        if ([keep containsObject:key]) {
+            filtered_info[key] = info[key];
+        }
+    }
+    if (info[@"AdapterDetails"] != nil) {
+        NSDictionary* adaptor_info = info[@"AdapterDetails"];
+        NSMutableDictionary* filtered_adaptor_info = [NSMutableDictionary dictionary];
+        keep = @[@"AdapterVoltage", @"Current", @"Description", @"IsWireless", @"Manufacturer", @"Name",  @"Watts"];
+        for (NSString* key in adaptor_info) {
+            if ([keep containsObject:key]) {
+                filtered_adaptor_info[key] = adaptor_info[key];
+            }
+        }
+        filtered_info[@"AdapterDetails"] = filtered_adaptor_info;
+    }
+    *pinfo = filtered_info;
+    return 0;
+}
+
 static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     io_service_t serv = getIOPMPSServ();
     if (serv == 0) {
@@ -138,12 +168,16 @@ static BOOL isAdaptorConnect(NSDictionary* info) {
     return NO;
 }
 
-static int setChargeStatus(BOOL flag) {
-    if (flag) {
-        if (!isAdaptorConnect(bat_info)) {
-            return -3;
-        }
+static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
+    NSNumber* old_ExternalConnected = oldInfo[@"ExternalConnected"];
+    NSNumber* ExternalConnected = info[@"ExternalConnected"];
+    if (!old_ExternalConnected.boolValue && ExternalConnected.boolValue) {
+        return YES;
     }
+    return NO;
+}
+
+static int setChargeStatus(BOOL flag) {
     io_service_t serv = getIOPMPSServ();
     if (serv == 0) {
         return -1;
@@ -176,108 +210,102 @@ static void setlocalKV(NSString* key, id val) {
     [mdic writeToFile:path atomically:YES];
 }
 
-static NSTimer* start_monitor_timer(int interval) {
-    NSLog(@"%@ start_monitor_timer %d", log_prefix, interval);
-    NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:interval repeats:YES block:^(NSTimer* timer) {
-        @autoreleasepool {
-            if (0 == getBatInfo(&bat_info)) {
-                NSNumber* charge_below = getlocalKV(@"charge_below");
-                NSNumber* charge_above = getlocalKV(@"charge_above");
-                NSNumber* enable_temp = getlocalKV(@"enable_temp");
-                NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
-                NSNumber* capacity = bat_info[@"CurrentCapacity"];
-                NSNumber* is_charging = bat_info[@"IsCharging"];
-                NSNumber* temperature_ = bat_info[@"Temperature"];
-                int temperature = temperature_.intValue / 100;
-                NSLog(@"%@ monitor_timer %@-%@ cur=%@ charging=%d", log_prefix, charge_below, charge_above, capacity, is_charging.boolValue);
-                if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
-                    if (is_charging.boolValue) {
-                        NSLog(@"%@ stop charging for high temperature", log_prefix);
-                        [Service.inst localPush:@"Stop charging for high temperature" interval:3600];
-                        setChargeStatus(NO);
-                        return;
-                    }
+static void onBatteryEvent(io_service_t serv) {
+    @autoreleasepool {
+        NSDictionary* old_bat_info = bat_info;
+        if (0 == getBatInfoWithServ(serv, &bat_info)) {
+            NSString* mode = getlocalKV(@"mode");
+            NSNumber* charge_below = getlocalKV(@"charge_below");
+            NSNumber* charge_above = getlocalKV(@"charge_above");
+            NSNumber* enable_temp = getlocalKV(@"enable_temp");
+            NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
+            NSNumber* capacity = bat_info[@"CurrentCapacity"];
+            NSNumber* is_charging = bat_info[@"IsCharging"];
+            NSNumber* temperature_ = bat_info[@"Temperature"];
+            int temperature = temperature_.intValue / 100;
+            if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
+                if (is_charging.boolValue) {
+                    NSLog(@"%@ stop charging for high temperature", log_prefix);
+                    [Service.inst localPush:@"Stop charging for high temperature" interval:3600];
+                    setChargeStatus(NO);
+                    return;
                 }
-                if (capacity.intValue <= charge_below.intValue) {
-                    if (!is_charging.boolValue) {
-                        if (isAdaptorConnect(bat_info)) {
-                            NSLog(@"%@ start charging", log_prefix);
-                            [Service.inst localPush:@"Start charging" interval:3600];
-                            setChargeStatus(YES);
-                        } else {
-                            [Service.inst localPush:@"Plug in adaptor to charge" interval:3600];
-                        }
-                    }
-                } else if (capacity.intValue >= charge_above.intValue) {
-                    if (is_charging.boolValue) {
-                        NSLog(@"%@ stop charging", log_prefix);
-                        [Service.inst localPush:@"Stop charging" interval:3600];
-                        setChargeStatus(NO);
+            }
+            if (capacity.intValue >= charge_above.intValue) {
+                if (is_charging.boolValue) {
+                    NSLog(@"%@ stop charging", log_prefix);
+                    [Service.inst localPush:@"Stop charging" interval:3600];
+                    setChargeStatus(NO);
+                    return;
+                }
+            }
+            if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
+                if (isAdaptorNewConnect(old_bat_info, bat_info)) {
+                    [Service.inst localPush:@"Start charging for plug in" interval:3600];
+                    setChargeStatus(YES);
+                }
+                return;
+            }
+            if (capacity.intValue <= charge_below.intValue) {
+                if (!is_charging.boolValue) {
+                    if (isAdaptorConnect(bat_info)) {
+                        NSLog(@"%@ start charging", log_prefix);
+                        [Service.inst localPush:@"Start charging" interval:3600];
+                        setChargeStatus(YES);
+                    } else {
+                        [Service.inst localPush:@"Plug in adaptor to charge" interval:3600];
                     }
                 }
             }
         }
-    }];
-    [timer fire];
-    return timer;
+    }
 }
 
 static void initConf() {
+    NSString* mode = getlocalKV(@"mode");
+    if (mode == nil) {
+        setlocalKV(@"charge_below", @"charge_on_plug");
+    }
     NSNumber* charge_below = getlocalKV(@"charge_below");
-    NSNumber* charge_above = getlocalKV(@"charge_above");
     if (charge_below == nil) {
-        charge_below = @20;
-        charge_above = @80;
-        setlocalKV(@"charge_below", charge_below);
-        setlocalKV(@"charge_above", charge_above);
+        setlocalKV(@"charge_below", @20);
+        setlocalKV(@"charge_above", @80);
     }
     NSNumber* enable_temp = getlocalKV(@"enable_temp");
-    NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
     if (enable_temp == nil) {
-        enable_temp = @NO;
-        charge_temp_above = @35;
-        setlocalKV(@"enable_temp", enable_temp);
-        setlocalKV(@"charge_temp_above", charge_temp_above);
+        setlocalKV(@"enable_temp", @NO);
+        setlocalKV(@"charge_temp_above", @35);
     }
-    NSNumber* update_freq_ = getlocalKV(@"update_freq");
-    if (update_freq_ == nil || update_freq_.intValue < 20) {
-        update_freq_ = @(update_freq);
-        setlocalKV(@"update_freq", update_freq_);
-    } else {
-        update_freq = update_freq_.intValue;
+    NSNumber* update_freq = getlocalKV(@"update_freq");
+    if (update_freq == nil) {
+        setlocalKV(@"update_freq", @60);
     }
 }
 
 static NSDictionary* handleReq(NSDictionary* nsreq) {
     NSString* api = nsreq[@"api"];
     if ([api isEqualToString:@"get_conf"]) {
+        NSString* mode = getlocalKV(@"mode");
         NSNumber* charge_below = getlocalKV(@"charge_below");
         NSNumber* charge_above = getlocalKV(@"charge_above");
         NSNumber* enable_temp = getlocalKV(@"enable_temp");
         NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
-        NSNumber* update_freq_ = getlocalKV(@"update_freq");
+        NSNumber* update_freq = getlocalKV(@"update_freq");
         return @{
             @"status": @0,
             @"data": @{
-                 @"charge_below": charge_below,
-                 @"charge_above": charge_above,
-                 @"enable_temp": enable_temp,
-                 @"charge_temp_above": charge_temp_above,
-                 @"update_freq": update_freq_,
+                @"mode": mode,
+                @"charge_below": charge_below,
+                @"charge_above": charge_above,
+                @"enable_temp": enable_temp,
+                @"charge_temp_above": charge_temp_above,
+                @"update_freq": update_freq,
             },
         };
     } else if ([api isEqualToString:@"set_conf"]) {
         NSString* key = nsreq[@"key"];
         id val = nsreq[@"val"];
         setlocalKV(key, val);
-        if ([key isEqualToString:@"update_freq"]) {
-            update_freq = [val intValue];
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [update_timer invalidate];
-                update_timer = nil;
-                update_timer = start_monitor_timer(update_freq);
-            });
-        }
         return @{
             @"status": @0,
         };
@@ -294,7 +322,12 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     } else if ([api isEqualToString:@"set_charge_status"]) {
         NSNumber* flag = nsreq[@"flag"];
         getBatInfo(&bat_info);
-        int status = setChargeStatus(flag.boolValue);
+        int status = -1;
+        if (flag.boolValue && !isAdaptorConnect(bat_info)) {
+            status = -3;
+        } else {
+            status = setChargeStatus(flag.boolValue);
+        }
         return @{
             @"status": @(status)
         };
@@ -323,8 +356,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         for (LSApplicationProxy* proxy in list) {
             if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
                 NSLog(@"%@ uninstalled, exit", log_prefix); // 卸载时系统不能自动杀本进程,需手动退出
-                setChargeStatus(YES);
-                [LSApplicationWorkspace.defaultWorkspace removeObserver:self];
                 exit(0);
             }
         }
@@ -379,9 +410,14 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 - (void)serve {
     initConf();
     getBatInfo(&bat_info);
-    if (update_timer == nil) {
-        update_timer = start_monitor_timer(update_freq);
-    }
+    io_service_t serv = getIOPMPSServ();
+    IONotificationPortRef port = IONotificationPortCreate(kIOMasterPortDefault);
+    CFRunLoopSourceRef runSrc = IONotificationPortGetRunLoopSource(port);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), runSrc, kCFRunLoopDefaultMode);
+    io_object_t noti = IO_OBJECT_NULL;
+    IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
+        onBatteryEvent(service);
+    }, nil, &noti);
     static GCDWebServer* _webServer = nil;
     if (_webServer == nil) {
         if (localPortOpen(GSERV_PORT)) {
@@ -441,16 +477,16 @@ int main(int argc, char** argv) {
                 }
                 platformize_me(); // for jailbreak
                 [Service.inst serve];
+                atexit_b(^{
+                    [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
+                    setChargeStatus(YES);
+                });
                 [NSRunLoop.mainRunLoop run];
             } else if (0 == strcmp(argv[1], "get_bat_info")) {
                 BOOL slim = argc == 3;
                 getBatInfo(&bat_info, slim);
                 NSLog(@"%@", bat_info);
-            } else if (0 == strcmp(argv[1], "get_bat_info1")) {
-                io_service_t serv = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPMPowerSource"));
-                io_connect_t con;
-                int status = IOServiceOpen(serv, mach_task_self(), 1, &con);
-                NSLog(@"status=%d con=%d", status, con);
+            } else if (0 == strcmp(argv[1], "test")) {
             }
         }
         return -1;

@@ -31,6 +31,7 @@
     "get_conf": {
         "status": 0,
         "data": {
+            "mode": "charge_on_plug",
             "charge_below": 30,
             "charge_above": 70,
             "update_freq": 60,
