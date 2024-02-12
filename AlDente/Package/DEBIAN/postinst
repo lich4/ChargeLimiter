@@ -1,18 +1,11 @@
 #!/bin/bash
 
-PROJECT_NAME=AlDente
-if [ -d /var/jb ]; then
-    ROOT=/var/jb
-fi
-DSTAPPDIR=$ROOT/Applications/${PROJECT_NAME}.app
-chown -R root:wheel ${DSTAPPDIR}
-chmod +s ${DSTAPPDIR}/${PROJECT_NAME}
-killall -9 ${PROJECT_NAME}
+chown -R root:wheel /Applications/AlDente.app
+chmod +s /Applications/AlDente.app/AlDente
+killall -9 AlDente
 
-BID=chaoge.${PROJECT_NAME}
-PLIST=/Library/LaunchDaemons/${BID}.plist
-chown root:wheel ${PLIST}
-launchctl load ${PLIST}
+chown root:wheel /Library/LaunchDaemons/chaoge.AlDente.plist
+launchctl load /Library/LaunchDaemons/chaoge.AlDente.plist
 uicache mobile
 
 exit 0

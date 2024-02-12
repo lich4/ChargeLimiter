@@ -7,6 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		184EA9A42B7A373300D0981D /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
+		184EA9A52B7A373300D0981D /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
+		184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
+		184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
+		184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
+		184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
+		184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
+		184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1878864E2B5199EC00E48B28 /* UIKit.framework */; };
+		184EA9AD2B7A373300D0981D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
+		184EA9AF2B7A373300D0981D /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
+		184EA9B02B7A373300D0981D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
+		184EA9B12B7A373300D0981D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
+		184EA9B22B7A373300D0981D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		184FE8042B70BE8100525080 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		1860F2C42B5809510094AAC8 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
 		1878863B2B51976A00E48B28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
@@ -25,6 +38,7 @@
 /* Begin PBXFileReference section */
 		18497C5D2B541D6100A6C5E3 /* md-trollstore */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "md-trollstore"; sourceTree = "<group>"; };
 		18497C5E2B541D8000A6C5E3 /* AlDente.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlDente.entitlements; sourceTree = "<group>"; };
+		184EA9B72B7A373300D0981D /* AlDente.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlDente.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		184FE8032B70BE8100525080 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		1878862D2B51976A00E48B28 /* AlDente.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlDente.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1878863A2B51976A00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -47,6 +61,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		184EA9A62B7A373300D0981D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */,
+				184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */,
+				184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */,
+				184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */,
+				184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */,
+				184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */,
+				184EA9AD2B7A373300D0981D /* UserNotifications.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1878862A2B51976A00E48B28 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -80,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				1878862D2B51976A00E48B28 /* AlDente.app */,
+				184EA9B72B7A373300D0981D /* AlDente.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -118,6 +147,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		184EA9A22B7A373300D0981D /* AlDente_rootless */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 184EA9B42B7A373300D0981D /* Build configuration list for PBXNativeTarget "AlDente_rootless" */;
+			buildPhases = (
+				184EA9A32B7A373300D0981D /* Sources */,
+				184EA9A62B7A373300D0981D /* Frameworks */,
+				184EA9AE2B7A373300D0981D /* Resources */,
+				184EA9B32B7A373300D0981D /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AlDente_rootless;
+			productName = AlDente;
+			productReference = 184EA9B72B7A373300D0981D /* AlDente.app */;
+			productType = "com.apple.product-type.application";
+		};
 		1878862C2B51976A00E48B28 /* AlDente */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 187886462B51976B00E48B28 /* Build configuration list for PBXNativeTarget "AlDente" */;
@@ -164,11 +211,23 @@
 			projectRoot = "";
 			targets = (
 				1878862C2B51976A00E48B28 /* AlDente */,
+				184EA9A22B7A373300D0981D /* AlDente_rootless */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		184EA9AE2B7A373300D0981D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				184EA9AF2B7A373300D0981D /* www in Resources */,
+				184EA9B02B7A373300D0981D /* Assets.xcassets in Resources */,
+				184EA9B12B7A373300D0981D /* LaunchScreen.storyboard in Resources */,
+				184EA9B22B7A373300D0981D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1878862B2B51976A00E48B28 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -200,9 +259,35 @@
 			shellPath = /bin/sh;
 			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n";
 		};
+		184EA9B32B7A373300D0981D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "function build_deb {\n    cp -rfp ${CODESIGNING_FOLDER_PATH} ${PROJECT_DIR}/AlDente_rootless/Package/Applications/\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nbuild_deb\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		184EA9A32B7A373300D0981D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				184EA9A42B7A373300D0981D /* main.mm in Sources */,
+				184EA9A52B7A373300D0981D /* utils.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		187886292B51976A00E48B28 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,6 +319,82 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		184EA9B52B7A373300D0981D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = AlDente/AlDente.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YZGT4R4484;
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = AlDente/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/AlDente",
+				);
+				MARKETING_VERSION = 1.2;
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 127.0.0.1;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos_rootless;
+				OTHER_CFLAGS = "-DTHEOS_PACKAGE_INSTALL_PREFIX=\"/var/jb\"";
+				PRODUCT_BUNDLE_IDENTIFIER = chaoge.AlDente;
+				PRODUCT_NAME = AlDente;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				THEOS_PACKAGE_SCHEME = rootless;
+				TROLLSTORE_DEVICE_IP = 192.168.1.7;
+			};
+			name = Debug;
+		};
+		184EA9B62B7A373300D0981D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = AlDente/AlDente.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YZGT4R4484;
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = AlDente/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/AlDente",
+				);
+				MARKETING_VERSION = 1.2;
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 127.0.0.1;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos_rootless;
+				OTHER_CFLAGS = "-DTHEOS_PACKAGE_INSTALL_PREFIX=\"/var/jb\"";
+				PRODUCT_BUNDLE_IDENTIFIER = chaoge.AlDente;
+				PRODUCT_NAME = AlDente;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				THEOS_PACKAGE_SCHEME = rootless;
+				TROLLSTORE_DEVICE_IP = 192.168.1.7;
+			};
+			name = Release;
+		};
 		187886442B51976B00E48B28 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -384,7 +545,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/AlDente",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -393,7 +554,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.1.16;
+				TROLLSTORE_DEVICE_IP = 192.168.1.7;
 			};
 			name = Debug;
 		};
@@ -420,7 +581,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/AlDente",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -429,13 +590,22 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.1.16;
+				TROLLSTORE_DEVICE_IP = 192.168.1.7;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		184EA9B42B7A373300D0981D /* Build configuration list for PBXNativeTarget "AlDente_rootless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				184EA9B52B7A373300D0981D /* Debug */,
+				184EA9B62B7A373300D0981D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		187886282B51976A00E48B28 /* Build configuration list for PBXProject "AlDente" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>AlDente rootless.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 		<key>AlDente.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -12,6 +17,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>184EA9A22B7A373300D0981D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>185D6DA22B6007CD003CA7FB</key>
 		<dict>
 			<key>primary</key>

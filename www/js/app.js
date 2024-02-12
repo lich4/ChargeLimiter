@@ -25,7 +25,7 @@ function get_local_val(path, key) {
 }
 
 function get_local_lang() {
-    var lang = get_local_val("conf", "lang")
+    var lang = get_local_val("conf", "lang");
     if (!lang) {
         var sp = navigator.language.split("-");
         if (sp[0] == "zh") {
@@ -292,7 +292,6 @@ const App = {
             timer: null,
             marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
             marks_temp: range(20, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
-            freqs: null,
             modes: null,
         }
     },
@@ -470,7 +469,6 @@ const App = {
             this.enable_temp = v;
         },
         set_charge_temp_above: function(v) {
-            console.log(v)
             this.ipc_send_wrapper({
                 api: "set_conf",
                 key: "charge_temp_above",
@@ -479,6 +477,12 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.mode = jdata.data.mode;
+            var lang = jdata.data.lang;
+            if (lang && lang != get_local_lang()) {
+                i18n.locale = lang;
+                set_local_val("conf", "lang", lang);
+                this.reload_locale();
+            }
             this.charge_below = jdata.data.charge_below;
             this.charge_above = jdata.data.charge_above;
             this.enable_temp = jdata.data.enable_temp;
@@ -492,16 +496,18 @@ const App = {
                 callback: "window.app.get_conf_cb",
             });
         },
-        change_lang: function(v) {
+        change_lang: function() {
+            var v = i18n.locale;
+            console.log("change_lang", v);
             set_local_val("conf", "lang", v);
             this.reload_locale();
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "lang",
+                val: v,
+            });
         },
         reload_locale: function() {
-            this.freqs = [
-                {"label": "20 " + this.$t("sec"), "value": 20},
-                {"label": "1 " + this.$t("min"), "value": 60},
-                {"label": "10 " + this.$t("min"), "value": 600},
-            ];
             this.modes = [
                 {"label": this.$t("charge_on_plug"), "value": "charge_on_plug"},
                 {"label": this.$t("edge_trigger"), "value": "edge_trigger"},
@@ -524,8 +530,8 @@ const App = {
         }
     },
     mounted: function () {
-        this.get_conf();
         this.reload_locale();
+        this.get_conf();      
     }
 };
 

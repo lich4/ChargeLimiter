@@ -1,5 +1,7 @@
 Packages
 AlDente/Package
+AlDente_rootless/Package/Applications
+AlDente_rootless/Package_tmp
 LatestBuild
 .DS_Store
 

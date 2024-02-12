@@ -53,10 +53,11 @@ static BOOL _webview_inited = NO;
 
         NSString* wwwpath = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
         NSURL* url = [NSURL URLWithString:wwwpath];
-        NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];;
+        NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
         [webview loadRequest:req];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             if (!_webview_inited) { // 巨魔+越狱共存环境下因签名问题导致delegate不生效而黑屏
+                [webview loadRequest:req];
                 [self.window addSubview:webview];
                 [self.window bringSubviewToFront:webview];
                 _webview_inited = YES;
@@ -68,6 +69,12 @@ static BOOL _webview_inited = NO;
     [self.window addSubview:webview];
     [self.window bringSubviewToFront:webview];
     _webview_inited = YES;
+}
+- (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
+    NSString* wwwpath = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
+    NSURL* url = [NSURL URLWithString:wwwpath];
+    NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
+    [webview loadRequest:req];
 }
 - (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString* url = request.URL.absoluteString;
@@ -97,7 +104,7 @@ static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) 
     NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
     NSMutableDictionary* filtered_info = [NSMutableDictionary dictionary];
     NSArray* keep = @[
-        @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
+        @"Amperage", @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
         @"InstantAmperage", @"IsCharging", @"NominalChargeCapacity", @"PostChargeWaitSeconds", @"PostDischargeWaitSeconds", @"Serial", @"Temperature",
         @"UpdateTime", @"Voltage"];
     for (NSString* key in info) {
@@ -134,7 +141,7 @@ static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     if (slim) {
         NSMutableDictionary* filtered_info = [NSMutableDictionary dictionary];
         NSArray* keep = @[
-            @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
+            @"Amperage", @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
             @"InstantAmperage", @"IsCharging", @"NominalChargeCapacity", @"PostChargeWaitSeconds", @"PostDischargeWaitSeconds", @"Serial", @"Temperature",
             @"UpdateTime", @"Voltage"];
         for (NSString* key in info) {
@@ -184,6 +191,7 @@ static int setChargeStatus(BOOL flag) {
     }
     NSMutableDictionary* props = [NSMutableDictionary new];
     props[@"IsCharging"] = @(flag);
+    props[@"PredictiveChargingInhibit"] = @NO; // PredictiveChargingInhibit为IsCharging总开关
     kern_return_t ret = IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
     if (ret != 0) {
         return -2;
@@ -262,23 +270,20 @@ static void onBatteryEvent(io_service_t serv) {
 }
 
 static void initConf() {
-    NSString* mode = getlocalKV(@"mode");
-    if (mode == nil) {
-        setlocalKV(@"mode", @"charge_on_plug");
-    }
-    NSNumber* charge_below = getlocalKV(@"charge_below");
-    if (charge_below == nil) {
-        setlocalKV(@"charge_below", @20);
-        setlocalKV(@"charge_above", @80);
-    }
-    NSNumber* enable_temp = getlocalKV(@"enable_temp");
-    if (enable_temp == nil) {
-        setlocalKV(@"enable_temp", @NO);
-        setlocalKV(@"charge_temp_above", @35);
-    }
-    NSNumber* update_freq = getlocalKV(@"update_freq");
-    if (update_freq == nil) {
-        setlocalKV(@"update_freq", @60);
+    NSDictionary* def_dic = @{
+        @"mode": @"charge_on_plug",
+        @"lang": @"",
+        @"charge_below": @20,
+        @"charge_above": @80,
+        @"enable_temp": @NO,
+        @"charge_temp_above": @35,
+        @"update_freq": @60,
+    };
+    for (NSString* key in def_dic) {
+        id val = getlocalKV(key);
+        if (val == nil) {
+            setlocalKV(key, def_dic[key]);
+        }
     }
 }
 
@@ -286,6 +291,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     NSString* api = nsreq[@"api"];
     if ([api isEqualToString:@"get_conf"]) {
         NSString* mode = getlocalKV(@"mode");
+        NSString* lang = getlocalKV(@"lang");
         NSNumber* charge_below = getlocalKV(@"charge_below");
         NSNumber* charge_above = getlocalKV(@"charge_above");
         NSNumber* enable_temp = getlocalKV(@"enable_temp");
@@ -295,6 +301,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             @"status": @0,
             @"data": @{
                 @"mode": mode,
+                @"lang": lang,
                 @"charge_below": charge_below,
                 @"charge_above": charge_above,
                 @"enable_temp": enable_temp,
@@ -409,15 +416,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 }
 - (void)serve {
     initConf();
-    getBatInfo(&bat_info);
-    io_service_t serv = getIOPMPSServ();
-    IONotificationPortRef port = IONotificationPortCreate(kIOMasterPortDefault);
-    CFRunLoopSourceRef runSrc = IONotificationPortGetRunLoopSource(port);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), runSrc, kCFRunLoopDefaultMode);
-    io_object_t noti = IO_OBJECT_NULL;
-    IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
-        onBatteryEvent(service);
-    }, nil, &noti);
     static GCDWebServer* _webServer = nil;
     if (_webServer == nil) {
         if (localPortOpen(GSERV_PORT)) {
@@ -438,6 +436,15 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             NSLog(@"%@ serve failed, exit", log_prefix);
             exit(0);
         }
+        getBatInfo(&bat_info);
+        io_service_t serv = getIOPMPSServ();
+        IONotificationPortRef port = IONotificationPortCreate(kIOMasterPortDefault);
+        CFRunLoopSourceRef runSrc = IONotificationPortGetRunLoopSource(port);
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), runSrc, kCFRunLoopDefaultMode);
+        io_object_t noti = IO_OBJECT_NULL;
+        IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
+            onBatteryEvent(service);
+        }, nil, &noti);
         [LSApplicationWorkspace.defaultWorkspace addObserver:self];
         [self initLocalPush];
     }
@@ -449,8 +456,8 @@ static int getJBType() {
     if ([path hasPrefix:@"/private"]) {
         path = [path substringFromIndex:8];
     }
-    if ([path hasPrefix:@"/Applications"]) {
-        return 1; // jailbreak 适用于iOS<=14
+    if ([path hasPrefix:@"/Applications"] || [path hasPrefix:@"/var/jb/Applications"]) {
+        return 1; // jailbreak
     }
     // iOS>=15无根越狱使用trollstore替代
     return 2; // trollstore
@@ -486,7 +493,6 @@ int main(int argc, char** argv) {
                 BOOL slim = argc == 3;
                 getBatInfo(&bat_info, slim);
                 NSLog(@"%@", bat_info);
-            } else if (0 == strcmp(argv[1], "test")) {
             }
         }
         return -1;
