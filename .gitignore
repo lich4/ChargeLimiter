@@ -1,7 +1,7 @@
 Packages
-AlDente/Package
-AlDente_rootless/Package/Applications
-AlDente_rootless/Package_tmp
+ChargeLimiter/Package/Applications
+ChargeLimiter_rootless/Package/Applications
+ChargeLimiter_rootless/Package_tmp
 LatestBuild
 .DS_Store
 

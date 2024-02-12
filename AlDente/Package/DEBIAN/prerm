@@ -1,7 +1,0 @@
-#!/bin/bash
-
-launchctl unload /Library/LaunchDaemons/chaoge.AlDente.plist
-/usr/bin/uicache mobile
-
-exit 0
-

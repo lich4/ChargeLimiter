@@ -1,0 +1,12 @@
+#!/bin/bash
+
+chown -R root:wheel /var/jb/Applications/ChargeLimiter.app
+chmod +s /var/jb/Applications/ChargeLimiter.app/ChargeLimiter
+killall -9 ChargeLimiter
+
+chown root:wheel /var/jb/Library/LaunchDaemons/chaoge.ChargeLimiter.plist
+launchctl load /var/jb/Library/LaunchDaemons/chaoge.ChargeLimiter.plist
+uicache mobile
+
+exit 0
+

@@ -277,7 +277,7 @@ const App = {
     i18n,
     data: function () {
         return {
-            title: "AlDente",
+            title: "ChargeLimiter",
             loading: false,
             daemon_alive: false,
             mode: "charge_on_plug",
