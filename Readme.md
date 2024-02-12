@@ -33,8 +33,8 @@ iOS>=15需要TrollStore+安装tipa使用
 * 如果有兴趣参与本项目或者对本项目有建议的的欢迎参提交代码
 * 测试过的环境 iPhone6/7+iOS12/13 Checkra1n越狱;iPhone7/X/11+iOS15/16 TrollStore
 
-![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/snapshot.png)
-![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/snapshot1.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
 
 
 ## Instruction
@@ -53,8 +53,8 @@ Test on iPhone6/7+iOS12/13 with Checkra1n jailbreak, and iPhone7/X/11+iOS15/16 w
 If you have better ideas, please join the project and push your code
 
 
-![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/snapshot_en.png)
-![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/snapshot_en1.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)
 
 
 
