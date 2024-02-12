@@ -6,6 +6,12 @@ MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于�
 iOS<=14需要越狱+安装deb使用, 每次越狱时自动启动   
 iOS>=15需要TrollStore+安装tipa使用    
 
+1.2版本更新日志:
+* 增加语言-繁体中文
+* 增加插电即充模式,方便普通用户使用;边缘触发模式适合开发者和工作室使用
+* 底层定时轮询机制改为内核设备事件通知,灵敏度得到提升
+* 增加华氏温度
+
 1.1版本更新日志:
 * 本工具为边缘触发模式,即电量低于阈值充电,高于阈值停止,处于阈值中间则保持原状态,此时可手动设置充电开关.
 * 由于系统原因,将最低更新频率设置到20s.更新频率影响控温精准度
@@ -30,6 +36,10 @@ This app is inspired by MacOS version AlDente, used to prevent iPhone/iPad long-
 Download URL: (https://github.com/lich4/AlDente/releases)      
 iOS<=14 require Jailbreak and install the deb version    
 iOS>=15 require TrollStore and install the tipa version    
+
+Supported mode
+* "Plug and charge", iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified. Useful for individual.
+* "Edge trigger", iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified. Useful for developer & studio.
 
 Test on iPhone6/7+iOS12/13 with Checkra1n jailbreak, and iPhone7/X/11+iOS15/16 with TrollStore.   
 If you have better ideas, please join the project and push your code

@@ -121,7 +121,7 @@ const i18n = new VueI18n({
             start_serv: "Start service",
             mode: "mode",
             charge_on_plug: "Plug and charge",
-            charge_on_plug_desc: "iDevice will start charging each time adaptor plug in, and stop charging when capacity increase to max threshhold specified",
+            charge_on_plug_desc: "iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified",
             edge_trigger: "Edge trigger",
             edge_trigger_desc: "iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified",
             system: "system",
@@ -268,6 +268,10 @@ const i18n = new VueI18n({
     },
 })
 
+function t_c_to_f(v) {
+    return 32 + 1.8 * v;
+}
+
 const App = {
     el: "#app",
     i18n,
@@ -284,11 +288,10 @@ const App = {
             charge_above: 80,
             enable_temp: false,
             charge_temp_above: 35,
-            update_freq: 60,
             count_msg: "",
             timer: null,
             marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
-            marks_temp: range(20, 60, 5).reduce((m, o)=>{m[o] = o + "°C"; return m;}, {}),
+            marks_temp: range(20, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
             freqs: null,
             modes: null,
         }
@@ -453,9 +456,10 @@ const App = {
             }
             return s;
         },
-        change_update_freq: function(v) {
-            clearInterval(this.timer);
-            this.timer = setInterval(this.get_bat_info, v * 1000);
+        get_temp_desc: function() {
+            var centigrade = this.bat_info.Temperature / 100;
+            var fahrenheit = t_c_to_f(centigrade);
+            return centigrade.toFixed(0) + "°C/" + fahrenheit.toFixed(0) + "°F";
         },
         set_enable_temp: function(v) {
             this.ipc_send_wrapper({
@@ -477,14 +481,10 @@ const App = {
             this.mode = jdata.data.mode;
             this.charge_below = jdata.data.charge_below;
             this.charge_above = jdata.data.charge_above;
-            if (this.update_freq != jdata.data.update_freq) {
-                this.change_update_freq(jdata.data.update_freq);
-            }
             this.enable_temp = jdata.data.enable_temp;
             this.charge_temp_above = jdata.data.charge_temp_above;
-            this.update_freq = jdata.data.update_freq;
             this.get_bat_info();
-            this.timer = setInterval(this.get_bat_info, 60000);
+            this.timer = setInterval(this.get_bat_info, 1000);
         },
         get_conf: function() {
             this.ipc_send_wrapper({

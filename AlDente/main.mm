@@ -264,7 +264,7 @@ static void onBatteryEvent(io_service_t serv) {
 static void initConf() {
     NSString* mode = getlocalKV(@"mode");
     if (mode == nil) {
-        setlocalKV(@"charge_below", @"charge_on_plug");
+        setlocalKV(@"mode", @"charge_on_plug");
     }
     NSNumber* charge_below = getlocalKV(@"charge_below");
     if (charge_below == nil) {

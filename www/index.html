@@ -70,25 +70,8 @@
       visibility: hidden;
     }
 
-    .el-card__body {
-      padding: 5px 25px 5px 25px;
-    }
-
-    .el-message-box {
-      width: 90%;
-    }
-
-    .el-popover {
-      left: 5% !important;
-      width: 90%;
-    }
-
     .el-slider__marks-text {
       font-size: 10px !important;
-    }
-
-    .more {
-      text-align: center;
     }
 
     .page-icon-sm {
@@ -97,12 +80,6 @@
 
     .page-icon {
       font-size: 25px;
-    }
-
-    .page-icon-container {
-      font-size: 10px;
-      width: 30px;
-      margin: auto;
     }
 
     .right {
@@ -141,7 +118,7 @@
             <el-col :span="8">&nbsp;</el-col>
             <el-col :span="8">{{title}}</el-col>
             <el-col :span="8" style="text-align: left;">
-              <span class="subtitle">v1.1</span>
+              <span class="subtitle">v1.2</span>
             </el-col>
           </div>
         </el-row>
@@ -182,13 +159,6 @@
             </el-select>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="px-3 py-2 col-item">
-            <el-label>{{$t("update_freq")}}</el-label>
-            <el-select v-model="update_freq" size="mini" class="right" style="width:50%" @change="change_update_freq">
-              <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
-            </el-select>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
           <template v-if="mode=='edge_trigger'">
             <el-row class="px-3 py-2 col-item">
               <el-col></el-col>
@@ -205,7 +175,7 @@
           <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("nocharge_temp_above")}}</el-label>
             <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>
-            <el-slider v-model="charge_temp_above" class="pr-1" :min="20" :max="50" :step="5" :marks="marks_temp" @change="set_charge_temp_above"></el-slider>
+            <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="5" :marks="marks_temp" @change="set_charge_temp_above"></el-slider>
           </el-row>
         </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
@@ -240,7 +210,7 @@
               <el-label>{{$t("Temperature")}}</el-label>
             </el-col>
             <el-col :span="12">
-              <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.Temperature/100+30" :format="x=>bat_info.Temperature/100+'°C'"></el-progress>
+              <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.Temperature/100+30" :format="get_temp_desc"></el-progress>
             </el-col>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
