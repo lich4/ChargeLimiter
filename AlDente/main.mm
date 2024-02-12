@@ -453,13 +453,16 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 
 static int getJBType() {
     NSString* path = getAppEXEPath();
-    if ([path hasPrefix:@"/private"]) {
-        path = [path substringFromIndex:8];
-    }
-    if ([path hasPrefix:@"/Applications"] || [path hasPrefix:@"/var/jb/Applications"]) {
+    NSArray* parts = [path componentsSeparatedByString:@"/"];
+    NSString* path_3 = parts[parts.count - 3];
+    /*
+        有根越狱: /Applications/AlDente.app/AlDente
+        无根越狱: [/private]/preboot/[UUID]/jb-[UUID]/procursus/Applications/AlDente.app/AlDente
+        TrollStore: [/private]/var/containers/Bundle/Application/[UUID]/AlDente.app/AlDente
+     */
+    if ([path_3 isEqualToString:@"Applications"]) {
         return 1; // jailbreak
     }
-    // iOS>=15无根越狱使用trollstore替代
     return 2; // trollstore
 }
 
