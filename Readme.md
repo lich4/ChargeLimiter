@@ -2,13 +2,11 @@
 
 MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于长时间过冲情况下保护电池健康度。  
 
+支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa)   
 下载地址:(https://github.com/lich4/ChargeLimiter/releases)  
-iOS<=14需要越狱+安装deb使用, 每次越狱时自动启动   
-iOS>=15需要TrollStore+安装tipa使用    
 
-通知:    
-&emsp;&emsp;现在iOS ChargeLimiter主要功能已经完成，假期过了以后本人比较忙，后面可能1-2月更新一次。   
-&emsp;&emsp;iOS ChargeLimiter原本是我计划花1天时间随意开发的项目，但是到现在为止各种功能也开发了一周了，作为一个完整App目前还没有图标及启动画面，所以启动过程是黑屏的。现向大家征集图标及启动画面素材，有兴趣的可以发起pull request或在issue中提交，注意不要提交侵权作品。一个月后我会从中选择一套点赞高的素材。  
+待做:
+* 实现'悬浮窗'样式的便捷控制
 
 1.3版本更新日志:
 * 解决开启"优化电池充电"导致本工具无效的问题
@@ -57,7 +55,9 @@ If you have better ideas, please join the project and push your code
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)
 
+## Special Thanks
 
+* icon by elfulanopr
 
 
 

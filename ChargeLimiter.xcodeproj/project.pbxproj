@@ -33,6 +33,7 @@
 		18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
 		18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
 		18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
+		18EEB6F82B7BCAA100DCC561 /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,7 @@
 		18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GCDWebServers.framework; path = ../../../../../opt/framework/GCDWebServers.framework; sourceTree = "<group>"; };
 		18C50C792B6DFD6000793FA9 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+		18EEB6F72B7BCAA100DCC561 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 			children = (
 				18B757232B57FDB2008A67D1 /* Readme.md */,
 				18497C5D2B541D6100A6C5E3 /* md-trollstore */,
+				18EEB6F72B7BCAA100DCC561 /* splash.png */,
 				187886522B519A5B00E48B28 /* www */,
 				1878862F2B51976A00E48B28 /* ChargeLimiter */,
 				1878862E2B51976A00E48B28 /* Products */,
@@ -232,6 +235,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18EEB6F82B7BCAA100DCC561 /* splash.png in Resources */,
 				1860F2C42B5809510094AAC8 /* www in Resources */,
 				1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */,
 				187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */,
@@ -257,7 +261,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n";
+			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\n#build_tipa\nbuild_deb\n";
 		};
 		184EA9B32B7A373300D0981D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

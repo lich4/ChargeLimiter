@@ -46,7 +46,13 @@ static BOOL _webview_inited = NO;
         _g_app = self;
         
         CGSize size = UIScreen.mainScreen.bounds.size;
-        // 从WKWebView换UIWebView: 巨魔+越狱共存环境下签名问题导致delegate不生效而黑屏
+        
+        NSString* imgpath = [NSString stringWithFormat:@"%@/splash.png", NSBundle.mainBundle.bundlePath];
+        UIImage* image = [UIImage imageWithContentsOfFile:imgpath];
+        double scale = image.size.width / UIScreen.mainScreen.bounds.size.width;
+        image = [UIImage imageWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+        self.window.backgroundColor = [[UIColor alloc] initWithPatternImage:image];
+        
         UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
         webview.delegate = self;
         self.webview = webview;
@@ -56,7 +62,7 @@ static BOOL _webview_inited = NO;
         NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
         [webview loadRequest:req];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            if (!_webview_inited) { // 巨魔+越狱共存环境下因签名问题导致delegate不生效而黑屏
+            if (!_webview_inited) { // todo: 巨魔+越狱共存环境确定是否显示正常
                 [webview loadRequest:req];
                 [self.window addSubview:webview];
                 [self.window bringSubviewToFront:webview];
@@ -90,6 +96,8 @@ static io_service_t getIOPMPSServ() {
     static io_service_t serv = 0;
     if (serv == 0) {
         serv = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPMPowerSource"));
+        // IOPMPowerSource:AppleARMPMUPowerSource:AppleARMPMUCharger
+        //      IOAccessoryTransport:IOAccessoryPowerSource:AppleARMPMUAccessoryPS
         // AppleSmartBattery >=iPhone11才有, 且数据相同
     }
     return serv;
