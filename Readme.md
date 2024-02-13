@@ -28,10 +28,11 @@ iOS>=15需要TrollStore+安装tipa使用
 * 增加电池过热保护
 
 注意:
-* 由于是定时轮询因此更新频率影响精确度,1min的情况下差1-2%是正常的
 * Mac上使用的温控接口可以进行更底层的温控和风扇速度控制,但iOS上并无此功能,因此本工具几乎是iOS上防过充唯一选择,其实这种工具十年前就应该出现了,只是一直没人研究
+* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.如果自行调整还是建议在20-80之间.
 * 如果有兴趣参与本项目或者对本项目有建议的的欢迎参提交代码
-* 测试过的环境 iPhone6/7+iOS12/13 Checkra1n越狱;iPhone7/X/11+iOS15/16 TrollStore
+
+&emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n越狱;iPhone7/X/11+iOS15/16 TrollStore  
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
