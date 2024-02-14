@@ -49,9 +49,10 @@ static BOOL _webview_inited = NO;
         
         NSString* imgpath = [NSString stringWithFormat:@"%@/splash.png", NSBundle.mainBundle.bundlePath];
         UIImage* image = [UIImage imageWithContentsOfFile:imgpath];
-        double scale = image.size.width / UIScreen.mainScreen.bounds.size.width;
-        image = [UIImage imageWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-        self.window.backgroundColor = [[UIColor alloc] initWithPatternImage:image];
+        UIImageView* imageview = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+        imageview.image = image;
+        imageview.contentMode = UIViewContentModeScaleAspectFill;
+        [self.window addSubview:imageview];
         
         UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
         webview.delegate = self;
