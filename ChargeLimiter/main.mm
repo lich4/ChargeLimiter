@@ -415,8 +415,8 @@ static void onBatteryEvent(io_service_t serv) {
                     if (0 == setChargeStatus(NO)) {
                         perform_acccharge(NO);
                     }
-                    return;
                 }
+                return; // 电量满禁止操作
             }
             if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
                 if (isAdaptorNewConnect(old_bat_info, bat_info)) {
