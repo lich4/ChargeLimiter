@@ -161,7 +161,7 @@ static AppDelegate* _app = nil;
                         last_y = y;
                     } else { // touch_up
                         if (last_x == x && last_y == y) {
-                            NSLog(@"%@ click (%d,%d)", log_prefix, x, y);
+                            //NSLog(@"%@ click (%d,%d)", log_prefix, x, y);
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [_app.webview stringByEvaluatingJavaScriptFromString:@"window.app.invset_enable()"];
                             });
@@ -170,7 +170,7 @@ static AppDelegate* _app = nil;
                         last_y = -1;
                     }
                 } else if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
-                    NSLog(@"%@ move (%d,%d)", log_prefix, x, y);
+                    //NSLog(@"%@ move (%d,%d)", log_prefix, x, y);
                     dispatch_async(dispatch_get_main_queue(), ^{
                         CGRect rt = CGRectMake(x - FLOAT_WIDTH / 2, y - FLOAT_HEIGHT / 2, FLOAT_WIDTH, FLOAT_HEIGHT);
                         [_app.webview setFrame:rt];
