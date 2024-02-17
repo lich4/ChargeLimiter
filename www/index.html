@@ -286,6 +286,11 @@
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="px-3 py-2 col-item">
+            <el-label>{{$t("HardwareCapacity")}}</el-label>
+            <el-label class="right">{{get_hardware_capacity()}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("InstantAmperage")}}</el-label>
             <el-label class="right">{{bat_info.InstantAmperage}}</el-label>
           </el-row>

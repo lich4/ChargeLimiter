@@ -218,21 +218,20 @@ static io_service_t getIOPMPSServ() {
     return serv;
 }
 
-static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) {
-    CFMutableDictionaryRef prop = nil;
-    IORegistryEntryCreateCFProperties(serv, &prop, kCFAllocatorDefault, 0);
-    if (prop == nil) {
-        return -2;
-    }
-    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
+static NSDictionary* getBatSlimInfo(NSDictionary* info) {
     NSMutableDictionary* filtered_info = [NSMutableDictionary dictionary];
     NSArray* keep = @[
-        @"Amperage", @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
+        @"Amperage", @"AppleRawCurrentCapacity", @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
         @"InstantAmperage", @"IsCharging", @"NominalChargeCapacity", @"PostChargeWaitSeconds", @"PostDischargeWaitSeconds", @"Serial", @"Temperature",
         @"UpdateTime", @"Voltage"];
     for (NSString* key in info) {
         if ([keep containsObject:key]) {
             filtered_info[key] = info[key];
+        }
+    }
+    if (filtered_info[@"NominalChargeCapacity"] == nil) {
+        if (info[@"AppleRawMaxCapacity"] != nil) {
+            filtered_info[@"NominalChargeCapacity"] = info[@"AppleRawMaxCapacity"];
         }
     }
     if (info[@"AdapterDetails"] != nil) {
@@ -246,7 +245,17 @@ static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) 
         }
         filtered_info[@"AdapterDetails"] = filtered_adaptor_info;
     }
-    *pinfo = filtered_info;
+    return filtered_info;
+}
+
+static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) {
+    CFMutableDictionaryRef prop = nil;
+    IORegistryEntryCreateCFProperties(serv, &prop, kCFAllocatorDefault, 0);
+    if (prop == nil) {
+        return -2;
+    }
+    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
+    *pinfo = getBatSlimInfo(info);
     return 0;
 }
 
@@ -262,28 +271,8 @@ static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     }
     NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
     if (slim) {
-        NSMutableDictionary* filtered_info = [NSMutableDictionary dictionary];
-        NSArray* keep = @[
-            @"Amperage", @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
-            @"InstantAmperage", @"IsCharging", @"NominalChargeCapacity", @"PostChargeWaitSeconds", @"PostDischargeWaitSeconds", @"Serial", @"Temperature",
-            @"UpdateTime", @"Voltage"];
-        for (NSString* key in info) {
-            if ([keep containsObject:key]) {
-                filtered_info[key] = info[key];
-            }
-        }
-        if (info[@"AdapterDetails"] != nil) {
-            NSDictionary* adaptor_info = info[@"AdapterDetails"];
-            NSMutableDictionary* filtered_adaptor_info = [NSMutableDictionary dictionary];
-            keep = @[@"AdapterVoltage", @"Current", @"Description", @"IsWireless", @"Manufacturer", @"Name",  @"Watts"];
-            for (NSString* key in adaptor_info) {
-                if ([keep containsObject:key]) {
-                    filtered_adaptor_info[key] = adaptor_info[key];
-                }
-            }
-            filtered_info[@"AdapterDetails"] = filtered_adaptor_info;
-        }
-        *pinfo = filtered_info;
+        NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
+        *pinfo = getBatSlimInfo(info);
     } else {
         *pinfo = info;
     }
@@ -421,7 +410,7 @@ static void onBatteryEvent(io_service_t serv) {
             }
             if (capacity.intValue >= charge_above.intValue) {
                 if (is_charging.boolValue) {
-                    NSLog(@"%@ stop charging", log_prefix);
+                    NSLog(@"%@ stop charging for capacity", log_prefix);
                     [Service.inst localPush:@"Stop charging" interval:3600];
                     if (0 == setChargeStatus(NO)) {
                         perform_acccharge(NO);
@@ -431,6 +420,7 @@ static void onBatteryEvent(io_service_t serv) {
             }
             if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
                 if (isAdaptorNewConnect(old_bat_info, bat_info)) {
+                    NSLog(@"%@ start charging for plug in", log_prefix);
                     [Service.inst localPush:@"Start charging" interval:3600];
                     if (0 == setChargeStatus(YES)) {
                         perform_acccharge(YES);
@@ -438,6 +428,7 @@ static void onBatteryEvent(io_service_t serv) {
                     return;
                 }
                 if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
+                    NSLog(@"%@ start charging for low temperature", log_prefix);
                     [Service.inst localPush:@"Start charging" interval:3600];
                     if (0 == setChargeStatus(YES)) {
                         perform_acccharge(YES);
@@ -449,7 +440,7 @@ static void onBatteryEvent(io_service_t serv) {
             if (capacity.intValue <= charge_below.intValue) {
                 if (!is_charging.boolValue) {
                     if (isAdaptorConnect(bat_info)) {
-                        NSLog(@"%@ start charging", log_prefix);
+                        NSLog(@"%@ start charging for capacity", log_prefix);
                         [Service.inst localPush:@"Start charging" interval:3600];
                         if (0 == setChargeStatus(YES)) {
                             perform_acccharge(YES);
@@ -516,6 +507,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         if ([key isEqualToString:@"enable"]) {
             g_enable = [val boolValue];
             if (!g_enable) {
+                NSLog(@"%@ start charging for enable", log_prefix);
                 setChargeStatus(YES);
             }
         } else if ([key isEqualToString:@"floatwnd"]) {
@@ -544,6 +536,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         if (flag.boolValue && !isAdaptorConnect(bat_info)) {
             status = -3;
         } else {
+            NSLog(@"%@ start charging for set_charge_status", log_prefix);
             status = setChargeStatus(flag.boolValue);
         }
         return @{
@@ -703,6 +696,7 @@ int main(int argc, char** argv) {
                 [Service.inst serve];
                 atexit_b(^{
                     [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
+                    NSLog(@"%@ start charging for exit", log_prefix);
                     setChargeStatus(YES);
                     showFloatwnd(NO);
                 });

@@ -2,7 +2,8 @@
 
 MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于长时间过冲情况下保护电池健康度。  
 
-支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa)   
+支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa)      
+(注意: TrollStore环境下安装新版之前请先卸载旧版)    
 下载地址:(https://github.com/lich4/ChargeLimiter/releases)    
 交流QQ群:669869453 
 

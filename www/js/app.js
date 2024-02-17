@@ -144,6 +144,7 @@ const i18n = new VueI18n({
             NominalChargeCapacity: "Nominal charge capacity(mAh)",
             InstantAmperage: "Instant amperage(mA)",
             CurrentCapacity: "Current capacity",
+            HardwareCapacity: "Hardware capacity",
             Temperature: "Temperature(°C)",
             CycleCount: "Cycle count",
             IsCharging: "Charging",  
@@ -207,6 +208,7 @@ const i18n = new VueI18n({
             NominalChargeCapacity: "实际容量(mAh)",
             InstantAmperage: "电流(mA)",
             CurrentCapacity: "当前电量",
+            HardwareCapacity: "硬件电量",
             Temperature: "温度(°C)",
             CycleCount: "充电次数",
             IsCharging: "正在充电",
@@ -270,6 +272,7 @@ const i18n = new VueI18n({
             NominalChargeCapacity: "實際容量(mAh)",
             InstantAmperage: "電流(mA)",
             CurrentCapacity: "目前電量",
+            HardwareCapacity: "硬體電量",
             Temperature: "溫度(°C)",
             CycleCount: "充電次數",
             IsCharging: "正在充電",
@@ -485,6 +488,10 @@ const App = {
         get_health: function(item) {
             return Math.floor(item["NominalChargeCapacity"] / item["DesignCapacity"] * 100);
         },
+        get_hardware_capacity: function() {
+            var v = (this.bat_info.AppleRawCurrentCapacity / this.bat_info.NominalChargeCapacity * 100).toFixed(2);
+            return v + "%";
+        },
         get_adaptor_desc: function() {
             var s = "";
             if (this.adaptor_info.Description) {
@@ -567,6 +574,7 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
+            this.floatwnd = jdata.data.floatwnd;
             this.mode = jdata.data.mode;
             var lang = jdata.data.lang;
             if (lang && lang != get_local_lang()) {
