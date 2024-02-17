@@ -106,6 +106,11 @@
     .col-item {
       background-color: white;
     }
+
+    .submenu {
+      margin-left: 20px;
+      font-size: 13px;
+    }
   </style>
 </head>
 
@@ -118,7 +123,7 @@
             <el-col :span="8">&nbsp;</el-col>
             <el-col :span="8">{{title}}</el-col>
             <el-col :span="8" style="text-align:center;">
-              <span class="subtitle">v1.3</span>
+              <span class="subtitle">v1.4</span>
             </el-col>
           </div>
         </el-row>
@@ -138,8 +143,13 @@
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <div>
           <el-row class="px-3 py-2 col-item">
-            <el-label>{{$t("start_serv")}}</el-label>
-            <el-switch :value="daemon_alive" class="right" @change="set_daemon_status"></el-switch>
+            <el-label>{{$t("enable")}}</el-label>
+            <el-switch :value="enable" class="right" @change="set_enable"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item">
+            <el-label>{{$t("floatwnd")}}</el-label>
+            <el-switch :value="floatwnd" class="right" @change="set_floatwnd"></el-switch>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="px-3 py-2 col-item">
@@ -175,7 +185,40 @@
           <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("nocharge_temp_above")}}</el-label>
             <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>
-            <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="5" :marks="marks_temp" @change="set_charge_temp_above"></el-slider>
+            <el-slider v-if="enable_temp" class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="5" :marks="marks_temp" @change="set_charge_temp_above" disable></el-slider>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item" v-if="enable_temp&&mode=='charge_on_plug'">
+            <el-label>{{$t("charge_temp_below")}}</el-label>
+            <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="5" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item">
+            <el-label>{{$t("acc_charge")}}</el-label>
+            <el-tooltip class="item" effect="dark" :content="$t('acc_charge_desc')">
+              <span class="el-icon-warning-outline page-icon-sm"></span>
+            </el-tooltip>
+            <el-switch :value="acc_charge" class="right" @change="set_acc_charge"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item" v-if="acc_charge">
+            <el-label class="submenu">{{$t("acc_charge_airmode")}}</el-label>
+            <el-switch :value="acc_charge_airmode" class="right" @change="set_acc_charge_airmode"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item" v-if="acc_charge">
+            <el-label class="submenu">{{$t("acc_charge_lpm")}}</el-label>
+            <el-switch :value="acc_charge_lpm" class="right" @change="set_acc_charge_lpm"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item" v-if="acc_charge">
+            <el-label class="submenu">{{$t("acc_charge_blue")}}</el-label>
+            <el-switch :value="acc_charge_blue" class="right" @change="set_acc_charge_blue"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="px-3 py-2 col-item" v-if="acc_charge">
+            <el-label class="submenu">{{$t("acc_charge_bright")}}</el-label>
+            <el-switch :value="acc_charge_bright" class="right" @change="set_acc_charge_bright"></el-switch>
           </el-row>
         </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
@@ -336,7 +379,7 @@
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="px-3 py-2 col-item">
             <el-label>QQ</el-label>
-            <el-label class="right">571652571</el-label>
+            <el-label class="right">571652571&emsp;群:669869453</el-label>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="px-3 py-2 col-item">

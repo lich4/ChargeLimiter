@@ -31,12 +31,19 @@
     "get_conf": {
         "status": 0,
         "data": {
+            "enable": true,
             "mode": "charge_on_plug",
+            "lang": "",
             "charge_below": 30,
             "charge_above": 70,
-            "update_freq": 60,
             "enable_temp": false,
-            "charge_temp_above": 25
+            "charge_temp_above": 25,
+            "charge_temp_below": 10,
+            "acc_charge": true,
+            "acc_charge_airmode": true,
+            "acc_charge_blue": false,
+            "acc_charge_bright": false,
+            "acc_charge_lpm": true
         }
     },
     "set_conf": {

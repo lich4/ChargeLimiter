@@ -113,17 +113,24 @@ const i18n = new VueI18n({
             setting: "Settings",
             batinfo: "Battery information",
             adaptorinfo: "Adaptor information",
-            update_freq: "Update frequency",
-            charge_below: "Start charge capacity below(%)",
-            nocharge_above: "Stop charge capacity above(%)",
-            nocharge_temp_above: "Stop charge temperature above(°C)",
+            charge_below: "Start charging if capacity below(%)",
+            nocharge_above: "Stop charging if capacity above(%)",
+            nocharge_temp_above: "Stop charging if temperature above(°C)",
+            charge_temp_below: "Recover charging if temperature below(°C)",
             charge_btn_desc: "This button used to manually start or stop charging",
-            start_serv: "Start service",
+            enable: "Enable",
+            floatwnd: "Floating",
             mode: "mode",
             charge_on_plug: "Plug and charge",
             charge_on_plug_desc: "iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified",
             edge_trigger: "Edge trigger",
             edge_trigger_desc: "iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified",
+            acc_charge: "Speedup charging",
+            acc_charge_desc: "Enable Airplain Mode, enable LPM, disable Bluetooth, and minimize brightness automatically during charging",
+            acc_charge_airmode: "Enable Airplain Mode",
+            acc_charge_lpm: "Enable Lower Power Mode",
+            acc_charge_blue: "Disable Bluetooth",
+            acc_charge_bright: "Minimize brightness",
             system: "system",
             sec: "sec",
             min: "min",
@@ -152,6 +159,7 @@ const i18n = new VueI18n({
             conn_adaptor: "Please connect to an adaptor first",
             wait_update: "Please wait {0} sec to take effect",
             conn_daemon_error: "Service connect failed",
+            input_error: "Input error",
             wait: "Please wait",
             "usb host": "Host USB",
             "baseline arcas": "Wireless charger",
@@ -168,19 +176,24 @@ const i18n = new VueI18n({
             setting: "设置",
             batinfo: "电池信息",
             adaptorinfo: "电源信息",
-            update_freq: "更新频率",
             charge_below: "电量低于(%)开始充电",
             nocharge_above: "电量高于(%)停止充电",
             nocharge_temp_above: "温度高于(°C)停止充电",
+            charge_temp_below: "温度低于(°C)恢复充电",
             charge_btn_desc: "此按钮用于手动开始或停止充电",
-            start_serv: "启动服务",
+            enable: "开启",
+            floatwnd: "悬浮窗",
             mode: "模式",
             charge_on_plug: "插电即充",
             charge_on_plug_desc: "插入电源后开始充电,到达指定的最大电量时停止充电",
             edge_trigger: "边缘触发",
             edge_trigger_desc: "到达最大电量时停止充电,当且仅当电量低于指定的最小电量时开始充电",
-            charge_on_plug: "插电即充",
-            edge_trigger: "边缘触发",
+            acc_charge: "快速充电",
+            acc_charge_desc: "充电时自动开启飞行模式,低电量模式,关闭蓝牙,调暗屏幕",
+            acc_charge_airmode: "开启飞行模式",
+            acc_charge_lpm: "开启低电量模式",
+            acc_charge_blue: "关闭蓝牙",
+            acc_charge_bright: "亮度最低",
             system: "系统",
             sec: "秒",
             min: "分种",
@@ -209,6 +222,7 @@ const i18n = new VueI18n({
             conn_adaptor: "请先连接电源",
             wait_update: "请等待{0}秒生效",
             conn_daemon_error: "服务连接失败",
+            input_error: "输入有误",
             "wait": "请等待",
             "usb host": "主机USB",
             "baseline arcas": "无线充电器",
@@ -225,17 +239,24 @@ const i18n = new VueI18n({
             setting: "設定",
             batinfo: "電池資訊",
             adaptorinfo: "電源資訊",
-            update_freq: "更新頻率",
             charge_below: "電量低於(%)開始充電",
             nocharge_above: "電量高於(%)停止充電",
             nocharge_temp_above: "溫度高於(°C)停止充電",
+            charge_temp_below: "溫度低於(°C)恢復充電",
             charge_btn_desc: "此按鈕用於手動開始或停止充電",
-            start_serv: "啟動服務",
+            enable: "開啟",
+            floatwnd: "懸浮窗",
             mode: "模式",
             charge_on_plug: "插電即充",
             charge_on_plug_desc: "插入電源後充電直到到達指定的最大電量時停止充電",
             edge_trigger: "邊緣觸發",
             edge_trigger_desc: "於電量低於最小電量時開始充電，並且到達最大電量時停止充電",
+            acc_charge: "快速充電",
+            acc_charge_desc: "充電時自動開啟飛行模式,低電量模式,關閉藍牙,調暗屏幕",
+            acc_charge_airmode: "開啟飛行模式",
+            acc_charge_lpm: "開啟低電量模式",
+            acc_charge_blue: "關閉藍牙",
+            acc_charge_bright: "亮度最低",
             system: "系統",
             sec: "秒",
             min: "分鐘",
@@ -264,6 +285,7 @@ const i18n = new VueI18n({
             conn_adaptor: "請連接電源",
             wait_update: "請等待{0}秒生效",
             conn_daemon_error: "服務連結失敗",
+            input_error: "輸入有誤",
             "wait": "請稍候",
             "usb host": "主機 USB",
             "baseline arcas": "無線充電器",
@@ -287,6 +309,8 @@ const App = {
             title: "ChargeLimiter",
             loading: false,
             daemon_alive: false,
+            enable: false,
+            floatwnd: false,
             mode: "charge_on_plug",
             msg_list: [],
             bat_info: {},
@@ -295,10 +319,16 @@ const App = {
             charge_above: 80,
             enable_temp: false,
             charge_temp_above: 35,
+            charge_temp_below: 10,
+            acc_charge: false,
+            acc_charge_airmode: true,
+            acc_charge_blue: false,
+            acc_charge_bright: false,
+            acc_charge_lpm: true,
             count_msg: "",
             timer: null,
             marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
-            marks_temp: range(20, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
+            marks_temp: range(0, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
             modes: null,
         }
     },
@@ -340,15 +370,21 @@ const App = {
                 callback: "window.app.get_bat_info_cb",
             });
         },
-        set_daemon_status: function(v) {
-            if (!v) {
-                this.ipc_send_wrapper({
-                    api: "exit",
-                });
-                this.daemon_alive = false;
-            } else { // 重启App即可打开服务
-                location.href = "app://exit";
-            }
+        set_enable: function(v) {
+            this.enable = v;
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "enable",
+                val: v,
+            });
+        },
+        set_floatwnd: function(v) {
+            this.floatwnd = v;
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "floatwnd",
+                val: v,
+            });
         },
         set_charge_status_cb: function(jdata) {
             var that = this;
@@ -482,7 +518,55 @@ const App = {
                 val: this.charge_temp_above,
             });
         },
+        set_charge_temp_below: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "charge_temp_below",
+                val: this.charge_temp_below,
+            });
+        },
+        set_acc_charge: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "acc_charge",
+                val: v,
+            });
+            this.acc_charge = v;
+        },
+        set_acc_charge_airmode: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "acc_charge_airmode",
+                val: v,
+            });
+            this.acc_charge_airmode = v;
+        },
+        set_acc_charge_lpm: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "acc_charge_lpm",
+                val: v,
+            });
+            this.acc_charge_lpm = v;
+        },
+        set_acc_charge_blue: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "acc_charge_blue",
+                val: v,
+            });
+            this.acc_charge_blue = v;
+        },
+        set_acc_charge_bright: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "acc_charge_bright",
+                val: v,
+            });
+            this.acc_charge_bright = v;
+        },
         get_conf_cb: function(jdata) {
+            this.enable = jdata.data.enable;
             this.mode = jdata.data.mode;
             var lang = jdata.data.lang;
             if (lang && lang != get_local_lang()) {
@@ -494,6 +578,12 @@ const App = {
             this.charge_above = jdata.data.charge_above;
             this.enable_temp = jdata.data.enable_temp;
             this.charge_temp_above = jdata.data.charge_temp_above;
+            this.charge_temp_below = jdata.data.charge_temp_below;
+            this.acc_charge = jdata.data.acc_charge;
+            this.acc_charge_airmode = jdata.data.acc_charge_airmode;
+            this.acc_charge_blue = jdata.data.acc_charge_blue;
+            this.acc_charge_bright = jdata.data.acc_charge_bright;
+            this.acc_charge_lpm = jdata.data.acc_charge_lpm;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, 1000);
         },
@@ -505,7 +595,6 @@ const App = {
         },
         change_lang: function() {
             var v = i18n.locale;
-            console.log("change_lang", v);
             set_local_val("conf", "lang", v);
             this.reload_locale();
             this.ipc_send_wrapper({
@@ -546,6 +635,7 @@ window.addEventListener("load", function () {
     window.app = new Vue(App);
 })
 
-if (location.port == 5500) {
+if (location.port >= 5500 && location.port <= 5510) {
     window.test = true;
 }
+

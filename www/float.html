@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>ChargeLimiter</title>
+  <meta charset="UTF-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+  <link rel="shotcut icon" href="favicon.ico" />
+  <link rel="icon" href="favicon.ico">
+  <link type="text/css" rel="stylesheet" href="css/bootstrap.css" />
+  <link type="text/css" rel="stylesheet" href="css/element-ui.css" />
+  <link type="text/css" rel="stylesheet" href="css/font-awesome.css" />
+  <script src="js/polyfill.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/element-ui.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/float.js"></script>
+  <style>
+    html, body, #app {
+      background-color: rgba(0,0,0,0);
+      width: 100%;
+      height: 100%;
+    }
+
+    .icon {
+      font-size: 10px;
+      line-height: 2.5;
+    }
+    
+    .text {
+      font-size: 8px;
+      margin-bottom: 0;
+    }
+
+    .tip-line {
+      height: 12px;
+    }
+
+    .thermometer {
+      color: red;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .battery {
+      color:green
+    }
+
+    .bolt {
+      margin-left: -13px;
+      margin-right: 4px;
+    }
+
+    .toggle-on {
+      font-size: 12px;
+      color: red
+    }
+
+    .toggle-off {
+      font-size: 12px;
+    }
+
+    #app {
+      padding-left: 10px;
+      background-color:white;
+      border-radius: 15px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="main_page" v-if="bat_info" @click="console.log('okaaa')">
+      <el-row class="tip-line">
+        <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
+        <i class="fa fa-toggle-off icon toggle-off" v-else></i>
+        <span class="text">CL v1.4</span>
+      </el-row>
+      <el-row class="tip-line">
+        <i class="fa fa-battery-1 icon battery"></i>
+        <i class="fa fa-bolt icon bolt" v-if="bat_info.IsCharging"></i>
+        <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
+      </el-row>
+      <el-row class="tip-line">
+        <i class="fa fa-thermometer-1 icon thermometer"></i>
+        <span class="text">{{get_temp_desc()}}</span>
+      </el-row>
+    </div>
+  </div>
+</body>
+</html>
+

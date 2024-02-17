@@ -33,6 +33,8 @@
 		18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
 		18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
 		18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
+		18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
+		18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
 		18EEB6F82B7BCAA100DCC561 /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
 /* End PBXBuildFile section */
 
@@ -58,6 +60,8 @@
 		18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GCDWebServers.framework; path = ../../../../../opt/framework/GCDWebServers.framework; sourceTree = "<group>"; };
 		18C50C792B6DFD6000793FA9 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+		18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = BackBoardServices.tbd; sourceTree = "<group>"; };
+		18D0C4312B807280006A7AB7 /* Package */ = {isa = PBXFileReference; lastKnownFileType = text; name = Package; path = ChargeLimiter_rootless/Package; sourceTree = SOURCE_ROOT; };
 		18EEB6F72B7BCAA100DCC561 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -68,6 +72,7 @@
 			files = (
 				184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */,
 				184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */,
+				18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */,
 				184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */,
 				184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */,
@@ -82,6 +87,7 @@
 			files = (
 				187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */,
 				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
+				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
 				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
 				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
@@ -119,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				187BEA1F2B6A5F6100BD5C8F /* Package */,
+				18D0C4312B807280006A7AB7 /* Package */,
 				18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */,
 				187886392B51976A00E48B28 /* Main.storyboard */,
 				1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */,
@@ -126,6 +133,7 @@
 				187886412B51976B00E48B28 /* Info.plist */,
 				187886422B51976B00E48B28 /* main.mm */,
 				18C50C632B6CE41800793FA9 /* IOKit.tbd */,
+				18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */,
 				18C50C652B6D2D5D00793FA9 /* utils.mm */,
 				18C50C672B6D2D6E00793FA9 /* utils.h */,
 			);
@@ -259,7 +267,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\n#build_tipa\nbuild_deb\n";
+			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n";
 		};
 		184EA9B32B7A373300D0981D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -344,7 +352,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.4;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -356,7 +364,7 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = rootless;
 				TROLLSTORE_DEVICE_IP = 192.168.1.7;
-				VALID_ARCHS = "arm64 armv7";
+				VALID_ARCHS = arm64;
 			};
 			name = Debug;
 		};
@@ -383,7 +391,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.4;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -395,7 +403,7 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = rootless;
 				TROLLSTORE_DEVICE_IP = 192.168.1.7;
-				VALID_ARCHS = "arm64 armv7";
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};
@@ -549,7 +557,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -558,7 +566,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.1.11;
+				TROLLSTORE_DEVICE_IP = 192.168.0.35;
 			};
 			name = Debug;
 		};
@@ -585,7 +593,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -594,7 +602,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.1.11;
+				TROLLSTORE_DEVICE_IP = 192.168.0.35;
 			};
 			name = Release;
 		};

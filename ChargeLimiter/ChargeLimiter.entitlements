@@ -6,6 +6,8 @@
 	<true/>
 	<key>application-identifier</key>
 	<string>chaoge.ChargeLimiter</string>
+	<key>com.apple.private.memorystatus</key>
+	<true/>
 	<key>com.apple.private.MobileContainerManager.allowed</key>
 	<true/>
 	<key>com.apple.private.persona-mgmt</key>
@@ -33,6 +35,26 @@
 		<string>IOUserClient</string>
 	</array>
 	<key>com.apple.springboard.launchapplications</key>
+	<true/>
+	<key>com.apple.SystemConfiguration.SCPreferences-write-access</key>
+	<array>
+		<string>preferences.plist</string>
+		<string>com.apple.radios.plist</string>
+		<string>com.apple.jetsam.plist</string>
+	</array>
+	<key>com.apple.coreduetd.allow</key>
+	<true/>
+	<key>com.apple.coreduetd.batterysaver.allow</key>
+	<true/>
+	<key>com.apple.coreduetd.context</key>
+	<true/>
+	<key>com.apple.backboard.displaybrightness</key>
+	<true/>
+	<key>com.apple.bluetooth.system</key>
+	<true/>
+	<key>com.apple.powerd.lowpowermode.allow</key>
+	<true/>
+	<key>com.apple.springboard.accessibility-window-hosting</key>
 	<true/>
 </dict>
 </plist>

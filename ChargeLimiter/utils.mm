@@ -26,6 +26,43 @@ int platformize_me() {
     return ret;
 }
 
+#define MEMORYSTATUS_CMD_GET_PRIORITY_LIST            1
+#define MEMORYSTATUS_CMD_SET_JETSAM_HIGH_WATER_MARK   5
+typedef struct memorystatus_priority_entry {
+    pid_t pid;
+    int32_t priority;
+    uint64_t user_data;
+    int32_t limit;
+    uint32_t state;
+} memorystatus_priority_entry_t;
+extern "C" {
+int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void* buffer, size_t buffersize);
+}
+static int32_t get_mem_limit(int pid) {
+    int rc = memorystatus_control(MEMORYSTATUS_CMD_GET_PRIORITY_LIST, 0, 0, 0, 0);
+    if (rc < 1) {
+        return -1;
+    }
+    struct memorystatus_priority_entry* buf = (struct memorystatus_priority_entry*)malloc(rc);
+    rc = memorystatus_control(MEMORYSTATUS_CMD_GET_PRIORITY_LIST, 0, 0, buf, rc);
+    int32_t limit = -1;
+    for (int i = 0 ; i < rc; i++) {
+        if (buf[i].pid == pid) {
+            limit = buf[i].limit;
+            break;
+        }
+    }
+    free((void*)buf);
+    return limit;
+}
+
+int set_memory_limit(int pid, int mb) {
+    if (get_mem_limit(pid) < mb) { // 单位MB
+        return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_HIGH_WATER_MARK, pid, mb, 0, 0);
+    }
+    return 0;
+}
+
 
 #define POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE 1
 extern "C" {
@@ -244,4 +281,134 @@ void runAsDaemon(void(^Block)(), int flag) {
     Block();
 }
 
+int getJBType() {
+    /*
+        有根越狱: /Applications/ChargeLimiter.app/ChargeLimiter
+        无根越狱: [/private]/preboot/[UUID]/jb-[UUID]/procursus/Applications/ChargeLimiter.app/ChargeLimiter
+        TrollStore/AppStore: [/private]/var/containers/Bundle/Application/[UUID]/ChargeLimiter.app/ChargeLimiter
+     */
+#ifdef THEOS_PACKAGE_INSTALL_PREFIX
+    return JBTYPE_ROOTLESS;
+#endif
+    NSString* path = getAppEXEPath();
+    if ([path hasPrefix:@"/Applications"]) {
+        return JBTYPE_ROOT;
+    }
+    NSArray* parts = [path componentsSeparatedByString:@"/"];
+    NSString* path_3 = parts[parts.count - 3];
+    if ([path_3 isEqualToString:@"Applications"]) {
+        return JBTYPE_ROOT;
+    }
+    // todo: support roothide??
+    return JBTYPE_TROLLSTORE; // trollstore
+}
+
+
+@interface RadiosPreferences : NSObject
+- (BOOL)airplaneMode;
+- (void)setAirplaneMode:(BOOL)flag;
+- (void)setAirplaneModeWithoutMirroring:(BOOL)flag;
+@end
+
+BOOL isAirEnable() {
+    RadiosPreferences* radio = [objc_getClass("RadiosPreferences") new];
+    return radio.airplaneMode;
+}
+
+void setAirEnable(BOOL flag) {
+    RadiosPreferences* radio = [objc_getClass("RadiosPreferences") new];
+    if (radio.airplaneMode != flag) {
+        [radio setAirplaneMode:flag];
+    }
+}
+
+
+@interface BluetoothManager : NSObject
++ (instancetype)sharedInstance;
+- (BOOL)enabled;
+- (BOOL)setEnabled:(BOOL)enabled;
+- (BOOL)connected;
+- (BOOL)available;
+- (BOOL)powered;
+- (BOOL)setPowered:(BOOL)powered;
+- (BOOL)connectable;
+- (void)setConnectable:(BOOL)connectable;
+- (BOOL)isDiscoverable;
+- (void)setDiscoverable:(BOOL)discoverable;
+@end
+
+static id getBTMan() { // 注意: BluetoothManager必须在RunLoop中使用,初始化必须用主线程
+    static BluetoothManager* man = nil;
+    if (man == nil) {
+        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/BluetoothManager.framework"];
+        [b load];
+        man = [objc_getClass("BluetoothManager") sharedInstance];
+    }
+    return man;
+}
+
+BOOL isBlueEnable() {
+    BluetoothManager* man = getBTMan();
+    return man.enabled;
+}
+void setBlueEnable(BOOL flag) {
+    BluetoothManager* man = getBTMan();
+    if (man.enabled != flag) {
+        [man setEnabled:flag];
+        [man setDiscoverable:flag];
+        [man setConnectable:flag];
+        [man setPowered:flag];
+    }
+}
+
+@interface LPMManager : NSObject
+- (void)setPowerMode:(int64_t)mode fromSource:(NSString*)src withCompletion:(void(^)())block;
+- (BOOL)setPowerMode:(int64_t)mode fromSource:(NSString*)src;
+//- (void)setPowerMode:(int64_t)mode withCompletion:(void(^)(int,NSError*))block;   // _CDBatterySaver
+// - (BOOL)setPowerMode:(int64_t)mode error:(NSError**)err; // _CDBatterySaver
+// setPowerMode:fromSource:withParams:; // _PMLowPowerMode
+// setPowerMode:fromSource:withParams:withCompletion:; // _PMLowPowerMode
+- (int64_t)getPowerMode;
+- (int64_t)setMode:(int64_t)mode;
+@end
+
+static id getLPMMan() {
+    static LPMManager* saver = nil;
+    if (saver == nil) {
+        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/LowPowerMode.framework"];
+        [b load];
+        Class cls_LPMManager = objc_getClass("_PMLowPowerMode");
+        if (cls_LPMManager == nil) {
+            NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/CoreDuet.framework"];
+            [b load];
+            cls_LPMManager = objc_getClass("_CDBatterySaver");
+        }
+        saver = [cls_LPMManager sharedInstance];
+    }
+    return saver;
+}
+
+BOOL isLPMEnable() {
+    LPMManager* saver = getLPMMan();
+    return saver.getPowerMode != 0;
+}
+void setLPMEnable(BOOL flag) {
+    LPMManager* saver = getLPMMan();
+    BOOL enable = saver.getPowerMode != 0;
+    if (enable != flag) {
+        [saver setPowerMode:flag?1:0 fromSource:@"Settings"];
+    }
+}
+
+float getBrightness() {
+    static float (*BrightnessGet)() = (__typeof(BrightnessGet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessGetCurrent");
+    return BrightnessGet();
+}
+
+void setBrightness(float val) {
+    static CFTypeRef (*BrightnessCreate)(CFAllocatorRef allocator) = (__typeof(BrightnessCreate))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessTransactionCreate");
+    static void (*BrightnessSet)(float brightness, NSInteger unknown) = (__typeof(BrightnessSet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessSet");
+    static CFTypeRef gTransactionRef = BrightnessCreate(kCFAllocatorDefault);
+    BrightnessSet(val, 1);
+}
 
