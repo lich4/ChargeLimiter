@@ -408,7 +408,7 @@ float getBrightness() {
 void setBrightness(float val) {
     static CFTypeRef (*BrightnessCreate)(CFAllocatorRef allocator) = (__typeof(BrightnessCreate))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessTransactionCreate");
     static void (*BrightnessSet)(float brightness, NSInteger unknown) = (__typeof(BrightnessSet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessSet");
-    static CFTypeRef gTransactionRef = BrightnessCreate(kCFAllocatorDefault);
+    BrightnessCreate(kCFAllocatorDefault);
     BrightnessSet(val, 1);
 }
 

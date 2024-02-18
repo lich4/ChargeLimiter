@@ -3,6 +3,7 @@
 
 #import <GCDWebServers/GCDWebServers.h>
 #import <IOKit/IOKit.h>
+#include <IOKit/hid/IOHIDService.h>
 #import <UserNotifications/UserNotifications.h>
 #include "utils.h"
 
@@ -13,24 +14,11 @@ NSString* log_prefix = @(PRODUCT "logger");
 static NSDictionary* bat_info = nil;
 static NSDictionary* handleReq(NSDictionary* nsreq);
 
-
-
-#include <IOKit/hid/IOHIDService.h>
-
-typedef void* GSEventRef;
-
 extern "C" {
 void* BKSHIDEventRegisterEventCallback(void (*)(void*, void*, IOHIDServiceRef, IOHIDEventRef));
 void UIApplicationInstantiateSingleton(id aclass);
 void UIApplicationInitialize();
-void BKSDisplayServicesStart();
-void GSInitialize();
-void GSEventInitialize(Boolean registerPurple);
-void GSEventPopRunLoopMode(CFStringRef mode);
-void GSEventPushRunLoopMode(CFStringRef mode);
-void GSEventRegisterEventCallBack(void (*)(GSEventRef));
 }
-
 
 
 @interface UIApplication(Private)
@@ -52,7 +40,7 @@ void GSEventRegisterEventCallBack(void (*)(GSEventRef));
 - (void)localPush:(NSString*)msg interval:(int)interval;
 @end
 
-@interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate>
+@interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate, MFMailComposeViewControllerDelegate>
 @property(strong, nonatomic) UIWindow* window;
 @property(retain) UIWebView* webview;
 @end
@@ -199,6 +187,7 @@ static AppDelegate* _app = nil;
 }
 - (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString* url = request.URL.absoluteString;
+    NSLog(@"%@ shouldStartLoadWithRequest %@", log_prefix, url);
     if ([url isEqualToString:@"app://exit"]) {
         exit(0);
     }
@@ -237,10 +226,15 @@ static NSDictionary* getBatSlimInfo(NSDictionary* info) {
     if (info[@"AdapterDetails"] != nil) {
         NSDictionary* adaptor_info = info[@"AdapterDetails"];
         NSMutableDictionary* filtered_adaptor_info = [NSMutableDictionary dictionary];
-        keep = @[@"AdapterVoltage", @"Current", @"Description", @"IsWireless", @"Manufacturer", @"Name",  @"Watts"];
+        keep = @[@"Current", @"Description", @"IsWireless", @"Manufacturer", @"Name", @"Voltage", @"Watts"];
         for (NSString* key in adaptor_info) {
             if ([keep containsObject:key]) {
                 filtered_adaptor_info[key] = adaptor_info[key];
+            }
+        }
+        if (filtered_adaptor_info[@"Voltage"] == nil) {
+            if (adaptor_info[@"AdapterVoltage"] != nil) {
+                filtered_adaptor_info[@"Voltage"] = adaptor_info[@"AdapterVoltage"];
             }
         }
         filtered_info[@"AdapterDetails"] = filtered_adaptor_info;
@@ -271,7 +265,6 @@ static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     }
     NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
     if (slim) {
-        NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
         *pinfo = getBatSlimInfo(info);
     } else {
         *pinfo = info;
@@ -507,7 +500,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         if ([key isEqualToString:@"enable"]) {
             g_enable = [val boolValue];
             if (!g_enable) {
-                NSLog(@"%@ start charging for enable", log_prefix);
                 setChargeStatus(YES);
             }
         } else if ([key isEqualToString:@"floatwnd"]) {
@@ -536,7 +528,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         if (flag.boolValue && !isAdaptorConnect(bat_info)) {
             status = -3;
         } else {
-            NSLog(@"%@ start charging for set_charge_status", log_prefix);
             status = setChargeStatus(flag.boolValue);
         }
         return @{
@@ -696,7 +687,6 @@ int main(int argc, char** argv) {
                 [Service.inst serve];
                 atexit_b(^{
                     [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
-                    NSLog(@"%@ start charging for exit", log_prefix);
                     setChargeStatus(YES);
                     showFloatwnd(NO);
                 });
