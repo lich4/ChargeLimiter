@@ -25,6 +25,13 @@
       height: 100%;
     }
 
+    body {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      user-select: none;
+    }
+
     .icon {
       font-size: 10px;
       line-height: 2.5;
@@ -73,7 +80,7 @@
 </head>
 <body>
   <div id="app">
-    <div id="main_page" v-if="bat_info" @click="console.log('okaaa')">
+    <div id="main_page" v-if="bat_info" @click="invset_enable">
       <el-row class="tip-line">
         <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
         <i class="fa fa-toggle-off icon toggle-off" v-else></i>

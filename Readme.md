@@ -1,6 +1,6 @@
 ## 使用说明
 
-MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于长时间过冲情况下保护电池健康度。  
+MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于长时间过充情况下保护电池健康度。  
 
 支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa)      
 (注意: TrollStore环境下安装新版之前请先卸载旧版)    
@@ -32,7 +32,7 @@ MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于�
 * 增加电池过热保护
 
 注意:
-* Mac上使用的温控接口可以进行更底层的温控和风扇速度控制,但iOS上并无此功能,因此本工具几乎是iOS上防过充唯一选择,其实这种工具十年前就应该出现了,只是一直没人研究
+* Mac上使用的电源管理接口可以进行更底层的温控和风扇速度控制,但iOS上并无此功能,因此本工具几乎是iOS上防过充唯一选择,其实这种工具十年前就应该出现了,只是一直没人研究
 * 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.如果自行调整还是建议在20-80之间.
 * 如果有兴趣参与本项目或者对本项目有建议的的欢迎参提交代码   
 
@@ -65,8 +65,9 @@ Supported mode
 * "Edge trigger", iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified. Useful for developer & studio.
 
 Test on iPhone6/7+iOS12/13 with Checkra1n jailbreak, and iPhone7/X/11+iOS15/16 with TrollStore.   
-If you have better ideas, please join the project and push your code
+If you have better ideas, please join the project and push your code   
 
+Telegram group:  $${\color{red}https://t.me/+p0pwZCBDcH0zOGZl}$$  
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)

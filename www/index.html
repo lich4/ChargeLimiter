@@ -24,6 +24,13 @@
       height: 100%;
       overflow-y: hidden;
     }
+      
+    body {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      user-select: none;
+    }
 
     #page_body {
       height: 100%;
@@ -311,10 +318,11 @@
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
         </div>
-        <el-row class="p-2 mt-2">
-          <el-label>{{$t("adaptorinfo")}}</el-label>
-        </el-row>
         <div v-if="adaptor_info">
+          <el-row class="p-2 mt-2">
+            <el-label>{{$t("adaptorinfo")}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
           <template v-if="adaptor_info.Manufacturer">
             <el-row class="px-3 py-2 col-item">
               <el-label>{{$t("Manufacturer")}}</el-label>

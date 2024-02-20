@@ -14,8 +14,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "498"
-            endingLineNumber = "498"
+            startingLineNumber = "443"
+            endingLineNumber = "443"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "488"
-            endingLineNumber = "488"
+            startingLineNumber = "433"
+            endingLineNumber = "433"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "525"
-            endingLineNumber = "525"
+            startingLineNumber = "470"
+            endingLineNumber = "470"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "383"
-            endingLineNumber = "383"
+            startingLineNumber = "325"
+            endingLineNumber = "325"
             landmarkName = "onBatteryEvent(serv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -78,24 +78,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "418"
-            endingLineNumber = "418"
-            landmarkName = "onBatteryEvent(serv)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7660E51C-E36C-4040-A0B1-12EB96863D95"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChargeLimiter/main.mm"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "426"
-            endingLineNumber = "426"
+            startingLineNumber = "360"
+            endingLineNumber = "360"
             landmarkName = "onBatteryEvent(serv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -110,8 +94,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "438"
-            endingLineNumber = "438"
+            startingLineNumber = "382"
+            endingLineNumber = "382"
             landmarkName = "onBatteryEvent(serv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -126,8 +110,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "503"
-            endingLineNumber = "503"
+            startingLineNumber = "448"
+            endingLineNumber = "448"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -142,8 +126,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "531"
-            endingLineNumber = "531"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -158,8 +142,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "690"
-            endingLineNumber = "690"
+            startingLineNumber = "741"
+            endingLineNumber = "741"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>

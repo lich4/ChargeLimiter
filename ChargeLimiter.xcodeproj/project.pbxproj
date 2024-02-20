@@ -22,6 +22,8 @@
 		184EA9B22B7A373300D0981D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		184FE8042B70BE8100525080 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		1860F2C42B5809510094AAC8 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
+		1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
+		1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
 		1878863B2B51976A00E48B28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
 		187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
@@ -43,6 +45,7 @@
 		18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChargeLimiter.entitlements; sourceTree = "<group>"; };
 		184EA9B72B7A373300D0981D /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		184FE8032B70BE8100525080 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = GraphicsServices.tbd; sourceTree = "<group>"; };
 		1878862D2B51976A00E48B28 /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1878863A2B51976A00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1878863C2B51976B00E48B28 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -75,6 +78,7 @@
 				184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */,
 				18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */,
+				1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
 				184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */,
 				184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */,
 				184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */,
@@ -90,6 +94,7 @@
 				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
 				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
+				1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
 				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
 				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
 				187886552B519B2100E48B28 /* UIKit.framework in Frameworks */,
@@ -135,6 +140,7 @@
 				187886422B51976B00E48B28 /* main.mm */,
 				18C50C632B6CE41800793FA9 /* IOKit.tbd */,
 				18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */,
+				1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */,
 				18C50C652B6D2D5D00793FA9 /* utils.mm */,
 				18C50C672B6D2D6E00793FA9 /* utils.h */,
 			);

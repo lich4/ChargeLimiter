@@ -1,9 +1,8 @@
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
 #import <GCDWebServers/GCDWebServers.h>
 #import <IOKit/IOKit.h>
 #include <IOKit/hid/IOHIDService.h>
+#import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 #include "utils.h"
 
@@ -20,9 +19,10 @@ void UIApplicationInstantiateSingleton(id aclass);
 void UIApplicationInitialize();
 }
 
-
 @interface UIApplication(Private)
 - (void)__completeAndRunAsPlugin;
+- (void)_enqueueHIDEvent:(IOHIDEventRef)event;
+- (void)_run;
 @end
 
 @interface UIWindow(Private)
@@ -40,7 +40,7 @@ void UIApplicationInitialize();
 - (void)localPush:(NSString*)msg interval:(int)interval;
 @end
 
-@interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate, MFMailComposeViewControllerDelegate>
+@interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate>
 @property(strong, nonatomic) UIWindow* window;
 @property(retain) UIWebView* webview;
 @end
@@ -80,9 +80,11 @@ static AppDelegate* _app = nil;
         [self.window setHidden:NO];
         [self.window makeKeyAndVisible];
         static SBSAccessibilityWindowHostingController* _accessController = [objc_getClass("SBSAccessibilityWindowHostingController") new];
-        unsigned int _contextId = [self.window _contextId];
-        double windowLevel = [self.window windowLevel];
-        [_accessController registerWindowWithContextID:_contextId atLevel:windowLevel];
+        if (_accessController != nil) {
+            unsigned int _contextId = [self.window _contextId];
+            double windowLevel = [self.window windowLevel];
+            [_accessController registerWindowWithContextID:_contextId atLevel:windowLevel];
+        }
     }
     return YES;
 }
@@ -112,71 +114,20 @@ static AppDelegate* _app = nil;
             webview.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.0];
             webview.opaque = NO;
             webview.delegate = self;
-            webview.userInteractionEnabled = YES;
             self.webview = webview;
             NSString* wwwpath = [NSString stringWithFormat:@"http://127.0.0.1:%d/float.html", GSERV_PORT];
             NSURL* url = [NSURL URLWithString:wwwpath];
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
-            
-            BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
-                CFArrayRef ref = IOHIDEventGetChildren(event);
-                if (!ref || CFArrayGetCount(ref) == 0) {
-                    return;
-                }
-                /*
-                 按下:
-                    x=161 y=126 range=1 touch=1 mask=range|touch
-                    x=161 y=126 range=0 touch=0 mask=range|touch
-                 拖动:
-                    x=157 y=123 range=1 touch=1 mask=range|touch
-                    x=156 y=135 range=1 touch=1 mask=position
-                    x=156 y=139 range=1 touch=1 mask=position
-                    x=156 y=14  range=1 touch=1 mask=position
-                    x=157 y=146 range=0 touch=0 mask=range|touch
-                 */
-                static int last_x = -1, last_y = -1;
-                event = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0);
-                int x = IOHIDEventGetIntegerValue(event, kIOHIDEventFieldDigitizerX);
-                int y = IOHIDEventGetIntegerValue(event, kIOHIDEventFieldDigitizerY);
-                int range = IOHIDEventGetIntegerValue(event, kIOHIDEventFieldDigitizerRange);
-                int touch = IOHIDEventGetIntegerValue(event, kIOHIDEventFieldDigitizerTouch);
-                int mask = IOHIDEventGetIntegerValue(event, kIOHIDEventFieldDigitizerEventMask);
-                //NSLog(@"BKSHIDEventRegisterEventCallback x=%d y=%d range=%d touch=%d mask=%d", x, y, range, touch, mask);
-                if ((mask & kIOHIDDigitizerEventTouch) != 0) {
-                    if (touch != 0) { // touch_down
-                        last_x = x;
-                        last_y = y;
-                    } else { // touch_up
-                        if (last_x == x && last_y == y) {
-                            //NSLog(@"%@ click (%d,%d)", log_prefix, x, y);
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [_app.webview stringByEvaluatingJavaScriptFromString:@"window.app.invset_enable()"];
-                            });
-                        }
-                        last_x = -1;
-                        last_y = -1;
-                    }
-                } else if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
-                    //NSLog(@"%@ move (%d,%d)", log_prefix, x, y);
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        CGRect rt = CGRectMake(x - FLOAT_WIDTH / 2, y - FLOAT_HEIGHT / 2, FLOAT_WIDTH, FLOAT_HEIGHT);
-                        [_app.webview setFrame:rt];
-                    });
-                }
-            });
         }
     }
 }
 - (void)webViewDidFinishLoad:(UIWebView*)webview {
-    NSString* surl = webview.request.URL.absoluteString;
-    NSLog(@"%@ webViewDidFinishLoad %@", log_prefix, surl);
     [_mainWnd addSubview:webview];
     [_mainWnd bringSubviewToFront:webview];
 }
 - (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
     NSString* surl = webview.request.URL.absoluteString;
-    NSLog(@"%@ didFailLoadWithError %@", log_prefix, surl);
     [NSThread sleepForTimeInterval:0.5];
     if (surl.length == 0) { // 服务端未初始化时url会被置空
         surl = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
@@ -187,7 +138,6 @@ static AppDelegate* _app = nil;
 }
 - (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString* url = request.URL.absoluteString;
-    NSLog(@"%@ shouldStartLoadWithRequest %@", log_prefix, url);
     if ([url isEqualToString:@"app://exit"]) {
         exit(0);
     }
@@ -332,14 +282,6 @@ static void setlocalKV(NSString* key, id val) {
     [cache_kv writeToFile:path atomically:YES];
 }
 
-void do_in_mainqueue(void(^Block)()) {
-    if ([NSThread isMainThread]) {
-        Block();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), Block);
-    }
-}
-
 static void perform_acccharge(BOOL flag) {
     static NSMutableDictionary* cache_status = nil;
     NSNumber* acc_charge = getlocalKV(@"acc_charge");
@@ -421,12 +363,14 @@ static void onBatteryEvent(io_service_t serv) {
                     return;
                 }
                 if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
-                    NSLog(@"%@ start charging for low temperature", log_prefix);
-                    [Service.inst localPush:@"Start charging" interval:3600];
-                    if (0 == setChargeStatus(YES)) {
-                        perform_acccharge(YES);
+                    if (isAdaptorConnect(bat_info)) {
+                        NSLog(@"%@ start charging for low temperature", log_prefix);
+                        [Service.inst localPush:@"Start charging" interval:3600];
+                        if (0 == setChargeStatus(YES)) {
+                            perform_acccharge(YES);
+                        }
+                        return;
                     }
-                    return;
                 }
                 return;
             }
@@ -438,6 +382,7 @@ static void onBatteryEvent(io_service_t serv) {
                         if (0 == setChargeStatus(YES)) {
                             perform_acccharge(YES);
                         }
+                        return;
                     } else {
                         [Service.inst localPush:@"Plug in adaptor to charge" interval:3600];
                     }
@@ -578,7 +523,11 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 }
 - (void)initLocalPush {
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
+    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
+        if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
+            [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
+            }];
+        }
     }];
 }
 - (void)localPush:(NSString*)msg interval:(int)interval { // interval防止频繁提示
@@ -660,6 +609,108 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 @end
 
 
+#if __arm64e__
+#include <ptrauth.h>
+#endif
+
+@interface UIEventDispatcher : NSObject
+- (void)_installEventRunLoopSources:(CFRunLoopRef)arg1;
+@end
+
+@interface UIEventFetcher : NSObject
+- (void)_receiveHIDEvent:(IOHIDEventRef)arg1;
+- (void)setEventFetcherSink:(UIEventDispatcher *)arg1;
+@end
+
+@interface HUDMainApplication : UIApplication
+@end
+
+static void* make_sym_readable(void *ptr) {
+#if __arm64e__
+    if (!ptr) return ptr;
+    ptr = ptrauth_strip(ptr, ptrauth_key_function_pointer);
+#endif
+    return ptr;
+}
+
+static void* make_sym_callable(void *ptr) {
+#if __arm64e__
+    if (!ptr) return ptr;
+    ptr = ptrauth_sign_unauthenticated(ptrauth_strip(ptr, ptrauth_key_function_pointer), ptrauth_key_function_pointer, 0);
+#endif
+    return ptr;
+}
+
+
+@implementation HUDMainApplication
+- (instancetype)init {
+    self = [super init];
+    do {
+        UIEventDispatcher* dispatcher = (UIEventDispatcher*)[self valueForKey:@"eventDispatcher"];
+        if (!dispatcher) {
+            break;
+        }
+        if ([dispatcher respondsToSelector:@selector(_installEventRunLoopSources:)]) { // -[UIApplication _run]
+            CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+            [dispatcher _installEventRunLoopSources:mainRunLoop];
+        } else { // iOS>=16?
+            IMP runMethodIMP = class_getMethodImplementation([self class], @selector(_run));
+            if (!runMethodIMP) {
+                break;
+            }
+            uint32_t *runMethodPtr = (uint32_t *)make_sym_readable((void *)runMethodIMP);
+            void (*orig_UIEventDispatcher__installEventRunLoopSources_)(id _Nonnull, SEL _Nonnull, CFRunLoopRef) = NULL;
+            for (int i = 0; i < 0x140; i++) {
+                // mov x2, x0
+                // mov x0, x?
+                if (runMethodPtr[i] != 0xaa0003e2 || (runMethodPtr[i + 1] & 0xff000000) != 0xaa000000) {
+                    continue;
+                }
+                // bl -[UIEventDispatcher _installEventRunLoopSources:]
+                uint32_t blInst = runMethodPtr[i + 2];
+                uint32_t *blInstPtr = &runMethodPtr[i + 2];
+                if ((blInst & 0xfc000000) != 0x94000000) {
+                    continue;
+                }
+                int32_t blOffset = blInst & 0x03ffffff;
+                if (blOffset & 0x02000000)
+                    blOffset |= 0xfc000000;
+                blOffset <<= 2;
+                uint64_t blAddr = (uint64_t)blInstPtr + blOffset;
+                // cbz x0, loc_?????????
+                uint32_t cbzInst = *((uint32_t *)make_sym_readable((void *)blAddr));
+                if ((cbzInst & 0xff000000) != 0xb4000000) {
+                    continue;
+                }
+                orig_UIEventDispatcher__installEventRunLoopSources_ = (void (*)(id  _Nonnull __strong, SEL _Nonnull, CFRunLoopRef))make_sym_callable((void *)blAddr);
+            }
+            if (!orig_UIEventDispatcher__installEventRunLoopSources_) {
+                break;
+            }
+            CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+            orig_UIEventDispatcher__installEventRunLoopSources_(dispatcher, @selector(_installEventRunLoopSources:), mainRunLoop);
+        }
+        UIEventFetcher *fetcher = [[objc_getClass("UIEventFetcher") alloc] init];
+        [dispatcher setValue:fetcher forKey:@"eventFetcher"];
+        if ([fetcher respondsToSelector:@selector(setEventFetcherSink:)]) {
+            [fetcher setEventFetcherSink:dispatcher];
+        } else { // iOS>=16?
+            [fetcher setValue:dispatcher forKey:@"eventFetcherSink"];
+        }
+        [self setValue:fetcher forKey:@"eventFetcher"];
+    } while (NO);
+    
+    Method mori_handlePan = class_getInstanceMethod(UIScrollView.class, @selector(handlePan:));
+    Method mnew_handlePan = class_getInstanceMethod(HUDMainApplication.class, @selector(handlePan:));
+    method_exchangeImplementations(mori_handlePan, mnew_handlePan);
+    return self;
+}
+- (void)handlePan:(UIPanGestureRecognizer*)recognizer {
+    // 避免悬浮窗滑动崩溃
+}
+@end
+
+
 int main(int argc, char** argv) {
     @autoreleasepool {
         g_jbtype = getJBType();
@@ -698,9 +749,33 @@ int main(int argc, char** argv) {
             } else if (0 == strcmp(argv[1], "floatwnd")) {
                 g_wind_type = 1;
                 static id<UIApplicationDelegate> appDelegate = [AppDelegate new];
-                UIApplicationInstantiateSingleton(UIApplication.class);
-                [UIApplication.sharedApplication setDelegate:appDelegate];
-                [UIApplication.sharedApplication __completeAndRunAsPlugin];
+                UIApplicationInstantiateSingleton(HUDMainApplication.class);
+                static UIApplication* app = [UIApplication sharedApplication];
+                [app setDelegate:appDelegate];
+                BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
+                    CFArrayRef ref = IOHIDEventGetChildren(event);
+                    if (!ref || CFArrayGetCount(ref) == 0) {
+                        return;
+                    }
+                    IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0); // 此对象未增加引用,不可释放
+                    //int index = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIndex);
+                    //int identity = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIdentity);
+                    //int range = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerRange);
+                    //int touch = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerTouch);
+                    int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
+                    int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
+                    int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
+                    //NSLog(@"BKSHIDEventRegisterEventCallback index=%d identity=%d x=%d y=%d range=%d touch=%d mask=%d", index, identity, x, y, range, touch, mask);
+                    if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            CGRect rt = CGRectMake(x - FLOAT_WIDTH / 2, y - FLOAT_HEIGHT / 2, FLOAT_WIDTH, FLOAT_HEIGHT);
+                            [_app.webview setFrame:rt];
+                        });
+                    } else {
+                        [app _enqueueHIDEvent:event];
+                    }
+                });
+                [app __completeAndRunAsPlugin];
                 CFRunLoopRun();
             }
         }
