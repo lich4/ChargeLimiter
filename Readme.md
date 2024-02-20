@@ -67,7 +67,10 @@ Supported mode
 Test on iPhone6/7+iOS12/13 with Checkra1n jailbreak, and iPhone7/X/11+iOS15/16 with TrollStore.   
 If you have better ideas, please join the project and push your code   
 
-Telegram group:  $${\color{red}https://t.me/+p0pwZCBDcH0zOGZl}$$  
+Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/+p0pwZCBDcH0zOGZl&color=red)    
+https://t.me/+p0pwZCBDcH0zOGZl   
+
+
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)
