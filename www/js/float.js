@@ -1,3 +1,7 @@
+$.ajaxSetup({
+    timeout: 1000,
+});
+
 function ipc_send(req, net_status_cb) {
     if (!window.test) {
         var rreq = JSON.stringify(req);
@@ -47,6 +51,7 @@ const App = {
     el: "#app",
     data: function () {
         return {
+            daemon_alive: false,
             enable: false,
             timer: null,
             bat_info: null,
@@ -73,9 +78,12 @@ const App = {
             }
         },
         get_bat_info: function() {
+            var that = this;
             ipc_send({
                 api: "get_bat_info",
                 callback: "window.app.get_bat_info_cb",
+            }, status => {
+                that.daemon_alive = status;
             });
         },
         get_conf_cb: function(jdata) {

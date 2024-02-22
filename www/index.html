@@ -41,18 +41,9 @@
       background-color: rgb(239, 239, 244);
     }
 
-    #page_footer {
-      background-color: rgb(245, 245, 247);
-      width: 100%;
-      bottom: 0;
-      z-index: 1;
-    }
-
     #page_header {
       background-color: rgb(245, 245, 247);
       width: 100%;
-      top: 0;
-      z-index: 1;
     }
 
     #page_message {   /* 消息覆盖编辑器 */
@@ -135,7 +126,6 @@
           </div>
         </el-row>
       </div>
-      <div class=""></div>
       <el-divider class="my-0" direction="horizontal"></el-divider>
       <div id="page_message">
         <div v-for="i in msg_list" class="my-1">
@@ -183,12 +173,19 @@
               <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="5" :marks="marks_perc" @change="set_charge_below"></el-slider>
             </el-row>
             <el-divider class="my-0" direction="horizontal"></el-divider>
+            <el-row class="px-3 py-2 col-item">
+              <el-label>{{$t("nocharge_above")}}</el-label>
+              <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="5" :marks="marks_perc" @change="set_charge_above"></el-slider>
+            </el-row>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
           </template>
-          <el-row class="px-3 py-2 col-item">
-            <el-label>{{$t("nocharge_above")}}</el-label>
-            <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="5" :marks="marks_perc" @change="set_charge_above"></el-slider>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <template v-else-if="mode=='charge_on_plug'">
+            <el-row class="px-3 py-2 col-item">
+              <el-label>{{$t("nocharge_above")}}</el-label>
+              <el-slider v-model="charge_above" class="pr-1" :min="20" :max="100" :step="5" :marks="marks_perc" @change="set_charge_above"></el-slider>
+            </el-row>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+          </template>
           <el-row class="px-3 py-2 col-item">
             <el-label>{{$t("nocharge_temp_above")}}</el-label>
             <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>

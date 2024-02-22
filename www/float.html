@@ -70,6 +70,10 @@
       font-size: 12px;
     }
 
+    .spinner {
+      margin-top: 5px;
+    }
+
     #app {
       padding-left: 10px;
       background-color:white;
@@ -80,21 +84,26 @@
 </head>
 <body>
   <div id="app">
-    <div id="main_page" v-if="bat_info" @click="invset_enable">
-      <el-row class="tip-line">
-        <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
-        <i class="fa fa-toggle-off icon toggle-off" v-else></i>
-        <span class="text">CL v1.4</span>
-      </el-row>
-      <el-row class="tip-line">
-        <i class="fa fa-battery-1 icon battery"></i>
-        <i class="fa fa-bolt icon bolt" v-if="bat_info.IsCharging"></i>
-        <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
-      </el-row>
-      <el-row class="tip-line">
-        <i class="fa fa-thermometer-1 icon thermometer"></i>
-        <span class="text">{{get_temp_desc()}}</span>
-      </el-row>
+    <div id="main_page" v-if="daemon_alive">
+      <template v-if="bat_info" @click="invset_enable">
+        <el-row class="tip-line">
+          <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
+          <i class="fa fa-toggle-off icon toggle-off" v-else></i>
+          <span class="text">CL v1.4</span>
+        </el-row>
+        <el-row class="tip-line">
+          <i class="fa fa-battery-1 icon battery"></i>
+          <i class="fa fa-bolt icon bolt" v-if="bat_info.IsCharging"></i>
+          <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
+        </el-row>
+        <el-row class="tip-line">
+          <i class="fa fa-thermometer-1 icon thermometer"></i>
+          <span class="text">{{get_temp_desc()}}</span>
+        </el-row>
+      </template>
+    </div>
+    <div v-else>
+      <i class="fa fa-spinner fa-pulse fa-3x spinner"></i>
     </div>
   </div>
 </body>

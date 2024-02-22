@@ -57,6 +57,10 @@ function ts_to_date(timestamp) {
     return Y + '-' + M + '-' + D + ' ' + h + ':' + m + ':' + s;
 }
 
+$.ajaxSetup({
+    timeout: 1000,
+});
+
 function ipc_send(req, net_status_cb) {
     if (!window.test) {
         var rreq = JSON.stringify(req);
@@ -641,6 +645,7 @@ const App = {
 
 window.addEventListener("load", function () {
     window.app = new Vue(App);
+    switch_dark(true)
 })
 
 if (location.port >= 5500 && location.port <= 5510) {

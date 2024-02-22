@@ -282,9 +282,12 @@ void runAsDaemon(void(^Block)(), int flag) {
 }
 
 int getJBType() {
-    /*
-        有根越狱: /Applications/ChargeLimiter.app/ChargeLimiter
-        无根越狱: [/private]/preboot/[UUID]/jb-[UUID]/procursus/Applications/ChargeLimiter.app/ChargeLimiter
+    /*  EXE和DAEMON路径可能不同,需要综合判断
+        有根越狱: /Applications/ChargeLimiter.app/ChargeLimiter (也可能是roothide)
+        无根越狱: /var/jb/Applications/ChargeLimiter.app/ChargeLimiter
+                [/private]/preboot/[UUID]/jb-[UUID]/procursus/Applications/ChargeLimiter.app/ChargeLimiter
+                [/private]/preboot/[UUID]/dopamine-[UUID]/procursus/Applications/ChargeLimiter.app/ChargeLimiter
+        roothide:/var/containers/Bundle/Application/.jbroot-[UUID]/Applications/ChargeLimiter.app/ChargeLimiter
         TrollStore/AppStore: [/private]/var/containers/Bundle/Application/[UUID]/ChargeLimiter.app/ChargeLimiter
      */
 #ifdef THEOS_PACKAGE_INSTALL_PREFIX
@@ -292,15 +295,46 @@ int getJBType() {
 #endif
     NSString* path = getAppEXEPath();
     if ([path hasPrefix:@"/Applications"]) {
-        return JBTYPE_ROOT;
+        return JBTYPE_ROOT; // may be roothide for daemon
+    }
+    if ([path hasPrefix:@"/private"]) {
+        path = [path substringFromIndex:8];
+    }
+    if ([path hasPrefix:@"/var/jb"]) {
+        return JBTYPE_ROOTLESS;
     }
     NSArray* parts = [path componentsSeparatedByString:@"/"];
-    NSString* path_3 = parts[parts.count - 3];
-    if ([path_3 isEqualToString:@"Applications"]) {
-        return JBTYPE_ROOT;
+    if (parts.count < 4) {
+        return JBTYPE_UNKNOWN;
     }
-    // todo: support roothide??
-    return JBTYPE_TROLLSTORE; // trollstore
+    NSString* path_3 = parts[parts.count - 3];
+    if (path_3.length == 36) { // UUID
+        return JBTYPE_TROLLSTORE;
+    }
+    NSString* path_4 = parts[parts.count - 4];
+    if ([path_4 hasPrefix:@".jbroot-"]) {
+        return JBTYPE_ROOTHIDE;
+    }
+    return JBTYPE_ROOT;
+}
+
+void NSFileLog(NSString* fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+    NSDateFormatter* formatter = [NSDateFormatter new];
+    [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString* dateStr = [formatter stringFromDate:NSDate.date];
+    NSString* content = [[NSString alloc] initWithFormat:fmt arguments:va];
+    content = [NSString stringWithFormat:@"%@ %@\n", dateStr, content];
+    NSString* path = [NSHomeDirectory() stringByAppendingString:@"/aldente.log"];
+    NSFileHandle* handle = [NSFileHandle fileHandleForWritingAtPath:path];
+    if (handle == nil) {
+        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+        handle = [NSFileHandle fileHandleForWritingAtPath:path];
+    }
+    [handle seekToEndOfFile];
+    [handle writeData:[content dataUsingEncoding:NSUTF8StringEncoding]];
+    [handle closeFile];
 }
 
 

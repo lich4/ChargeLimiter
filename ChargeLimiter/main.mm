@@ -8,13 +8,15 @@
 
 #define PRODUCT         "aldente"
 #define GSERV_PORT      1230
+#define TRACE           true
 
 NSString* log_prefix = @(PRODUCT "logger");
 static NSDictionary* bat_info = nil;
 static NSDictionary* handleReq(NSDictionary* nsreq);
 
 extern "C" {
-void* BKSHIDEventRegisterEventCallback(void (*)(void*, void*, IOHIDServiceRef, IOHIDEventRef));
+void BKSDisplayServicesStart();
+void BKSHIDEventRegisterEventCallback(void (*)(void*, void*, IOHIDServiceRef, IOHIDEventRef));
 void UIApplicationInstantiateSingleton(id aclass);
 void UIApplicationInitialize();
 }
@@ -119,6 +121,31 @@ static AppDelegate* _app = nil;
             NSURL* url = [NSURL URLWithString:wwwpath];
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
+            BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
+                NSFileLog(@"%@ BKSHIDEventRegisterEventCallback", log_prefix);
+                NSLog(@"%@ BKSHIDEventRegisterEventCallback", log_prefix);
+                CFArrayRef ref = IOHIDEventGetChildren(event);
+                if (!ref || CFArrayGetCount(ref) == 0) {
+                    return;
+                }
+                IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0);
+                //int index = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIndex);
+                //int identity = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIdentity);
+                //int range = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerRange);
+                //int touch = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerTouch);
+                int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
+                int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
+                int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
+                //NSLog(@"BKSHIDEventRegisterEventCallback index=%d identity=%d x=%d y=%d range=%d touch=%d mask=%d", index, identity, x, y, range, touch, mask);
+                if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        CGRect rt = CGRectMake(x - FLOAT_WIDTH / 2, y - FLOAT_HEIGHT / 2, FLOAT_WIDTH, FLOAT_HEIGHT);
+                        [_app.webview setFrame:rt];
+                    });
+                } else {
+                    [UIApplication.sharedApplication _enqueueHIDEvent:event];
+                }
+            });
         }
     }
 }
@@ -335,7 +362,7 @@ static void onBatteryEvent(io_service_t serv) {
             int temperature = temperature_.intValue / 100;
             if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
                 if (is_charging.boolValue) {
-                    NSLog(@"%@ stop charging for high temperature", log_prefix);
+                    NSFileLog(@"stop charging for high temperature");
                     [Service.inst localPush:@"Stop charging" interval:3600];
                     if (0 == setChargeStatus(NO)) {
                         perform_acccharge(NO);
@@ -345,7 +372,7 @@ static void onBatteryEvent(io_service_t serv) {
             }
             if (capacity.intValue >= charge_above.intValue) {
                 if (is_charging.boolValue) {
-                    NSLog(@"%@ stop charging for capacity", log_prefix);
+                    NSFileLog(@"stop charging for capacity");
                     [Service.inst localPush:@"Stop charging" interval:3600];
                     if (0 == setChargeStatus(NO)) {
                         perform_acccharge(NO);
@@ -355,7 +382,7 @@ static void onBatteryEvent(io_service_t serv) {
             }
             if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
                 if (isAdaptorNewConnect(old_bat_info, bat_info)) {
-                    NSLog(@"%@ start charging for plug in", log_prefix);
+                    NSFileLog(@"start charging for plug in");
                     [Service.inst localPush:@"Start charging" interval:3600];
                     if (0 == setChargeStatus(YES)) {
                         perform_acccharge(YES);
@@ -364,7 +391,7 @@ static void onBatteryEvent(io_service_t serv) {
                 }
                 if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
                     if (isAdaptorConnect(bat_info)) {
-                        NSLog(@"%@ start charging for low temperature", log_prefix);
+                        NSFileLog(@"start charging for low temperature");
                         [Service.inst localPush:@"Start charging" interval:3600];
                         if (0 == setChargeStatus(YES)) {
                             perform_acccharge(YES);
@@ -377,7 +404,7 @@ static void onBatteryEvent(io_service_t serv) {
             if (capacity.intValue <= charge_below.intValue) {
                 if (!is_charging.boolValue) {
                     if (isAdaptorConnect(bat_info)) {
-                        NSLog(@"%@ start charging for capacity", log_prefix);
+                        NSFileLog(@"start charging for capacity");
                         [Service.inst localPush:@"Start charging" interval:3600];
                         if (0 == setChargeStatus(YES)) {
                             perform_acccharge(YES);
@@ -510,11 +537,20 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     @autoreleasepool {
         for (LSApplicationProxy* proxy in list) {
             if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
-                NSLog(@"%@ uninstalled, exit", log_prefix); // 卸载时系统不能自动杀本进程,需手动退出
+                NSFileLog(@"uninstalled, exit"); // 卸载时旧版daemon自动退出
                 exit(0);
             }
         }
     }
+}
+- (void)applicationsDidInstall:(NSArray<LSApplicationProxy*>*)list {
+    for (LSApplicationProxy* proxy in list) {
+        if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
+            NSFileLog(@"updated, exit"); // 覆盖安装时旧版daemon自动退出
+            exit(0);
+        }
+    }
+    
 }
 - (instancetype)init {
     self = super.init;
@@ -604,6 +640,13 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         [self initLocalPush];
         isBlueEnable(); // init
         isLPMEnable();
+    
+        if (TRACE) { // todo delete
+            static NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:600 repeats:YES block:^(NSTimer* timer) {
+                NSFileLog(@"[%d] daemon alive", getpid());
+            }];
+            [timer fire];
+        }
     }
 }
 @end
@@ -752,29 +795,6 @@ int main(int argc, char** argv) {
                 UIApplicationInstantiateSingleton(HUDMainApplication.class);
                 static UIApplication* app = [UIApplication sharedApplication];
                 [app setDelegate:appDelegate];
-                BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
-                    CFArrayRef ref = IOHIDEventGetChildren(event);
-                    if (!ref || CFArrayGetCount(ref) == 0) {
-                        return;
-                    }
-                    IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0); // 此对象未增加引用,不可释放
-                    //int index = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIndex);
-                    //int identity = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIdentity);
-                    //int range = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerRange);
-                    //int touch = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerTouch);
-                    int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
-                    int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
-                    int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
-                    //NSLog(@"BKSHIDEventRegisterEventCallback index=%d identity=%d x=%d y=%d range=%d touch=%d mask=%d", index, identity, x, y, range, touch, mask);
-                    if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            CGRect rt = CGRectMake(x - FLOAT_WIDTH / 2, y - FLOAT_HEIGHT / 2, FLOAT_WIDTH, FLOAT_HEIGHT);
-                            [_app.webview setFrame:rt];
-                        });
-                    } else {
-                        [app _enqueueHIDEvent:event];
-                    }
-                });
                 [app __completeAndRunAsPlugin];
                 CFRunLoopRun();
             }

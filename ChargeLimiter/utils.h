@@ -43,11 +43,14 @@ void runAsDaemon(void(^Block)(), int flag=0);
 #define ROOTDIR
 #endif
 enum {
+    JBTYPE_UNKNOWN      = -1,
     JBTYPE_ROOTLESS     = 0,
     JBTYPE_ROOT         = 1,
-    JBTYPE_TROLLSTORE   = 8,
+    JBTYPE_ROOTHIDE     = 2,
+    JBTYPE_TROLLSTORE   = 8, // TrollStore/AppStore
 };
 int getJBType();
+void NSFileLog(NSString* fmt, ...);
 
 BOOL isAirEnable();
 void setAirEnable(BOOL flag);

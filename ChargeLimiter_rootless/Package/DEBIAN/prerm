@@ -1,6 +1,6 @@
 #!/bin/bash
 
-launchctl unload /Library/LaunchDaemons/chaoge.ChargeLimiter.plist
+launchctl unload /var/jb/Library/LaunchDaemons/chaoge.ChargeLimiter.plist
 /usr/bin/uicache mobile
 
 exit 0
