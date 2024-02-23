@@ -20,6 +20,58 @@
   <script src="js/jquery.js"></script>
   <script src="js/app.js"></script>
   <style>
+    /*  
+    夜间模式 body上添加class=night时生效，移除则关闭
+    背景颜色 #000000
+    box颜色#1c1c1c
+    字体颜色#ffffff
+    线的颜色 #2a2a2a
+    按钮关闭背景色#39383d
+    按钮关闭圆形色#ffffff
+    进度条背景色#39383d
+    */
+    .night{
+        background: #000 !important;
+        color: #afafaf !important;
+    }
+    .night #page_header{
+      background: #000 !important;
+      color: #afafaf !important;
+    }
+    .night .box{
+      background: #1c1c1c !important;
+      color: #afafaf !important;
+
+    }
+    .night .col-item{
+      background: #1c1c1c !important;
+      color: #afafaf !important;
+    }
+    .night .el-input__inner{
+      background: #1c1c1c !important;
+      color: #afafaf !important;
+    }
+    .night .el-scrollbar__view{
+      background: #1c1c1c !important;
+      color: #afafaf !important;
+    }
+    .night .el-divider--horizontal{
+      background: #2a2a2a !important;
+    }
+    .night .selected{
+      background: #1c1c1c !important;
+      color: #afafaf !important;
+    }
+    .night .el-switch__core{
+      background: #39383d !important;
+    }
+    .night  .el-switch.is-checked .el-switch__core{
+      background-color: #409EFF !important;
+    }
+    .night .el-progress-bar__outer{
+      background: #39383d !important;
+    }
+    
     html, body, #app, #main_page {
       height: 100%;
       overflow-y: hidden;
