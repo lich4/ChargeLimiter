@@ -32,6 +32,7 @@
         "status": 0,
         "data": {
             "enable": true,
+            "dark": true,
             "mode": "charge_on_plug",
             "lang": "",
             "charge_below": 30,

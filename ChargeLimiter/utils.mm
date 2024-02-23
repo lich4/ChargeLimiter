@@ -337,6 +337,15 @@ void NSFileLog(NSString* fmt, ...) {
     [handle closeFile];
 }
 
+BOOL isDarkMode() {
+    if (@available(iOS 13, *)) {
+        if (UITraitCollection.currentTraitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 
 @interface RadiosPreferences : NSObject
 - (BOOL)airplaneMode;

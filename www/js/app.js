@@ -317,6 +317,7 @@ const App = {
             loading: false,
             daemon_alive: false,
             enable: false,
+            dark: false,
             floatwnd: false,
             mode: "charge_on_plug",
             msg_list: [],
@@ -578,6 +579,10 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
+            this.dark = jdata.data.dark;
+            if (this.dark) {
+                this.switch_dark(true);
+            }
             this.floatwnd = jdata.data.floatwnd;
             this.mode = jdata.data.mode;
             var lang = jdata.data.lang;
@@ -615,6 +620,14 @@ const App = {
                 val: v,
             });
         },
+        switch_dark: function(flag) {
+            this.dark = flag;
+            if (flag) {
+                $("body").attr("class", "night");
+            } else {
+                $("body").removeAttr("class", "night");
+            }
+        },
         reload_locale: function() {
             this.modes = [
                 {"label": this.$t("charge_on_plug"), "value": "charge_on_plug"},
@@ -645,7 +658,6 @@ const App = {
 
 window.addEventListener("load", function () {
     window.app = new Vue(App);
-    switch_dark(true)
 })
 
 if (location.port >= 5500 && location.port <= 5510) {

@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 extern NSString* log_prefix;
 
@@ -51,6 +52,7 @@ enum {
 };
 int getJBType();
 void NSFileLog(NSString* fmt, ...);
+BOOL isDarkMode();
 
 BOOL isAirEnable();
 void setAirEnable(BOOL flag);

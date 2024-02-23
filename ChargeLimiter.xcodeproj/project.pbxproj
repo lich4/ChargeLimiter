@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		18257CBD2B88652600DC5F70 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		184EA9A42B7A373300D0981D /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
 		184EA9A52B7A373300D0981D /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
 		184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
@@ -56,6 +57,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		18257CBC2B88652600DC5F70 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		18497C5D2B541D6100A6C5E3 /* md-trollstore */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "md-trollstore"; sourceTree = "<group>"; };
 		18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChargeLimiter.entitlements; sourceTree = "<group>"; };
 		184EA9B72B7A373300D0981D /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -124,6 +126,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */,
+				18257CBD2B88652600DC5F70 /* CoreGraphics.framework in Frameworks */,
 				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
 				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
@@ -185,6 +188,7 @@
 		187886492B5199D800E48B28 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18257CBC2B88652600DC5F70 /* CoreGraphics.framework */,
 				1899585D2B81A77800C93B46 /* MessageUI.framework */,
 				184FE8032B70BE8100525080 /* UserNotifications.framework */,
 				18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */,
@@ -340,7 +344,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\n#build_tipa\nbuild_deb\n";
+			shellScript = "function build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n";
 		};
 		184EA9B32B7A373300D0981D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -520,7 +524,7 @@
 					/opt/theos/vendor/include,
 					/opt/include,
 				);
-				INFOPLIST_FILE = "ChargeLimiter_rootless copy-Info.plist";
+				INFOPLIST_FILE = ChargeLimiter/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -559,7 +563,7 @@
 					/opt/theos/vendor/include,
 					/opt/include,
 				);
-				INFOPLIST_FILE = "ChargeLimiter_rootless copy-Info.plist";
+				INFOPLIST_FILE = ChargeLimiter/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -744,7 +748,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.8;
+				TROLLSTORE_DEVICE_IP = 192.168.0.100;
 			};
 			name = Debug;
 		};
@@ -780,7 +784,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.8;
+				TROLLSTORE_DEVICE_IP = 192.168.0.100;
 			};
 			name = Release;
 		};

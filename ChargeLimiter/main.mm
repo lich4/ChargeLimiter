@@ -35,6 +35,15 @@ void UIApplicationInitialize();
 - (void)registerWindowWithContextID:(unsigned)arg1 atLevel:(double)arg2;
 @end
 
+@interface FBSOrientationUpdate: NSObject
+- (UIDeviceOrientation)orientation;
+- (CGFloat)duration;
+@end
+
+@interface FBSOrientationObserver: NSObject
+- (void)setHandler:(void(^)(FBSOrientationUpdate*))handler;
+@end
+
 @interface Service : NSObject<UNUserNotificationCenterDelegate>
 + (instancetype)inst;
 - (instancetype)init;
@@ -65,6 +74,19 @@ static int g_wind_type = 0; // 1: HUD
 #define FLOAT_ORIGINY   100
 #define FLOAT_WIDTH     80
 #define FLOAT_HEIGHT    55
+
+static CGFloat orientationAngle(UIDeviceOrientation orientation) {
+    switch (orientation) {
+        case UIDeviceOrientationPortraitUpsideDown:
+            return M_PI;
+        case UIDeviceOrientationLandscapeLeft:
+            return M_PI_2;
+        case UIDeviceOrientationLandscapeRight:
+            return -M_PI_2;
+        default:
+            return 0;
+    }
+}
 
 @implementation AppDelegate
 static UIView* _mainWnd = nil;
@@ -122,8 +144,6 @@ static AppDelegate* _app = nil;
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
             BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
-                NSFileLog(@"%@ BKSHIDEventRegisterEventCallback", log_prefix);
-                NSLog(@"%@ BKSHIDEventRegisterEventCallback", log_prefix);
                 CFArrayRef ref = IOHIDEventGetChildren(event);
                 if (!ref || CFArrayGetCount(ref) == 0) {
                     return;
@@ -146,6 +166,18 @@ static AppDelegate* _app = nil;
                     [UIApplication.sharedApplication _enqueueHIDEvent:event];
                 }
             });
+            
+            static UIDeviceOrientation old_orient = UIDevice.currentDevice.orientation;
+            static FBSOrientationObserver* orientObserver = [objc_getClass("FBSOrientationObserver") new];
+            [orientObserver setHandler:^(FBSOrientationUpdate* update) {
+                if (update.orientation == old_orient) {
+                    return;
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_app.webview setTransform:CGAffineTransformMakeRotation(orientationAngle(update.orientation))];
+                });
+                old_orient = update.orientation;
+            }];
         }
     }
 }
@@ -462,6 +494,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         NSMutableDictionary* kv = [cache_kv mutableCopy];
         kv[@"enable"] = @(g_enable);
         kv[@"floatwnd"] = @(g_enable_floatwnd);
+        kv[@"dark"] = @(isDarkMode());
         return @{
             @"status": @0,
             @"data": kv,
@@ -733,7 +766,7 @@ static void* make_sym_callable(void *ptr) {
             CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
             orig_UIEventDispatcher__installEventRunLoopSources_(dispatcher, @selector(_installEventRunLoopSources:), mainRunLoop);
         }
-        UIEventFetcher *fetcher = [[objc_getClass("UIEventFetcher") alloc] init];
+        UIEventFetcher *fetcher = [objc_getClass("UIEventFetcher") new];
         [dispatcher setValue:fetcher forKey:@"eventFetcher"];
         if ([fetcher respondsToSelector:@selector(setEventFetcherSink:)]) {
             [fetcher setEventFetcherSink:dispatcher];
