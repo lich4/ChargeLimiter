@@ -32,6 +32,8 @@ if [ ! -f "${CODE_SIGN_ENTITLEMENTS}" ]; then
 fi
 echo "use entitlements ${CODE_SIGN_ENTITLEMENTS}"
 
+[[ $(type -t on_pkg) == function ]] && on_pkg
+
 ldid -S${CODE_SIGN_ENTITLEMENTS} ${APP}/${TARGET_NAME}
 rm -rf ${DIR}/${TARGET_NAME}.tipa ${DIR}/Payload
 mkdir -p ${DIR}/Payload

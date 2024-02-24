@@ -658,6 +658,9 @@ const App = {
 
 window.addEventListener("load", function () {
     window.app = new Vue(App);
+    $(".noclick").click(() => {
+        return false;
+    });
 })
 
 if (location.port >= 5500 && location.port <= 5510) {

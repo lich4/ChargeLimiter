@@ -14,8 +14,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "503"
-            endingLineNumber = "503"
+            startingLineNumber = "545"
+            endingLineNumber = "545"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "492"
-            endingLineNumber = "492"
+            startingLineNumber = "534"
+            endingLineNumber = "534"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "530"
-            endingLineNumber = "530"
+            startingLineNumber = "572"
+            endingLineNumber = "572"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "384"
-            endingLineNumber = "384"
+            startingLineNumber = "426"
+            endingLineNumber = "426"
             landmarkName = "onBatteryEvent(serv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "419"
-            endingLineNumber = "419"
+            startingLineNumber = "461"
+            endingLineNumber = "461"
             landmarkName = "onBatteryEvent(serv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -94,9 +94,9 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "441"
-            endingLineNumber = "441"
-            landmarkName = "onBatteryEvent(serv)"
+            startingLineNumber = "483"
+            endingLineNumber = "483"
+            landmarkName = "initConf()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -110,8 +110,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "508"
-            endingLineNumber = "508"
+            startingLineNumber = "550"
+            endingLineNumber = "550"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -126,8 +126,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "536"
-            endingLineNumber = "536"
+            startingLineNumber = "578"
+            endingLineNumber = "578"
             landmarkName = "handleReq(nsreq)"
             landmarkType = "9">
          </BreakpointContent>
@@ -142,8 +142,8 @@
             filePath = "ChargeLimiter/main.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "817"
-            endingLineNumber = "817"
+            startingLineNumber = "859"
+            endingLineNumber = "859"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>

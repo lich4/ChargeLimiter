@@ -112,6 +112,32 @@ static AppDelegate* _app = nil;
     }
     return YES;
 }
+- (void)speedUpWebView:(UIWebView*)webview { // 优化UIWebView反应速度
+    for (UIView* view in webview.scrollView.subviews) {
+        if ([view.class.description isEqualToString:@"UIWebBrowserView"]) {
+            NSArray* gestures = view.gestureRecognizers;
+            for (UIGestureRecognizer* gestureRecognizer in gestures) {
+                if ([gestureRecognizer isKindOfClass:UITapGestureRecognizer.class]) {
+                    UITapGestureRecognizer* tapRecognizer = (UITapGestureRecognizer*)gestureRecognizer;
+                    if (tapRecognizer.numberOfTapsRequired > 1 || tapRecognizer.numberOfTouchesRequired > 1) {
+                        gestureRecognizer.enabled = NO;
+                    }
+                } else if ([gestureRecognizer isKindOfClass:UILongPressGestureRecognizer.class]) {
+                    gestureRecognizer.enabled = NO;
+                } else if ([gestureRecognizer isKindOfClass:UIPanGestureRecognizer.class]) {
+                    gestureRecognizer.enabled = NO;
+                } else {
+                    NSString* type = NSStringFromClass(gestureRecognizer.class);
+                    if ([type isEqualToString:@"UIWebTouchEventsGestureRecognizer"]) {
+                    } else {
+                        gestureRecognizer.enabled = NO;
+                    }
+                }
+            }
+            break;
+        }
+    }
+}
 - (void)viewDidAppear:(BOOL)animated {
     @autoreleasepool {
         [super viewDidAppear:animated];
@@ -184,6 +210,7 @@ static AppDelegate* _app = nil;
 - (void)webViewDidFinishLoad:(UIWebView*)webview {
     [_mainWnd addSubview:webview];
     [_mainWnd bringSubviewToFront:webview];
+    [self speedUpWebView: webview];
 }
 - (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
     NSString* surl = webview.request.URL.absoluteString;

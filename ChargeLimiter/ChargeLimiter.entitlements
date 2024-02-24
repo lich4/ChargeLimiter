@@ -36,16 +36,7 @@
 	</array>
 	<key>com.apple.security.iokit-user-client-class</key>
 	<array>
-		<string>site.IOUserUserClient</string>
-		<string>site.IOUserClient</string>
-		<string>site.AppleSmartIOUserClient</string>
-		<string>site.AppleSmartBatteryUserClient</string>
-		<string>site.AppleSmartBatteryManagerUserClient</string>
-		<string>IOUserUserClient</string>
 		<string>IOUserClient</string>
-		<string>AppleSmartIOUserClient</string>
-		<string>AppleSmartBatteryUserClient</string>
-		<string>AppleSmartBatteryManagerUserClient</string>
 	</array>
 	<key>com.apple.system-task-ports</key>
     <true/>
