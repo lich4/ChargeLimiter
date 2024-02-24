@@ -83,9 +83,9 @@
   </style>
 </head>
 <body>
-  <div id="app">
+  <div id="app" @click="invset_enable">
     <div id="main_page" v-if="daemon_alive">
-      <template v-if="bat_info" @click="invset_enable">
+      <template v-if="bat_info">
         <el-row class="tip-line">
           <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
           <i class="fa fa-toggle-off icon toggle-off" v-else></i>
