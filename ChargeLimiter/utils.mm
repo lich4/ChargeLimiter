@@ -92,7 +92,7 @@ NSString* getNSStringFromFile(int fd) {
 }
 
 extern char** environ;
-int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, int flag) {
+int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, int flag, NSDictionary* param) {
     NSString* file = args.firstObject;
     NSUInteger argCount = [args count];
     char **argsC = (char **)malloc((argCount + 1) * sizeof(char*));
@@ -107,8 +107,23 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
         posix_spawnattr_set_persona_uid_np(&attr, 0);
         posix_spawnattr_set_persona_gid_np(&attr, 0);
     }
+    if ((flag & SPAWN_FLAG_SUSPEND) != 0) {
+        posix_spawnattr_setflags(&attr, POSIX_SPAWN_START_SUSPENDED);
+    }
     posix_spawn_file_actions_t action;
     posix_spawn_file_actions_init(&action);
+    if (param != nil) {
+        if (param[@"cwd"] != nil) {
+            NSString* path = param[@"cwd"];
+            posix_spawn_file_actions_addchdir_np(&action, path.UTF8String);
+        }
+        if (param[@"close"] != nil) {
+            NSArray* closes_fds = param[@"close"];
+            for (NSNumber* nfd in closes_fds) {
+                posix_spawn_file_actions_addclose(&action, nfd.intValue);
+            }
+        }
+    }
     int outErr[2];
     if(stdErr) {
         pipe(outErr);
@@ -124,11 +139,12 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     pid_t task_pid = -1;
     pid_t* task_pid_ptr = &task_pid;
     if (pidPtr != 0) {
+        *pidPtr = -1;
         task_pid_ptr = pidPtr;
     }
     int status = -200;
     int spawnError = posix_spawnp(task_pid_ptr, [file UTF8String], &action, &attr, (char* const*)argsC, environ);
-    NSLog(@"%@ posix_spawn %@ ret=%d -> %d", log_prefix, args.firstObject, spawnError, task_pid);
+    NSLog(@"%@ posix_spawn %@ ret=%d -> %d", log_prefix, args.firstObject, spawnError, *task_pid_ptr);
     posix_spawnattr_destroy(&attr);
     for (NSUInteger i = 0; i < argCount; i++) {
         free(argsC[i]);
@@ -249,38 +265,6 @@ NSString* getAppEXEPath() {
     return @(exe);
 }
 
-void runAsDaemon(void(^Block)(), int flag) {
-    static int fds[2];
-    int flag_;
-    pipe(fds);
-    flag_ = fcntl(fds[0], F_GETFL, 0);
-    fcntl(fds[0], F_SETFL, flag_ | O_NONBLOCK);
-    flag_ = fcntl(fds[1], F_GETFL, 0);
-    fcntl(fds[1], F_SETFL, flag_ | O_NONBLOCK);
-    int forkpid = fork();
-    NSLog(@"%@ run_as_daemon -> %d", log_prefix, forkpid);
-    if (forkpid < 0) {
-        return;
-    } else if (forkpid > 0) { // father
-        sleep(1);
-        return;
-    }
-    setsid();
-    chdir("/");
-    umask(0);
-    int null_in = open("/dev/null", O_RDONLY);
-    int null_out = open("/dev/null", O_WRONLY);
-    dup2(null_in, STDIN_FILENO);
-    dup2(null_out, STDOUT_FILENO);
-    dup2(null_out, STDERR_FILENO);
-    if (flag & 1) { // 关闭后影响权限
-        for(unsigned int i = 0; i < 1024; i++) {
-            close(i);
-        }
-    }
-    Block();
-}
-
 int getJBType() {
     /*  EXE和DAEMON路径可能不同,需要综合判断
         有根越狱: /Applications/ChargeLimiter.app/ChargeLimiter (也可能是roothide)
@@ -344,6 +328,19 @@ BOOL isDarkMode() {
         }
     }
     return NO;
+}
+
+NSArray* getUnusedFds() { // posix_spawn会将socket等fd继承给子进程
+    NSMutableArray* result = [NSMutableArray new];
+    for (int fd = 0; fd < 100; fd++) {
+        struct stat st;
+        if (0 == fstat(fd, &st)) {
+            if (S_ISSOCK(st.st_mode)) { // 避免子进程端口占用造成不必要的麻烦
+                [result addObject:@(fd)];
+            }
+        }
+    }
+    return result;
 }
 
 

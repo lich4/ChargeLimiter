@@ -48,7 +48,6 @@ void UIApplicationInitialize();
 + (instancetype)inst;
 - (instancetype)init;
 - (void)serve;
-- (void)localPush:(NSString*)msg interval:(int)interval;
 @end
 
 @interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate>
@@ -88,7 +87,9 @@ static CGFloat orientationAngle(UIDeviceOrientation orientation) {
     }
 }
 
-@implementation AppDelegate
+@implementation AppDelegate {
+    NSString* initUrl;
+}
 static UIView* _mainWnd = nil;
 static AppDelegate* _app = nil;
 - (void)sceneWillEnterForeground:(UIScene*)scene API_AVAILABLE(ios(13.0)) {
@@ -154,8 +155,8 @@ static AppDelegate* _app = nil;
             UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
             webview.delegate = self;
             self.webview = webview;
-            NSString* wwwpath = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
-            NSURL* url = [NSURL URLWithString:wwwpath];
+            initUrl = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
+            NSURL* url = [NSURL URLWithString:initUrl];
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
         } else if (g_wind_type == 1) {
@@ -165,8 +166,8 @@ static AppDelegate* _app = nil;
             webview.opaque = NO;
             webview.delegate = self;
             self.webview = webview;
-            NSString* wwwpath = [NSString stringWithFormat:@"http://127.0.0.1:%d/float.html", GSERV_PORT];
-            NSURL* url = [NSURL URLWithString:wwwpath];
+            initUrl = [NSString stringWithFormat:@"http://127.0.0.1:%d/float.html", GSERV_PORT];
+            NSURL* url = [NSURL URLWithString:initUrl];
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
             BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
@@ -216,7 +217,7 @@ static AppDelegate* _app = nil;
     NSString* surl = webview.request.URL.absoluteString;
     [NSThread sleepForTimeInterval:0.5];
     if (surl.length == 0) { // 服务端未初始化时url会被置空
-        surl = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
+        surl = initUrl;
     }
     NSURL* url = [NSURL URLWithString:surl];
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:3.0];
@@ -405,73 +406,111 @@ static void perform_acccharge(BOOL flag) {
     }
 }
 
+static NSMutableDictionary* getFilteredMDic(NSDictionary* dic, NSArray* filter) {
+    NSMutableDictionary* mdic = [NSMutableDictionary new];
+    for (NSString* key in filter) {
+        if (dic[key] != nil) {
+            mdic[key] = dic[key];
+        }
+    }
+    return mdic;
+}
+
+static void updateStatistics() {
+    int ts = (int)time(0);
+    NSString* hourKey = [@(ts/3600) stringValue];
+    NSString* dayKey = [@(ts/86400) stringValue];
+    NSString* monthKey = [@(ts/2592000) stringValue];
+    NSMutableArray* stat_hour = [getlocalKV(@"stat_hour") mutableCopy];
+    NSMutableArray* stat_day = [getlocalKV(@"stat_day") mutableCopy];
+    NSMutableArray* stat_month = [getlocalKV(@"stat_month") mutableCopy];
+    if (stat_hour.count == 0 || ![stat_hour.lastObject[@"key"] isEqualToString:hourKey]) {
+        NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CurrentCapacity", @"InstantAmperage", @"IsCharging", @"Temperature", @"UpdateTime"]);
+        mBatInfo[@"key"] = hourKey;
+        [stat_hour addObject:mBatInfo];
+        NSArray* new_stat = [stat_hour subarrayWithRange:NSMakeRange(MAX((int)stat_hour.count - 24, 0), MIN(stat_hour.count, 24))];
+        setlocalKV(@"stat_hour", new_stat);
+    }
+    if (stat_day.count == 0 || ![stat_day.lastObject[@"key"] isEqualToString:dayKey]) {
+        NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CycleCount", @"NominalChargeCapacity", @"UpdateTime"]);
+        mBatInfo[@"key"] = dayKey;
+        [stat_day addObject:mBatInfo];
+        NSArray* new_stat = [stat_day subarrayWithRange:NSMakeRange(MAX((int)stat_day.count - 30, 0), MIN(stat_day.count, 30))];
+        setlocalKV(@"stat_day", new_stat);
+    }
+    if (stat_month.count == 0 || ![stat_month.lastObject[@"key"] isEqualToString:monthKey]) {
+        NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CycleCount", @"NominalChargeCapacity", @"UpdateTime"]);
+        mBatInfo[@"key"] = monthKey;
+        [stat_month addObject:mBatInfo];
+        setlocalKV(@"stat_month", stat_month);
+    }
+}
+
 static void onBatteryEvent(io_service_t serv) {
     @autoreleasepool {
         NSDictionary* old_bat_info = bat_info;
-        if (0 == getBatInfoWithServ(serv, &bat_info) && g_enable) {
-            NSString* mode = getlocalKV(@"mode");
-            NSNumber* charge_below = getlocalKV(@"charge_below");
-            NSNumber* charge_above = getlocalKV(@"charge_above");
-            NSNumber* enable_temp = getlocalKV(@"enable_temp");
-            NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
-            NSNumber* charge_temp_below = getlocalKV(@"charge_temp_below");
-            NSNumber* capacity = bat_info[@"CurrentCapacity"];
-            NSNumber* is_charging = bat_info[@"IsCharging"];
-            NSNumber* temperature_ = bat_info[@"Temperature"];
-            int temperature = temperature_.intValue / 100;
-            if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
-                if (is_charging.boolValue) {
-                    NSFileLog(@"stop charging for high temperature");
-                    [Service.inst localPush:@"Stop charging" interval:3600];
-                    if (0 == setChargeStatus(NO)) {
-                        perform_acccharge(NO);
-                    }
-                    return;
+        if (0 != getBatInfoWithServ(serv, &bat_info)) {
+            return;
+        }
+        updateStatistics();
+        if (!g_enable) {
+            return;
+        }
+        NSString* mode = getlocalKV(@"mode");
+        NSNumber* charge_below = getlocalKV(@"charge_below");
+        NSNumber* charge_above = getlocalKV(@"charge_above");
+        NSNumber* enable_temp = getlocalKV(@"enable_temp");
+        NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
+        NSNumber* charge_temp_below = getlocalKV(@"charge_temp_below");
+        NSNumber* capacity = bat_info[@"CurrentCapacity"];
+        NSNumber* is_charging = bat_info[@"IsCharging"];
+        NSNumber* temperature_ = bat_info[@"Temperature"];
+        int temperature = temperature_.intValue / 100;
+        if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
+            if (is_charging.boolValue) {
+                NSFileLog(@"stop charging for high temperature");
+                if (0 == setChargeStatus(NO)) {
+                    perform_acccharge(NO);
+                }
+                return;
+            }
+        }
+        if (capacity.intValue >= charge_above.intValue) {
+            if (is_charging.boolValue) {
+                NSFileLog(@"stop charging for capacity");
+                if (0 == setChargeStatus(NO)) {
+                    perform_acccharge(NO);
                 }
             }
-            if (capacity.intValue >= charge_above.intValue) {
-                if (is_charging.boolValue) {
-                    NSFileLog(@"stop charging for capacity");
-                    [Service.inst localPush:@"Stop charging" interval:3600];
-                    if (0 == setChargeStatus(NO)) {
-                        perform_acccharge(NO);
-                    }
+            return; // 电量满禁止操作
+        }
+        if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
+            if (isAdaptorNewConnect(old_bat_info, bat_info)) {
+                NSFileLog(@"start charging for plug in");
+                if (0 == setChargeStatus(YES)) {
+                    perform_acccharge(YES);
                 }
-                return; // 电量满禁止操作
+                return;
             }
-            if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
-                if (isAdaptorNewConnect(old_bat_info, bat_info)) {
-                    NSFileLog(@"start charging for plug in");
-                    [Service.inst localPush:@"Start charging" interval:3600];
+            if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
+                if (isAdaptorConnect(bat_info)) {
+                    NSFileLog(@"start charging for low temperature");
                     if (0 == setChargeStatus(YES)) {
                         perform_acccharge(YES);
                     }
                     return;
                 }
-                if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
-                    if (isAdaptorConnect(bat_info)) {
-                        NSFileLog(@"start charging for low temperature");
-                        [Service.inst localPush:@"Start charging" interval:3600];
-                        if (0 == setChargeStatus(YES)) {
-                            perform_acccharge(YES);
-                        }
-                        return;
-                    }
-                }
-                return;
             }
-            if (capacity.intValue <= charge_below.intValue) {
-                if (!is_charging.boolValue) {
-                    if (isAdaptorConnect(bat_info)) {
-                        NSFileLog(@"start charging for capacity");
-                        [Service.inst localPush:@"Start charging" interval:3600];
-                        if (0 == setChargeStatus(YES)) {
-                            perform_acccharge(YES);
-                        }
-                        return;
-                    } else {
-                        [Service.inst localPush:@"Plug in adaptor to charge" interval:3600];
+            return;
+        }
+        if (capacity.intValue <= charge_below.intValue) {
+            if (!is_charging.boolValue) {
+                if (isAdaptorConnect(bat_info)) {
+                    NSFileLog(@"start charging for capacity");
+                    if (0 == setChargeStatus(YES)) {
+                        perform_acccharge(YES);
                     }
+                    return;
                 }
             }
         }
@@ -492,6 +531,9 @@ static void initConf() {
         @"acc_charge_blue": @NO,
         @"acc_charge_bright": @NO,
         @"acc_charge_lpm": @YES,
+        @"stat_hour": @[],
+        @"stat_day": @[],
+        @"stat_month": @[],
     };
     for (NSString* key in def_dic) {
         id val = getlocalKV(key);
@@ -505,7 +547,10 @@ static void showFloatwnd(BOOL flag) {
     static int floatwnd_pid = -1;
     if (flag) { // open
         if (floatwnd_pid == -1) {
-            spawn(@[getAppEXEPath(), @"floatwnd"], nil, nil, &floatwnd_pid, SPAWN_FLAG_NOWAIT);
+            NSDictionary* param = @{
+                @"close": getUnusedFds(),
+            };
+            spawn(@[getAppEXEPath(), @"floatwnd"], nil, nil, &floatwnd_pid, SPAWN_FLAG_NOWAIT, param);
         }
     } else { // close
         if (floatwnd_pid != -1) {
@@ -610,60 +655,11 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             exit(0);
         }
     }
-    
 }
 - (instancetype)init {
     self = super.init;
     self->bid = NSBundle.mainBundle.bundleIdentifier;
     return self;
-}
-- (void)initLocalPush {
-    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
-        if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
-            [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
-            }];
-        }
-    }];
-}
-- (void)localPush:(NSString*)msg interval:(int)interval { // interval防止频繁提示
-    if (g_enable_floatwnd) { // 有悬浮窗则忽略通知
-        return;
-    }
-    static NSMutableDictionary* lastRemindDic = [NSMutableDictionary new];
-    static void (^Block)(NSString*) = ^(NSString* msg) {
-        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-        UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-        content.title = @"ChargeLimiter";
-        content.body = msg;
-        NSTimeInterval timeInterval = [[NSDate dateWithTimeIntervalSinceNow:1] timeIntervalSinceNow];
-        UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timeInterval repeats:NO];
-        UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:@"ChargeLimiter" content:content trigger:trigger];
-        [center addNotificationRequest:request withCompletionHandler:nil];
-    };
-    BOOL needNotify = NO;
-    if (interval == 0) {
-        needNotify = YES;
-    } else if (interval > 0) {
-        int ts = (int)time(0);
-        if (lastRemindDic[msg] == nil) {
-            lastRemindDic[msg] = @0;
-        }
-        NSNumber* last_remind_ts = lastRemindDic[msg];
-        if (ts - last_remind_ts.intValue > interval) {
-            lastRemindDic[msg] = @(ts);
-            needNotify = YES;
-        }
-    }
-    if (needNotify) {
-        if ([NSThread isMainThread]) {
-            Block(msg);
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                Block(msg);
-            });
-        }
-    }
 }
 - (void)serve {
     initConf();
@@ -697,7 +693,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             onBatteryEvent(service);
         }, nil, &noti);
         [LSApplicationWorkspace.defaultWorkspace addObserver:self];
-        [self initLocalPush];
         isBlueEnable(); // init
         isLPMEnable();
     
@@ -845,10 +840,6 @@ int main(int argc, char** argv) {
                     showFloatwnd(NO);
                 });
                 [NSRunLoop.mainRunLoop run];
-            } else if (0 == strcmp(argv[1], "get_bat_info")) {
-                BOOL slim = argc == 3;
-                getBatInfo(&bat_info, slim);
-                NSLog(@"%@", bat_info);
             } else if (0 == strcmp(argv[1], "floatwnd")) {
                 g_wind_type = 1;
                 static id<UIApplicationDelegate> appDelegate = [AppDelegate new];
@@ -857,6 +848,10 @@ int main(int argc, char** argv) {
                 [app setDelegate:appDelegate];
                 [app __completeAndRunAsPlugin];
                 CFRunLoopRun();
+            } else if (0 == strcmp(argv[1], "get_bat_info")) {
+                BOOL slim = argc == 3;
+                getBatInfo(&bat_info, slim);
+                NSLog(@"%@", bat_info);
             }
         }
         return -1;

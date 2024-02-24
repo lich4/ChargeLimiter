@@ -27,14 +27,15 @@ extern NSString* log_prefix;
 enum {
     SPAWN_FLAG_ROOT     = 1,
     SPAWN_FLAG_NOWAIT   = 2,
+    SPAWN_FLAG_SUSPEND  = 4,
 };
-int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, int flag);
+int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, int flag, NSDictionary* param=nil);
 
 int platformize_me();
 int set_memory_limit(int pid, int mb);
 BOOL localPortOpen(int port);
 NSString* getAppEXEPath();
-void runAsDaemon(void(^Block)(), int flag=0);
+NSArray* getUnusedFds();
 
 #define STR(X) #X
 

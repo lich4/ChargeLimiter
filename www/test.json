@@ -10,6 +10,7 @@
             "CycleCount": 689,
             "DesignCapacity": 1751,
             "CurrentCapacity": 80,
+            "AppleRawCurrentCapacity": 900,
             "Temperature": 1930,
             "Voltage": 4308,
             "BatteryInstalled": true,
@@ -34,7 +35,7 @@
             "enable": true,
             "dark": true,
             "mode": "charge_on_plug",
-            "lang": "",
+            "lang": "en",
             "charge_below": 30,
             "charge_above": 70,
             "enable_temp": false,
@@ -44,7 +45,33 @@
             "acc_charge_airmode": true,
             "acc_charge_blue": false,
             "acc_charge_bright": false,
-            "acc_charge_lpm": true
+            "acc_charge_lpm": true,
+            "stat_hour": [
+                {
+                    "IsCharging": true,
+                    "UpdateTime": 1708775561,
+                    "key": "474659",
+                    "CurrentCapacity": 81,
+                    "Temperature": 1820,
+                    "InstantAmperage": 433
+                }
+            ],
+            "stat_day": [
+                {
+                    "NominalChargeCapacity": 1857,
+                    "UpdateTime": 1708775561,
+                    "key": "19777",
+                    "CycleCount": 76
+                }
+            ],
+            "stat_month": [
+                {
+                    "NominalChargeCapacity": 1857,
+                    "UpdateTime": 1708775561,
+                    "key": "659",
+                    "CycleCount": 76
+                }
+            ]
         }
     },
     "set_conf": {

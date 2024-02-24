@@ -58,7 +58,7 @@ This app is inspired by MacOS version AlDente, used to prevent iPhone/iPad long-
 
 Download URL: (https://github.com/lich4/ChargeLimiter/releases)      
 iOS<=14 require Jailbreak and install the deb version    
-iOS>=15 require TrollStore and install the tipa version    
+iOS>=15 require TrollStore and install the tipa version(or use arm64.deb for Rootless Jailbreak)    
 
 Supported mode
 * "Plug and charge", iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified. Useful for individual.
