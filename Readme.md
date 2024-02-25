@@ -7,6 +7,8 @@ MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于�
 下载地址:(https://github.com/lich4/ChargeLimiter/releases)    
 交流QQ群:669869453 
 
+目前支持iOS12-17(取决于TrollStore和越狱环境支持的最高版本)。低于iOS12系统的，由于作者没有足够手机和开发环境进行测试，不能保证兼容性。
+
 todo:
 * 实现慢速充电(待测试可行性)
 * iOS12悬浮窗
