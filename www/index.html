@@ -238,19 +238,19 @@
             <el-row class="py-2 col-item">
               <el-col></el-col>
               <el-label>{{$t("charge_below")}}</el-label>
-              <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="5" :marks="marks_perc" @change="set_charge_below"></el-slider>
+              <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="1" :marks="marks_perc" @change="set_charge_below"></el-slider>
             </el-row>
             <el-divider class="my-0" direction="horizontal"></el-divider>
             <el-row class="py-2 col-item">
               <el-label>{{$t("nocharge_above")}}</el-label>
-              <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="5" :marks="marks_perc" @change="set_charge_above"></el-slider>
+              <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
             </el-row>
             <el-divider class="my-0" direction="horizontal"></el-divider>
           </template>
           <template v-else-if="mode=='charge_on_plug'">
             <el-row class="py-2 col-item">
               <el-label>{{$t("nocharge_above")}}</el-label>
-              <el-slider v-model="charge_above" class="pr-1" :min="20" :max="100" :step="5" :marks="marks_perc" @change="set_charge_above"></el-slider>
+              <el-slider v-model="charge_above" class="pr-1" :min="20" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
             </el-row>
             <el-divider class="my-0" direction="horizontal"></el-divider>
           </template>
@@ -261,12 +261,12 @@
           <template v-if="enable_temp">
             <el-row class="py-2 col-item">
               <el-label class="submenu">{{$t("nocharge_temp_above")}}</el-label>
-              <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="5" :marks="marks_temp" @change="set_charge_temp_above" disable></el-slider>
+              <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="1" :marks="marks_temp" @change="set_charge_temp_above" disable></el-slider>
             </el-row>
             <el-divider class="my-0" direction="horizontal"></el-divider>
             <el-row class="py-2 col-item" v-if="mode=='charge_on_plug'">
               <el-label class="submenu">{{$t("charge_temp_below")}}</el-label>
-              <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="5" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
+              <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
             </el-row>
           </template>
           <el-divider class="my-0" direction="horizontal"></el-divider>

@@ -345,11 +345,10 @@ static BOOL g_enable = YES;
 static BOOL g_enable_floatwnd = NO;
 static int g_jbtype = -1;
 static NSMutableDictionary* cache_kv = nil;
-
+#define CONF_PATH   "/var/root/aldente.conf"
 static id getlocalKV(NSString* key) {
     if (cache_kv == nil) {
-        NSString* path = [NSHomeDirectory() stringByAppendingString:@"/aldente.conf"];
-        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:path];
+        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
     }
     if (cache_kv == nil) {
         return nil;
@@ -358,15 +357,14 @@ static id getlocalKV(NSString* key) {
 }
 
 static void setlocalKV(NSString* key, id val) {
-    NSString* path = [NSHomeDirectory() stringByAppendingString:@"/aldente.conf"];
     if (cache_kv == nil) {
-        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:path];
+        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
         if (cache_kv == nil) {
             cache_kv = [NSMutableDictionary new];
         }
     }
     cache_kv[key] = val;
-    [cache_kv writeToFile:path atomically:YES];
+    [cache_kv writeToFile:@CONF_PATH atomically:YES];
 }
 
 static void perform_acccharge(BOOL flag) {
