@@ -173,6 +173,7 @@ const i18n = new VueI18n({
             "baseline arcas": "Wireless charger",
             "pd charger": "PD charger",
             "usb charger": "USB charger",
+            "magsafe acc": "MagSafe charger",
             author: "Author",
             contact: "Contact",
         },
@@ -240,6 +241,7 @@ const i18n = new VueI18n({
             "baseline arcas": "无线充电器",
             "pd charger": "PD快充器",
             "usb charger": "USB充电器",
+            "magsafe acc": "MagSafe充电器",
             author: "作者",
             contact: "联系方式",
         },
@@ -305,8 +307,9 @@ const i18n = new VueI18n({
             "wait": "請稍候",
             "usb host": "主機 USB",
             "baseline arcas": "無線充電器",
-            "pd charger": "PD 快充器",
-            "usb charger": "USB 充電器",
+            "pd charger": "PD快充器",
+            "usb charger": "USB充電器",
+            "magsafe acc": "MagSafe充電器",
             author: "作者",
             contact: "聯絡方式",
         }
@@ -464,7 +467,7 @@ const App = {
                 return;
             }
             if (v) {
-                if (!this.bat_info.ExternalConnected) {
+                if (!this.bat_info.ExternalChargeCapable) {
                     this.msg_list.push({
                         "id": get_id(), 
                         "title": this.$t("conn_adaptor"), 

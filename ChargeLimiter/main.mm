@@ -311,17 +311,18 @@ static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
 }
 
 static BOOL isAdaptorConnect(NSDictionary* info) {
-    NSNumber* ExternalConnected = info[@"ExternalConnected"];
-    if (ExternalConnected != nil) {
-        return ExternalConnected.boolValue;
+    // 某些充电器ExternalConnected为false,这里使用ExternalChargeCapable
+    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
+    if (ExternalChargeCapable != nil) {
+        return ExternalChargeCapable.boolValue;
     }
     return NO;
 }
 
 static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
-    NSNumber* old_ExternalConnected = oldInfo[@"ExternalConnected"];
-    NSNumber* ExternalConnected = info[@"ExternalConnected"];
-    if (!old_ExternalConnected.boolValue && ExternalConnected.boolValue) {
+    NSNumber* old_ExternalChargeCapable = oldInfo[@"ExternalChargeCapable"];
+    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
+    if (!old_ExternalChargeCapable.boolValue && ExternalChargeCapable.boolValue) {
         return YES;
     }
     return NO;
