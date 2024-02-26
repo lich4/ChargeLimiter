@@ -117,13 +117,15 @@ const i18n = new VueI18n({
             setting: "Settings",
             batinfo: "Battery information",
             adaptorinfo: "Adaptor information",
+            update_freq: "Update frequency",
+            update_freq_desc: "Slow down to save power",
             charge_below: "Start charging if capacity below(%)",
             nocharge_above: "Stop charging if capacity above(%)",
             nocharge_temp_above: "Stop charging if temperature above(°C)",
             charge_temp_below: "Recover charging if temperature below(°C)",
             charge_btn_desc: "This button used to manually start or stop charging",
             enable: "Enable",
-            floatwnd: "Floating",
+            floatwnd: "Floating window",
             mode: "mode",
             charge_on_plug: "Plug and charge",
             charge_on_plug_desc: "iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified",
@@ -182,6 +184,8 @@ const i18n = new VueI18n({
             setting: "设置",
             batinfo: "电池信息",
             adaptorinfo: "电源信息",
+            update_freq: "更新频率",
+            update_freq_desc: "降低频率以省电",
             charge_below: "电量低于(%)开始充电",
             nocharge_above: "电量高于(%)停止充电",
             nocharge_temp_above: "温度高于(°C)停止充电",
@@ -247,6 +251,8 @@ const i18n = new VueI18n({
             setting: "設定",
             batinfo: "電池資訊",
             adaptorinfo: "電源資訊",
+            update_freq: "更新頻率",
+            update_freq_desc: "降低頻率以省電",
             charge_below: "電量低於(%)開始充電",
             nocharge_above: "電量高於(%)停止充電",
             nocharge_temp_above: "溫度高於(°C)停止充電",
@@ -320,6 +326,7 @@ const App = {
             loading: false,
             daemon_alive: false,
             enable: false,
+            update_freq: 1,
             dark: false,
             floatwnd: false,
             mode: "charge_on_plug",
@@ -340,6 +347,7 @@ const App = {
             timer: null,
             marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
             marks_temp: range(0, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
+            freqs: null,
             modes: null,
         }
     },
@@ -513,6 +521,19 @@ const App = {
             }
             return s;
         },
+        change_update_freq: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "update_freq",
+                val: v,
+            });
+            console.log("floatwnd", this.floatwnd)
+            if (this.floatwnd) {
+                this.set_floatwnd(false);
+            }
+            clearInterval(this.timer);
+            this.timer = setInterval(this.get_bat_info, v * 1000);
+        },
         get_temp_desc: function() {
             var centigrade = this.bat_info.Temperature / 100;
             var fahrenheit = t_c_to_f(centigrade);
@@ -582,6 +603,7 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
+            this.update_freq = jdata.data.update_freq;
             this.dark = jdata.data.dark;
             if (this.dark) {
                 this.switch_dark(true);
@@ -605,7 +627,7 @@ const App = {
             this.acc_charge_bright = jdata.data.acc_charge_bright;
             this.acc_charge_lpm = jdata.data.acc_charge_lpm;
             this.get_bat_info();
-            this.timer = setInterval(this.get_bat_info, 1000);
+            this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
         },
         get_conf: function() {
             this.ipc_send_wrapper({
@@ -632,6 +654,12 @@ const App = {
             }
         },
         reload_locale: function() {
+            this.freqs = [
+                {"label": "1 " + this.$t("sec"), "value": 1},
+                {"label": "20 " + this.$t("sec"), "value": 20},
+                {"label": "1 " + this.$t("min"), "value": 60},
+                {"label": "10 " + this.$t("min"), "value": 600},
+            ];
             this.modes = [
                 {"label": this.$t("charge_on_plug"), "value": "charge_on_plug"},
                 {"label": this.$t("edge_trigger"), "value": "edge_trigger"},

@@ -219,7 +219,7 @@
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item">
             <el-label>{{$t("lang")}}</el-label>
-            <el-select v-model="i18n.locale" size="mini" class="right" style="width:50%" @change="change_lang">
+            <el-select v-model="i18n.locale" size="mini" class="right" style="width:45%" @change="change_lang">
               <el-option v-for="i in Object.keys(i18n.messages)" :key="i" :label="i18n.messages[i].label" :value="i"></el-option>
             </el-select>
           </el-row>
@@ -229,8 +229,18 @@
             <el-tooltip class="item" effect="dark" :content="$t(mode+'_desc')">
               <span class="el-icon-warning-outline page-icon-sm"></span>
             </el-tooltip>
-            <el-select v-model="mode" size="mini" class="right" style="width:50%" @change="change_mode">
+            <el-select v-model="mode" size="mini" class="right" style="width:45%" @change="change_mode">
               <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
+            </el-select>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("update_freq")}}</el-label>
+            <el-tooltip class="item" effect="dark" :content="$t('update_freq_desc')">
+              <span class="el-icon-warning-outline page-icon-sm"></span>
+            </el-tooltip>
+            <el-select v-model="update_freq" size="mini" class="right" style="width:45%" @change="change_update_freq">
+              <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
             </el-select>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
@@ -258,6 +268,7 @@
             <el-label>{{$t("temp_ctrl")}}</el-label>
             <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>
           </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
           <template v-if="enable_temp">
             <el-row class="py-2 col-item">
               <el-label class="submenu">{{$t("nocharge_temp_above")}}</el-label>
@@ -268,8 +279,8 @@
               <el-label class="submenu">{{$t("charge_temp_below")}}</el-label>
               <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
             </el-row>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
           </template>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item">
             <el-label>{{$t("acc_charge")}}</el-label>
             <el-tooltip class="item" effect="dark" :content="$t('acc_charge_desc')">

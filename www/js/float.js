@@ -53,6 +53,7 @@ const App = {
         return {
             daemon_alive: false,
             enable: false,
+            update_freq: 1,
             timer: null,
             bat_info: null,
         }
@@ -88,7 +89,9 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
-            this.timer = setInterval(this.get_bat_info, 1000);
+            this.update_freq = jdata.data.update_freq;
+            this.get_bat_info();
+            this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
         },
         get_conf: function() {
             ipc_send({

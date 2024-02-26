@@ -10,6 +10,8 @@
 		1839C1D12B8C250C00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		1839C1D22B8C251600FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		1839C1D32B8C251D00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
+		1839C1D92B8C657400FCFDEB /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
+		1839C1DA2B8C657800FCFDEB /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
 		184EA9A42B7A373300D0981D /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
 		184EA9A52B7A373300D0981D /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
 		184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
@@ -57,6 +59,7 @@
 
 /* Begin PBXFileReference section */
 		18257CBC2B88652600DC5F70 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		1839C1D72B8C655900FCFDEB /* Readme2.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme2.md; sourceTree = "<group>"; };
 		18497C5D2B541D6100A6C5E3 /* md-trollstore */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "md-trollstore"; sourceTree = "<group>"; };
 		18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChargeLimiter.entitlements; sourceTree = "<group>"; };
 		184EA9B72B7A373300D0981D /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -143,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				18B757232B57FDB2008A67D1 /* Readme.md */,
+				1839C1D72B8C655900FCFDEB /* Readme2.md */,
 				18497C5D2B541D6100A6C5E3 /* md-trollstore */,
 				18EEB6F72B7BCAA100DCC561 /* splash.png */,
 				187886522B519A5B00E48B28 /* www */,
@@ -294,6 +298,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1839C1D92B8C657400FCFDEB /* splash.png in Resources */,
 				184EA9AF2B7A373300D0981D /* www in Resources */,
 				184EA9B02B7A373300D0981D /* Assets.xcassets in Resources */,
 				184EA9B12B7A373300D0981D /* LaunchScreen.storyboard in Resources */,
@@ -305,6 +310,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1839C1DA2B8C657800FCFDEB /* splash.png in Resources */,
 				1870F6112B85A96100B3660F /* www in Resources */,
 				1870F6122B85A96100B3660F /* Assets.xcassets in Resources */,
 				1870F6132B85A96100B3660F /* LaunchScreen.storyboard in Resources */,
@@ -342,7 +348,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function on_pkg {\n    echo on_pkg\n}\nexport -f on_pkg\n\nfunction build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n";
+			shellScript = "function on_pkg {\n    echo on_pkg\n}\nexport -f on_pkg\n\nfunction build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\n#build_tipa\nbuild_deb\n";
 			showEnvVarsInLog = 0;
 		};
 		184EA9B32B7A373300D0981D /* ShellScript */ = {

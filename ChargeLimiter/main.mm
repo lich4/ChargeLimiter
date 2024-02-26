@@ -7,7 +7,7 @@
 
 #define PRODUCT         "aldente"
 #define GSERV_PORT      1230
-#define TRACE           true
+#define TRACE           false
 
 NSString* log_prefix = @(PRODUCT "logger");
 static NSDictionary* bat_info = nil;
@@ -114,7 +114,7 @@ static AppDelegate* _app = nil;
     return YES;
 }
 - (void)speedUpWebView:(UIWebView*)webview { // 优化UIWebView反应速度
-    // 不用WKWebView的原因: TrollStore环境下,需要无沙盒执行子进程,而WKWebView需要沙盒才能工作,考虑和越狱的一致性选择UIWebView
+    // 不用WKWebView的原因: TrollStore环境下,需要no-container/no-sandbox执行子进程,而WKWebView在iOS>=16下需要container-required才能工作,考虑和越狱的一致性选择UIWebView
     // 如果不执行js也可以用SFSafariViewController替代
     for (UIView* view in webview.scrollView.subviews) {
         if ([view.class.description isEqualToString:@"UIWebBrowserView"]) {
@@ -519,6 +519,7 @@ static void onBatteryEvent(io_service_t serv) {
 static void initConf() {
     NSDictionary* def_dic = @{
         @"mode": @"charge_on_plug",
+        @"update_freq": @1,
         @"lang": @"",
         @"charge_below": @20,
         @"charge_above": @80,

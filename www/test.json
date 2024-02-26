@@ -33,6 +33,7 @@
         "status": 0,
         "data": {
             "enable": true,
+            "update_freq": 1,
             "dark": true,
             "mode": "charge_on_plug",
             "lang": "en",
