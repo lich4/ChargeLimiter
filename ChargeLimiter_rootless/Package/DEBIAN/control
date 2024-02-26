@@ -1,6 +1,6 @@
 Package: chaoge.ChargeLimiter
 Name: ChargeLimiter
-Version: 1.4
+Version: 1.4.1
 Description: ChargeLimiter
 Section: System
 Depends: firmware (>= 5.0)

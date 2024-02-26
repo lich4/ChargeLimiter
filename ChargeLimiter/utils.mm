@@ -303,6 +303,7 @@ int getJBType() {
 }
 
 void NSFileLog(NSString* fmt, ...) {
+#define LOG_PATH    "/var/root/aldente.log"
     va_list va;
     va_start(va, fmt);
     NSDateFormatter* formatter = [NSDateFormatter new];
@@ -310,11 +311,10 @@ void NSFileLog(NSString* fmt, ...) {
     NSString* dateStr = [formatter stringFromDate:NSDate.date];
     NSString* content = [[NSString alloc] initWithFormat:fmt arguments:va];
     content = [NSString stringWithFormat:@"%@ %@\n", dateStr, content];
-    NSString* path = [NSHomeDirectory() stringByAppendingString:@"/aldente.log"];
-    NSFileHandle* handle = [NSFileHandle fileHandleForWritingAtPath:path];
+    NSFileHandle* handle = [NSFileHandle fileHandleForWritingAtPath:@LOG_PATH];
     if (handle == nil) {
-        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
-        handle = [NSFileHandle fileHandleForWritingAtPath:path];
+        [[NSFileManager defaultManager] createFileAtPath:@LOG_PATH contents:nil attributes:nil];
+        handle = [NSFileHandle fileHandleForWritingAtPath:@LOG_PATH];
     }
     [handle seekToEndOfFile];
     [handle writeData:[content dataUsingEncoding:NSUTF8StringEncoding]];

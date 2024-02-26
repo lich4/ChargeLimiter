@@ -3,7 +3,6 @@
 #import <IOKit/IOKit.h>
 #include <IOKit/hid/IOHIDService.h>
 #import <UIKit/UIKit.h>
-#import <UserNotifications/UserNotifications.h>
 #include "utils.h"
 
 #define PRODUCT         "aldente"
@@ -44,7 +43,7 @@ void UIApplicationInitialize();
 - (void)setHandler:(void(^)(FBSOrientationUpdate*))handler;
 @end
 
-@interface Service : NSObject<UNUserNotificationCenterDelegate>
+@interface Service : NSObject
 + (instancetype)inst;
 - (instancetype)init;
 - (void)serve;
@@ -72,7 +71,8 @@ static int g_wind_type = 0; // 1: HUD
 #define FLOAT_ORIGINX   100
 #define FLOAT_ORIGINY   100
 #define FLOAT_WIDTH     80
-#define FLOAT_HEIGHT    55
+#define FLOAT_HEIGHT    80
+// 如果FLOAT_WIDTH==FLOAT_HEIGHT,iPad横屏拖动会出现残缺,原因未知
 
 static CGFloat orientationAngle(UIDeviceOrientation orientation) {
     switch (orientation) {
@@ -114,6 +114,8 @@ static AppDelegate* _app = nil;
     return YES;
 }
 - (void)speedUpWebView:(UIWebView*)webview { // 优化UIWebView反应速度
+    // 不用WKWebView的原因: TrollStore环境下,需要无沙盒执行子进程,而WKWebView需要沙盒才能工作,考虑和越狱的一致性选择UIWebView
+    // 如果不执行js也可以用SFSafariViewController替代
     for (UIView* view in webview.scrollView.subviews) {
         if ([view.class.description isEqualToString:@"UIWebBrowserView"]) {
             NSArray* gestures = view.gestureRecognizers;
@@ -142,17 +144,17 @@ static AppDelegate* _app = nil;
 - (void)viewDidAppear:(BOOL)animated {
     @autoreleasepool {
         [super viewDidAppear:animated];
-        CGSize size = UIScreen.mainScreen.bounds.size;
+        static CGSize scrSize = UIScreen.mainScreen.bounds.size;
         _app = self;
         if (g_wind_type == 0) {
             NSString* imgpath = [NSString stringWithFormat:@"%@/splash.png", NSBundle.mainBundle.bundlePath];
             UIImage* image = [UIImage imageWithContentsOfFile:imgpath];
-            UIImageView* imageview = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+            UIImageView* imageview = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, scrSize.width, scrSize.height)];
             imageview.image = image;
             imageview.contentMode = UIViewContentModeScaleAspectFill;
             [_mainWnd addSubview:imageview];
             
-            UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+            UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, scrSize.width, scrSize.height)];
             webview.delegate = self;
             self.webview = webview;
             initUrl = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
@@ -171,26 +173,32 @@ static AppDelegate* _app = nil;
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
             BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
-                CFArrayRef ref = IOHIDEventGetChildren(event);
-                if (!ref || CFArrayGetCount(ref) == 0) {
-                    return;
-                }
-                IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0);
-                //int index = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIndex);
-                //int identity = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIdentity);
-                //int range = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerRange);
-                //int touch = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerTouch);
-                int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
-                int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
-                int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
-                //NSLog(@"BKSHIDEventRegisterEventCallback index=%d identity=%d x=%d y=%d range=%d touch=%d mask=%d", index, identity, x, y, range, touch, mask);
-                if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        CGRect rt = CGRectMake(x - FLOAT_WIDTH / 2, y - FLOAT_HEIGHT / 2, FLOAT_WIDTH, FLOAT_HEIGHT);
-                        [_app.webview setFrame:rt];
-                    });
-                } else {
-                    [UIApplication.sharedApplication _enqueueHIDEvent:event];
+                @autoreleasepool {
+                    CFArrayRef ref = IOHIDEventGetChildren(event);
+                    if (!ref || CFArrayGetCount(ref) == 0) {
+                        return;
+                    }
+                    IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0);
+                    //int index = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIndex);
+                    //int identity = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIdentity);
+                    //int range = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerRange);
+                    //int touch = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerTouch);
+                    int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
+                    int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
+                    int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
+                    //NSLog(@"BKSHIDEventRegisterEventCallback index=%d identity=%d x=%d y=%d range=%d touch=%d mask=%d", index, identity, x, y, range, touch, mask);
+                    if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            int f_x = MAX(x - FLOAT_WIDTH/2, 0);
+                            int f_y = MAX(y - FLOAT_HEIGHT/2, 0);
+                            f_x = MIN(f_x, scrSize.width - FLOAT_WIDTH);
+                            f_y = MIN(f_y, scrSize.height - FLOAT_HEIGHT);
+                            CGRect rt = CGRectMake(f_x, f_y, FLOAT_WIDTH, FLOAT_HEIGHT);
+                            [_app.webview setFrame:rt];
+                        });
+                    } else {
+                        [UIApplication.sharedApplication _enqueueHIDEvent:event];
+                    }
                 }
             });
             
@@ -222,13 +230,6 @@ static AppDelegate* _app = nil;
     NSURL* url = [NSURL URLWithString:surl];
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:3.0];
     [webview loadRequest:req];
-}
-- (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
-    NSString* url = request.URL.absoluteString;
-    if ([url isEqualToString:@"app://exit"]) {
-        exit(0);
-    }
-    return YES;
 }
 @end
 
@@ -608,16 +609,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         return @{
             @"status": @(status)
         };
-    } else if ([api isEqualToString:@"exit"]) {
-        if (g_jbtype != JBTYPE_TROLLSTORE) {
-            spawn(@[@"launchctl", @"unload", @(ROOTDIR "/Library/LaunchDaemons/chaoge.ChargeLimiter.plist")], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
-        }
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
-            exit(0);
-        });
-        return @{
-            @"status": @0
-        };
     }
     return @{
         @"status": @-10
@@ -816,8 +807,6 @@ int main(int argc, char** argv) {
                     NSLog(@"%@ start daemon", log_prefix);
                     if (g_jbtype == JBTYPE_TROLLSTORE) {
                         spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
-                    } else {
-                        //spawn(@[@"launchctl", @"load", @(ROOTDIR "/Library/LaunchDaemons/chaoge.ChargeLimiter.plist")], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
                     }
                 }
             });

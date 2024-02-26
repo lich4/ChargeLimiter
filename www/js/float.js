@@ -108,12 +108,10 @@ window.addEventListener("load", function () {
 
 if (location.port >= 5500 && location.port <= 5510) {
     window.test = true;
-    window.innerWidth = 100;
-    window.innerHeight = 50;
 }
 
 window.onload = () => {
-    $("html").css("width", window.innerWidth);
-    $("html").css("height", window.innerHeight);
+    $("html").css("width", 80);
+    $("html").css("height", 60);
 }
 
