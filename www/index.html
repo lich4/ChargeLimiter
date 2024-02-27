@@ -452,8 +452,10 @@
             <el-label class="right">{{adaptor_info.Watts}}</el-label>
           </el-row>
         </el-card>
-        <el-card class="box-card mx-3 mt-3 px-2" style="text-align: center;" shadow="never">
-          <span class="click" @click="copy_to_pb">{{$t("copy_to_pb")}}</span>
+        <el-card class="box-card mx-3 my-3 px-2" style="text-align: center;" shadow="never">
+          <div class="my-2 click" @click="copy_to_pb">{{$t("copy_to_pb")}}</div>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <div class="my-2 click" @click="open_safari">{{$t("open_safari")}}</div>
         </el-card>
         <el-row class="mx-4 px-1 pt-2">
           <span class="subtitle">{{$t("author")+": lich4"}}</span>

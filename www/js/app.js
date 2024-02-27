@@ -169,12 +169,14 @@ const i18n = new VueI18n({
             conn_daemon_error: "Service connect failed",
             input_error: "Input error",
             wait: "Please wait",
+            "batt": "Battery",
             "usb host": "Host USB",
             "baseline arcas": "Wireless charger",
             "pd charger": "PD charger",
             "usb charger": "USB charger",
             "magsafe acc": "MagSafe charger",
             copy_to_pb: "Copy all data to pasteboard",
+            open_safari: "Open in Safari",
             author: "Author",
             contact: "Contact",
         },
@@ -238,12 +240,14 @@ const i18n = new VueI18n({
             conn_daemon_error: "服务连接失败",
             input_error: "输入有误",
             "wait": "请等待",
+            "batt": "电池",
             "usb host": "主机USB",
             "baseline arcas": "无线充电器",
             "pd charger": "PD快充器",
             "usb charger": "USB充电器",
             "magsafe acc": "MagSafe充电器",
             copy_to_pb: "拷贝所有数据到剪贴板",
+            open_safari: "在Safari中打开",
             author: "作者",
             contact: "联系方式",
         },
@@ -307,12 +311,14 @@ const i18n = new VueI18n({
             conn_daemon_error: "服務連結失敗",
             input_error: "輸入有誤",
             "wait": "請稍候",
+            "batt": "電池",
             "usb host": "主機 USB",
             "baseline arcas": "無線充電器",
             "pd charger": "PD快充器",
             "usb charger": "USB充電器",
             "magsafe acc": "MagSafe充電器",
             copy_to_pb: "拷貝所有數據到剪貼板",
+            open_safari: "在Safari中打開",
             author: "作者",
             contact: "聯絡方式",
         }
@@ -608,6 +614,9 @@ const App = {
                 val: v,
             });
             this.acc_charge_bright = v;
+        },
+        open_safari: function() {
+            location.href = "safari://";
         },
         copy_to_pb: function() {
             var copy_bat_info = Object.assign({}, this.bat_info);

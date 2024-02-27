@@ -231,6 +231,14 @@ static AppDelegate* _app = nil;
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:3.0];
     [webview loadRequest:req];
 }
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
+    NSString* url = request.URL.absoluteString;
+    if ([url isEqualToString:@"safari://"]) {
+        [UIApplication.sharedApplication openURL:[NSURL URLWithString:initUrl]];
+        return NO;
+    }
+    return YES;
+}
 @end
 
 
