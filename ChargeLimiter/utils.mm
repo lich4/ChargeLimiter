@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <sys/utsname.h>
 
 int platformize_me() {
     int ret = 0;
@@ -328,6 +329,16 @@ BOOL isDarkMode() {
         }
     }
     return NO;
+}
+
+NSString* getSysVer() {
+    return UIDevice.currentDevice.systemVersion;
+}
+
+NSString* getDevMdoel() {
+    struct utsname name;
+    uname(&name);
+    return @(name.machine);
 }
 
 NSArray* getUnusedFds() { // posix_spawn会将socket等fd继承给子进程

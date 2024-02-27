@@ -118,7 +118,7 @@ const i18n = new VueI18n({
             batinfo: "Battery information",
             adaptorinfo: "Adaptor information",
             update_freq: "Update frequency",
-            update_freq_desc: "Slow down to save power",
+            update_freq_desc: "Lower frequency, slower responses, but may save more power",
             charge_below: "Start charging if capacity below(%)",
             nocharge_above: "Stop charging if capacity above(%)",
             nocharge_temp_above: "Stop charging if temperature above(°C)",
@@ -174,6 +174,7 @@ const i18n = new VueI18n({
             "pd charger": "PD charger",
             "usb charger": "USB charger",
             "magsafe acc": "MagSafe charger",
+            copy_to_pb: "Copy all data to pasteboard",
             author: "Author",
             contact: "Contact",
         },
@@ -186,7 +187,7 @@ const i18n = new VueI18n({
             batinfo: "电池信息",
             adaptorinfo: "电源信息",
             update_freq: "更新频率",
-            update_freq_desc: "降低频率以省电",
+            update_freq_desc: "降低频率后响应速度变慢,但可能更省电",
             charge_below: "电量低于(%)开始充电",
             nocharge_above: "电量高于(%)停止充电",
             nocharge_temp_above: "温度高于(°C)停止充电",
@@ -242,6 +243,7 @@ const i18n = new VueI18n({
             "pd charger": "PD快充器",
             "usb charger": "USB充电器",
             "magsafe acc": "MagSafe充电器",
+            copy_to_pb: "拷贝所有数据到剪贴板",
             author: "作者",
             contact: "联系方式",
         },
@@ -254,7 +256,7 @@ const i18n = new VueI18n({
             batinfo: "電池資訊",
             adaptorinfo: "電源資訊",
             update_freq: "更新頻率",
-            update_freq_desc: "降低頻率以省電",
+            update_freq_desc: "降低頻率後響應速度變慢,但可能更省電",
             charge_below: "電量低於(%)開始充電",
             nocharge_above: "電量高於(%)停止充電",
             nocharge_temp_above: "溫度高於(°C)停止充電",
@@ -310,6 +312,7 @@ const i18n = new VueI18n({
             "pd charger": "PD快充器",
             "usb charger": "USB充電器",
             "magsafe acc": "MagSafe充電器",
+            copy_to_pb: "拷貝所有數據到剪貼板",
             author: "作者",
             contact: "聯絡方式",
         }
@@ -331,6 +334,8 @@ const App = {
             enable: false,
             update_freq: 1,
             dark: false,
+            sysver: "",
+            devmodel: "",
             floatwnd: false,
             mode: "charge_on_plug",
             msg_list: [],
@@ -604,6 +609,26 @@ const App = {
             });
             this.acc_charge_bright = v;
         },
+        copy_to_pb: function() {
+            var copy_bat_info = Object.assign({}, this.bat_info);
+            delete copy_bat_info["Serial"];
+            copy_bat_info["System"] = {
+                sysver: this.sysver,
+                devmodel: this.devmodel,
+            }
+            var data = JSON.stringify(copy_bat_info, null, 2)
+            this.ipc_send_wrapper({
+                api: "set_pb",
+                val: data,
+            });
+            console.log(data)
+            this.msg_list.push({
+                "id": get_id(), 
+                "title": this.$t("suc"), 
+                "type": "success",
+                "time": 1000,
+            });
+        },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
             this.update_freq = jdata.data.update_freq;
@@ -611,6 +636,8 @@ const App = {
             if (this.dark) {
                 this.switch_dark(true);
             }
+            this.sysver = jdata.data.sysver;
+            this.devmodel = jdata.data.devmodel;
             this.floatwnd = jdata.data.floatwnd;
             this.mode = jdata.data.mode;
             var lang = jdata.data.lang;

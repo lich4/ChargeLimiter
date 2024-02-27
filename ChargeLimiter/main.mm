@@ -568,6 +568,8 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         kv[@"enable"] = @(g_enable);
         kv[@"floatwnd"] = @(g_enable_floatwnd);
         kv[@"dark"] = @(isDarkMode());
+        kv[@"sysver"] = getSysVer();
+        kv[@"devmodel"] = getDevMdoel();
         return @{
             @"status": @0,
             @"data": kv,
@@ -611,6 +613,11 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         return @{
             @"status": @(status)
         };
+    } else if ([api isEqualToString:@"set_pb"]) {
+        NSString* val = nsreq[@"val"];
+        NSLog(@"%@ set_pb %d", log_prefix, (int)val.length);
+        UIPasteboard* pb = [UIPasteboard generalPasteboard];
+        pb.string = val;
     }
     return @{
         @"status": @-10

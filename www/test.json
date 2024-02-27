@@ -35,6 +35,8 @@
             "enable": true,
             "update_freq": 1,
             "dark": true,
+            "sysver": "13.0",
+            "devmodel": "iPhone9,1",
             "mode": "charge_on_plug",
             "lang": "en",
             "charge_below": 30,
@@ -79,6 +81,9 @@
         "status": 0
     },
     "set_charge_status": {
+        "status": 0
+    },
+    "set_pb": {
         "status": 0
     }
 }

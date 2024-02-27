@@ -54,6 +54,8 @@ enum {
 int getJBType();
 void NSFileLog(NSString* fmt, ...);
 BOOL isDarkMode();
+NSString* getSysVer();
+NSString* getDevMdoel();
 
 BOOL isAirEnable();
 void setAirEnable(BOOL flag);
