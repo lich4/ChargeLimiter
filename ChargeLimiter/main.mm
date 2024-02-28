@@ -174,6 +174,10 @@ static AppDelegate* _app = nil;
             [webview loadRequest:req];
             BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
                 @autoreleasepool {
+                    IOHIDEventType type = IOHIDEventGetType(event);
+                    if (type != kIOHIDEventTypeDigitizer) {
+                        return;
+                    }
                     CFArrayRef ref = IOHIDEventGetChildren(event);
                     if (!ref || CFArrayGetCount(ref) == 0) {
                         return;

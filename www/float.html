@@ -92,12 +92,20 @@
           <span class="text">CL v1.4.1</span>
         </el-row>
         <el-row class="tip-line">
-          <i class="fa fa-battery-1 icon battery"></i>
+          <i class="fa fa-battery-0 icon battery" v-if="bat_info.CurrentCapacity<5"></i>
+          <i class="fa fa-battery-1 icon battery" v-else-if="bat_info.CurrentCapacity<35"></i>
+          <i class="fa fa-battery-2 icon battery" v-else-if="bat_info.CurrentCapacity<65"></i>
+          <i class="fa fa-battery-3 icon battery" v-else-if="bat_info.CurrentCapacity<95"></i>
+          <i class="fa fa-battery-4 icon battery" v-else></i>
           <i class="fa fa-bolt icon bolt" v-if="bat_info.IsCharging"></i>
           <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
         </el-row>
         <el-row class="tip-line">
-          <i class="fa fa-thermometer-1 icon thermometer"></i>
+          <i class="fa fa-thermometer-0 icon thermometer" v-if="bat_info.Temperature<1000"></i>
+          <i class="fa fa-thermometer-1 icon thermometer" v-else-if="bat_info.Temperature<2000"></i>
+          <i class="fa fa-thermometer-2 icon thermometer" v-else-if="bat_info.Temperature<3500"></i>
+          <i class="fa fa-thermometer-3 icon thermometer" v-else-if="bat_info.Temperature<4500"></i>
+          <i class="fa fa-thermometer-4 icon thermometer" v-else></i>
           <span class="text">{{get_temp_desc()}}</span>
         </el-row>
       </template>
