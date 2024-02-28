@@ -72,20 +72,7 @@ static int g_wind_type = 0; // 1: HUD
 #define FLOAT_ORIGINY   100
 #define FLOAT_WIDTH     80
 #define FLOAT_HEIGHT    80
-// 如果FLOAT_WIDTH==FLOAT_HEIGHT,iPad横屏拖动会出现残缺,原因未知
-
-static CGFloat orientationAngle(UIDeviceOrientation orientation) {
-    switch (orientation) {
-        case UIDeviceOrientationPortraitUpsideDown:
-            return M_PI;
-        case UIDeviceOrientationLandscapeLeft:
-            return M_PI_2;
-        case UIDeviceOrientationLandscapeRight:
-            return -M_PI_2;
-        default:
-            return 0;
-    }
-}
+// 如果FLOAT_WIDTH!=FLOAT_HEIGHT,iPad横屏拖动会出现残缺,原因未知
 
 @implementation AppDelegate {
     NSString* initUrl;
@@ -213,7 +200,7 @@ static AppDelegate* _app = nil;
                     return;
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [_app.webview setTransform:CGAffineTransformMakeRotation(orientationAngle(update.orientation))];
+                    [_app.webview setTransform:CGAffineTransformMakeRotation(getOrientAngle(update.orientation))];
                 });
                 old_orient = update.orientation;
             }];
@@ -688,7 +675,11 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
                 return [GCDWebServerDataResponse responseWithJSONObject:nsres];
             }
         }];
-        BOOL status = [_webServer startWithPort:GSERV_PORT bonjourName:nil];
+        NSDictionary* options = @{
+            @"Port": @(GSERV_PORT),
+            @"BindToLocalhost": @YES,
+        };
+        BOOL status = [_webServer startWithOptions:options error:nil];
         if (!status) {
             NSLog(@"%@ serve failed, exit", log_prefix);
             exit(0);

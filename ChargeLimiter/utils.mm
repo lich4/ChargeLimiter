@@ -341,6 +341,19 @@ NSString* getDevMdoel() {
     return @(name.machine);
 }
 
+CGFloat getOrientAngle(UIDeviceOrientation orientation) {
+    switch (orientation) {
+        case UIDeviceOrientationPortraitUpsideDown:
+            return M_PI;
+        case UIDeviceOrientationLandscapeLeft:
+            return M_PI_2;
+        case UIDeviceOrientationLandscapeRight:
+            return -M_PI_2;
+        default:
+            return 0;
+    }
+}
+
 NSArray* getUnusedFds() { // posix_spawn会将socket等fd继承给子进程
     NSMutableArray* result = [NSMutableArray new];
     for (int fd = 0; fd < 100; fd++) {

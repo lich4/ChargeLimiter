@@ -56,6 +56,7 @@ void NSFileLog(NSString* fmt, ...);
 BOOL isDarkMode();
 NSString* getSysVer();
 NSString* getDevMdoel();
+CGFloat getOrientAngle(UIDeviceOrientation orientation);
 
 BOOL isAirEnable();
 void setAirEnable(BOOL flag);
