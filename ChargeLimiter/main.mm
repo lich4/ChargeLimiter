@@ -3,13 +3,14 @@
 #import <IOKit/IOKit.h>
 #include <IOKit/hid/IOHIDService.h>
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 #include "utils.h"
 
-#define PRODUCT         "aldente"
+#define PRODUCT         "ChargeLimiter"
 #define GSERV_PORT      1230
 #define TRACE           false
 
-NSString* log_prefix = @(PRODUCT "logger");
+NSString* log_prefix = @(PRODUCT "Logger");
 static NSDictionary* bat_info = nil;
 static NSDictionary* handleReq(NSDictionary* nsreq);
 
@@ -43,10 +44,12 @@ void UIApplicationInitialize();
 - (void)setHandler:(void(^)(FBSOrientationUpdate*))handler;
 @end
 
-@interface Service : NSObject
+@interface Service: NSObject<UNUserNotificationCenterDelegate> 
 + (instancetype)inst;
 - (instancetype)init;
 - (void)serve;
+- (void)initLocalPush;
+- (void)localPush:(NSString*)title msg:(NSString*)msg;
 @end
 
 @interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate>
@@ -368,7 +371,7 @@ static void setlocalKV(NSString* key, id val) {
     [cache_kv writeToFile:@CONF_PATH atomically:YES];
 }
 
-static void perform_acccharge(BOOL flag) {
+static void performAcccharge(BOOL flag) {
     static NSMutableDictionary* cache_status = nil;
     NSNumber* acc_charge = getlocalKV(@"acc_charge");
     NSNumber* acc_charge_airmode = getlocalKV(@"acc_charge_airmode");
@@ -405,6 +408,35 @@ static void perform_acccharge(BOOL flag) {
     }
 }
 
+static NSDictionary* messages = @{
+    @"en": @{
+        @"stop_charge": @"Stop charging",
+    },
+    @"zh_CN": @{
+        @"stop_charge": @"停止充电",
+    },
+    @"zh_TW": @{
+        @"stop_charge": @"停止充電",
+    }
+};
+static NSString* getMsgForLang(NSString* msgid, NSString* lang) {
+    if (messages[lang] == nil) {
+        lang = @"en";
+    }
+    return messages[lang][msgid];
+}
+
+static void performAction(NSString* msgid) {
+    NSString* lang = getlocalKV(@"lang");
+    NSString* action = getlocalKV(@"action");
+    if (action.length == 0) {
+        return;
+    }
+    if ([action isEqualToString:@"noti"]) {
+        [Service.inst localPush:@PRODUCT msg:getMsgForLang(msgid, lang)];
+    }
+}
+
 static NSMutableDictionary* getFilteredMDic(NSDictionary* dic, NSArray* filter) {
     NSMutableDictionary* mdic = [NSMutableDictionary new];
     for (NSString* key in filter) {
@@ -427,14 +459,14 @@ static void updateStatistics() {
         NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CurrentCapacity", @"InstantAmperage", @"IsCharging", @"Temperature", @"UpdateTime"]);
         mBatInfo[@"key"] = hourKey;
         [stat_hour addObject:mBatInfo];
-        NSArray* new_stat = [stat_hour subarrayWithRange:NSMakeRange(MAX((int)stat_hour.count - 24, 0), MIN(stat_hour.count, 24))];
+        NSArray* new_stat = [stat_hour subarrayWithRange:NSMakeRange(MAX((int)stat_hour.count - 100, 0), MIN(stat_hour.count, 100))];
         setlocalKV(@"stat_hour", new_stat);
     }
     if (stat_day.count == 0 || ![stat_day.lastObject[@"key"] isEqualToString:dayKey]) {
         NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CycleCount", @"NominalChargeCapacity", @"UpdateTime"]);
         mBatInfo[@"key"] = dayKey;
         [stat_day addObject:mBatInfo];
-        NSArray* new_stat = [stat_day subarrayWithRange:NSMakeRange(MAX((int)stat_day.count - 30, 0), MIN(stat_day.count, 30))];
+        NSArray* new_stat = [stat_day subarrayWithRange:NSMakeRange(MAX((int)stat_day.count - 100, 0), MIN(stat_day.count, 100))];
         setlocalKV(@"stat_day", new_stat);
     }
     if (stat_month.count == 0 || ![stat_month.lastObject[@"key"] isEqualToString:monthKey]) {
@@ -469,7 +501,8 @@ static void onBatteryEvent(io_service_t serv) {
             if (is_charging.boolValue) {
                 NSFileLog(@"stop charging for high temperature");
                 if (0 == setChargeStatus(NO)) {
-                    perform_acccharge(NO);
+                    performAction(@"stop_charge");
+                    performAcccharge(NO);
                 }
                 return;
             }
@@ -478,7 +511,8 @@ static void onBatteryEvent(io_service_t serv) {
             if (is_charging.boolValue) {
                 NSFileLog(@"stop charging for capacity");
                 if (0 == setChargeStatus(NO)) {
-                    perform_acccharge(NO);
+                    performAction(@"stop_charge");
+                    performAcccharge(NO);
                 }
             }
             return; // 电量满禁止操作
@@ -487,7 +521,7 @@ static void onBatteryEvent(io_service_t serv) {
             if (isAdaptorNewConnect(old_bat_info, bat_info)) {
                 NSFileLog(@"start charging for plug in");
                 if (0 == setChargeStatus(YES)) {
-                    perform_acccharge(YES);
+                    performAcccharge(YES);
                 }
                 return;
             }
@@ -495,7 +529,7 @@ static void onBatteryEvent(io_service_t serv) {
                 if (isAdaptorConnect(bat_info)) {
                     NSFileLog(@"start charging for low temperature");
                     if (0 == setChargeStatus(YES)) {
-                        perform_acccharge(YES);
+                        performAcccharge(YES);
                     }
                     return;
                 }
@@ -507,7 +541,7 @@ static void onBatteryEvent(io_service_t serv) {
                 if (isAdaptorConnect(bat_info)) {
                     NSFileLog(@"start charging for capacity");
                     if (0 == setChargeStatus(YES)) {
-                        perform_acccharge(YES);
+                        performAcccharge(YES);
                     }
                     return;
                 }
@@ -531,6 +565,7 @@ static void initConf() {
         @"acc_charge_blue": @NO,
         @"acc_charge_bright": @NO,
         @"acc_charge_lpm": @YES,
+        @"action": @"",
         @"stat_hour": @[],
         @"stat_day": @[],
         @"stat_month": @[],
@@ -587,6 +622,11 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         } else {
             setlocalKV(key, val);
         }
+        if ([key isEqualToString:@"action"]) {
+            if ([val isEqualToString:@"noti"]) {
+                [Service.inst initLocalPush];
+            }
+        }
         return @{
             @"status": @0,
         };
@@ -614,7 +654,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         };
     } else if ([api isEqualToString:@"set_pb"]) {
         NSString* val = nsreq[@"val"];
-        NSLog(@"%@ set_pb %d", log_prefix, (int)val.length);
         UIPasteboard* pb = [UIPasteboard generalPasteboard];
         pb.string = val;
     }
@@ -622,7 +661,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         @"status": @-10
     };
 }
-
 
 @implementation Service {
     NSString* bid;
@@ -657,6 +695,46 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     self = super.init;
     self->bid = NSBundle.mainBundle.bundleIdentifier;
     return self;
+}
+- (void)initLocalPush {
+    static void (^Block)() = ^{
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = self;
+        [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
+            if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
+                    }];
+                });
+            }
+        }];
+    };
+    if ([NSThread isMainThread]) {
+        Block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            Block();
+        });
+    }
+}
+- (void)localPush:(NSString*)title msg:(NSString*)msg {
+    static void (^Block)(NSString*) = ^(NSString* msg) {
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+        content.title = title;
+        content.body = msg;
+        NSTimeInterval timeInterval = [[NSDate dateWithTimeIntervalSinceNow:1] timeIntervalSinceNow];
+        UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timeInterval repeats:NO];
+        UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:title content:content trigger:trigger];
+        [center addNotificationRequest:request withCompletionHandler:nil];
+    };
+    if ([NSThread isMainThread]) {
+        Block(msg);
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            Block(msg);
+        });
+    }
 }
 - (void)serve {
     initConf();

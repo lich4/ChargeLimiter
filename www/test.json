@@ -49,6 +49,7 @@
             "acc_charge_blue": false,
             "acc_charge_bright": false,
             "acc_charge_lpm": true,
+            "action": "",
             "stat_hour": [
                 {
                     "IsCharging": true,

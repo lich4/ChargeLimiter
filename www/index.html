@@ -310,6 +310,13 @@
               <el-switch :value="acc_charge_bright" class="right" @change="set_acc_charge_bright"></el-switch>
             </el-row>
           </template>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+            <el-row class="py-2 col-item">
+              <el-label>{{$t("action")}}</el-label>
+              <el-select v-model="action" size="mini" class="right" style="width:45%" @change="change_action">
+                <el-option v-for="i in actions" :key="i.value" :label="i.label" :value="i.value"></el-option>
+              </el-select>
+            </el-row>
         </el-card>  
         <el-row class="mx-4 px-1 pt-2">
           <span class="subtitle">{{$t("batinfo")}}</span>
@@ -458,38 +465,34 @@
           <div class="my-2 click" @click="open_safari">{{$t("open_safari")}}</div>
         </el-card>
         <el-row class="mx-4 px-1 pt-2">
-          <span class="subtitle">{{$t("author")+": lich4"}}</span>
-        </el-row>
-        <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
-          <el-row class="py-2 col-item">
+          <el-row class="subtitle">
+            <el-label>{{$t("author")}}</el-label>
+            <span class="right noclick">lich4</span>
+          </el-row>
+          <el-row class="subtitle">
             <el-label>Github</el-label>
             <a href="https://github.com/lich4" class="right noclick">https://github.com/lich4</a>
           </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
+          <el-row class="subtitle">
             <el-label>Reddit</el-label>
             <a href="https://www.reddit.com/r/Trollstore/comments/1an9381/aldente_for_ios_battery_charge_limiter/" class="right noclick">Reddit</a>
           </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>QQ</el-label>
-            <el-label class="right">571652571&emsp;群:669869453</el-label>
+          <el-row class="subtitle">
+            <el-label>QQ群</el-label>
+            <el-label class="right">669869453</el-label>
           </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
+          <el-row class="subtitle">
             <el-label>Telegram</el-label>
             <a class="right noclick subtitle">https://t.me/+p0pwZCBDcH0zOGZl</a>
           </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
+          <el-row class="subtitle">
             <el-label>Email</el-label>
             <a href="mailto:571652571@qq.com" class="right">571652571@qq.com</a>
           </el-row>
-        </el-card>
+        </el-row>
         <div class="py-5"></div>
       </div>
     </div>
   </div>
 </body>
 </html>
-

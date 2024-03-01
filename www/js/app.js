@@ -138,6 +138,9 @@ const i18n = new VueI18n({
             acc_charge_lpm: "Enable Lower Power Mode",
             acc_charge_blue: "Disable Bluetooth",
             acc_charge_bright: "Minimize brightness",
+            action: "Action",
+            none: "None",
+            noti: "Notification",
             system: "system",
             sec: "sec",
             min: "min",
@@ -209,6 +212,9 @@ const i18n = new VueI18n({
             acc_charge_lpm: "开启低电量模式",
             acc_charge_blue: "关闭蓝牙",
             acc_charge_bright: "亮度最低",
+            action: "行为",
+            none: "无",
+            noti: "通知",
             system: "系统",
             sec: "秒",
             min: "分种",
@@ -280,6 +286,9 @@ const i18n = new VueI18n({
             acc_charge_lpm: "開啟低電量模式",
             acc_charge_blue: "關閉藍牙",
             acc_charge_bright: "亮度最低",
+            action: "行為",
+            none: "無",
+            noti: "通知",
             system: "系統",
             sec: "秒",
             min: "分鐘",
@@ -357,12 +366,14 @@ const App = {
             acc_charge_blue: false,
             acc_charge_bright: false,
             acc_charge_lpm: true,
+            action: "",
             count_msg: "",
             timer: null,
             marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
             marks_temp: range(0, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
             freqs: null,
             modes: null,
+            actions: null,
         }
     },
     methods: {
@@ -515,6 +526,13 @@ const App = {
                 val: v,
             });
         },
+        change_action: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "action",
+                val: v,
+            });
+        },
         get_health: function(item) {
             return Math.floor(item["NominalChargeCapacity"] / item["DesignCapacity"] * 100);
         },
@@ -541,7 +559,6 @@ const App = {
                 key: "update_freq",
                 val: v,
             });
-            console.log("floatwnd", this.floatwnd)
             if (this.floatwnd) {
                 this.set_floatwnd(false);
             }
@@ -630,7 +647,6 @@ const App = {
                 api: "set_pb",
                 val: data,
             });
-            console.log(data)
             this.msg_list.push({
                 "id": get_id(), 
                 "title": this.$t("suc"), 
@@ -665,6 +681,7 @@ const App = {
             this.acc_charge_blue = jdata.data.acc_charge_blue;
             this.acc_charge_bright = jdata.data.acc_charge_bright;
             this.acc_charge_lpm = jdata.data.acc_charge_lpm;
+            this.action = jdata.data.action;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
         },
@@ -703,6 +720,10 @@ const App = {
                 {"label": this.$t("charge_on_plug"), "value": "charge_on_plug"},
                 {"label": this.$t("edge_trigger"), "value": "edge_trigger"},
             ];
+            this.actions = [
+                {"label": this.$t("none"), "value": ""},
+                {"label": this.$t("noti"), "value": "noti"},
+            ]
         }
     },
     directives: {

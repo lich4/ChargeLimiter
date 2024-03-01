@@ -1,0 +1,21 @@
+#!/bin/bash
+
+APP=${CODESIGNING_FOLDER_PATH}
+
+if [ -d "${APP}/PlugIns" ]; then
+    for i in `ls ${APP}/PlugIns`; do
+        EXT=${APP}/PlugIns/$i
+        EXT_NAME=${i%.*}
+        if [ -e "${EXT}/_CodeSignature" ]; then
+            rm -rf "${EXT}/_CodeSignature"
+        fi
+        if [ -e "${EXT}/embedded.mobileprovision" ]; then
+            rm -rf "${EXT}/embedded.mobileprovision"
+        fi
+        EXT_ENT=${PROJECT_DIR}/${EXT_NAME}/${EXT_NAME}.entitlements
+        ldid -S${EXT_ENT} ${EXT}/${EXT_NAME}
+    done
+fi
+
+exit 0
+

@@ -64,5 +64,7 @@
 	<true/>
 	<key>com.apple.springboard.accessibility-window-hosting</key>
 	<true/>
+	<key>SBAppUsesLocalNotifications</key>
+	<true/>
 </dict>
 </plist>
