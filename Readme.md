@@ -13,6 +13,7 @@ todo:
 * 实现慢速充电(待测试可行性)
 * iOS12悬浮窗
 * 电池历史数据统计
+* 支持快解方式
 
 1.4.1版本更新日志:
 * 优化WebUI界面
@@ -76,22 +77,61 @@ todo:
 
 ## Instruction
 
-This app is inspired by MacOS version AlDente, used to prevent iPhone/iPad long-time overcharge, which will cause damage to the battery, one can specify the max capacity to stop charging, and min capacity to start charging, and max temparature to stop charging. Once set, the daemon will monitor capacity in background.
+This app is inspired by MacOS version AlDente, used to prevent iPhone/iPad long-time overcharge, which will cause damage to the battery.  
 
-Download URL: (https://github.com/lich4/ChargeLimiter/releases)      
-iOS<=14 require Jailbreak and install the deb version    
-iOS>=15 require TrollStore and install the tipa version(or use arm64.deb for Rootless Jailbreak)    
+Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa)   
+(Notice: For TrollStore, Please uninstall older version ChargeLimiter before installing a newer one)   
+Download URL:(https://github.com/lich4/ChargeLimiter/releases)    
+Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/+p0pwZCBDcH0zOGZl&color=red)    
+https://t.me/+p0pwZCBDcH0zOGZl   
+
+Currently support iOS12-17(Depends on Highest version supported by TrollStore/Jailbreak.) It may be incompatible with version lower than iOS12, for I only have limited Development environment and iDevices.  
+
+todo:
+* Slow down charging(to be validated)
+* Floating window on iOS12
+* Battery history data statistics
+* Support shortcuts
+
+1.4.1 ChangeLog:
+* Optimize the WebUI
+* Floating window on iPad follow orientation
+* Dark mode
+
+1.4 ChangeLog:
+* Speed up charging
+* Floating window(draggable;tap to enable/disable)
+* Start charging when temparature above specified value  
+
+Notice:
+* Some Studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80.
+* The lightning icon at top-right corner on SpringBoard not necessarily means charging. The actual charging status can be found in 3utools(and similar) or ChargeLimiter.
+* You can debug ChargeLimiter by manually toggling the "Charging" button, if charging status does not change after 120 seconds, then it means your iDevice is not supported by ChargeLimiter; normally it does. The "InstantAmperage" is 0mA normally after setting the status to false, a sign of ageing of battery if not zero(but very small value); if the mA is high enough, then ChargeLimiter could not help you either(lose control of setting charging status).
+* For TrollStore, if the daemon(of ChargeLimier) get killed in any condition(such as system-reboot/userspace-reboot/...), ChargeLimiter will become invalid for it cannot restart daemon itself automatically.
+* ChargeLimiter only start/stop charging under certain condition as show behind.
+* Target value not necessarily equal to specified one, the difference may have sth. to do with the "120 seconds delay" after iPhone8, and charging speed.
+* Health with value higher than 100% indicates the battery must have changed before, and with more capacity than battery shipped with this model first released.
+* Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
+* InstantAmperage with positive value means current flow into battery from adaptor, negative means current flow into iDevice from battery without any adaptor. If ChargeLimiter is enabled and charging status set to disable, then InstantAmperage should be 0mA normally, in this case current will flow through battery and feed iDevice. it will cause less damage to battery than use battery to supply power directly.
+* ChargeLimiter could not compatible with "Optimized Battery Charging" within system Settings.app. So after v1.4 ChargeLimiter will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling ChargeLimiter if necessary.
+* This project is an open one, any better ideas, submit code directly; any suggestions, submit to issue region.
+* This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.
 
 Supported mode
 * "Plug and charge", iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified. Useful for individual.
 * "Edge trigger", iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified. Useful for developer & studio.
 
+Conditions may trigger starting charging:
+* Capacity lower than specified value
+* Plug in adaptor once!!! in "Plug and charge" mode.
+* Temparature lower than specified value
+
+Conditions may trigger stoping charging:
+* Capacity higher than specified value
+* Temparature higher than specified value
+
 Test on iPhone6/7+iOS12/13 with Checkra1n jailbreak, and iPhone7/X/11+iOS15/16 with TrollStore.   
 If you have better ideas, please join the project and push your code   
-
-Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/+p0pwZCBDcH0zOGZl&color=red)    
-https://t.me/+p0pwZCBDcH0zOGZl   
-
 
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
