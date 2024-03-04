@@ -47,7 +47,7 @@ todo:
 * Mac上使用的电源管理接口可以进行更底层的温控和风扇速度控制,但iOS上并无此功能,因此本工具几乎是iOS上防过充唯一选择,其实这种工具十年前就应该出现了,只是一直没人研究
 * 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.如果自行调整还是建议在20-80之间.
 * 系统状态栏的充电标志不一定代表在充电，实际充电状态可以在看爱思助手或者本app查看
-* 如果手动控制充电开关不生效则说明你的电池硬件无法被本app支持，请放弃使用。如果用本app停充成功但仍然有电流(或微弱电流)则说明电池已经老化无法控电，非App可以控制
+* 如果手动控制充电开关不生效则说明你的电池硬件无法被本app支持，请放弃使用(不支持的型号包括但不限于:马拉松,...)。如果用本app停充成功但仍然有电流(或微弱电流)则说明电池已经老化无法控电，非App可以控制
 * 悬浮窗打不开的，请先卸载旧版再从官方渠道安装(iOS12及以下目前不支持悬浮窗)。退出app重进出现按钮不生效的同理。
 * 对于TrollStore环境，因任何原因导致的后台被杀(比如重启系统/重启用户空间/...)，由于后台无法自动启动所以App会失效。整夜充电发现充满请注意
 * App不会连着线就自发充电，充电/停充都有触发条件，请仔细查看本页说明
@@ -106,11 +106,11 @@ todo:
 Notice:
 * Some Studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80.
 * The lightning icon at top-right corner on SpringBoard not necessarily means charging. The actual charging status can be found in 3utools(and similar) or ChargeLimiter.
-* You can debug ChargeLimiter by manually toggling the "Charging" button, if charging status does not change after 120 seconds, then it means your iDevice is not supported by ChargeLimiter; normally it does. The "InstantAmperage" is 0mA normally after setting the status to false, a sign of ageing of battery if not zero(but very small value); if the mA is high enough, then ChargeLimiter could not help you either(lose control of setting charging status).
+* You can debug ChargeLimiter by manually toggling the "Charging" button, if charging status does not change after 120 seconds, then it means your iDevice is not supported by ChargeLimiter; normally it does. The "InstantAmperage" is 0mA normally after setting the status to false, a sign of ageing of battery if not zero(but very small value); if the mA is high enough, then ChargeLimiter could not help you either(lose control of current).
 * For TrollStore, if the daemon(of ChargeLimier) get killed in any condition(such as system-reboot/userspace-reboot/...), ChargeLimiter will become invalid for it cannot restart daemon itself automatically.
 * ChargeLimiter only start/stop charging under certain condition as show behind.
-* Target value not necessarily equal to specified one, the difference may have sth. to do with the "120 seconds delay" after iPhone8, and charging speed.
-* Health with value higher than 100% indicates the battery must have changed before, and with more capacity than battery shipped with this model first released.
+* The real value stop on trigger is not necessarily equal to target, the difference may have sth. to do with the "120 seconds delay" after iPhone8, and charging speed.
+* Health with value higher than 100% indicates the battery must have been changed before, and with more capacity than battery shipped with this model first released.
 * Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
 * InstantAmperage with positive value means current flow into battery from adaptor, negative means current flow into iDevice from battery without any adaptor. If ChargeLimiter is enabled and charging status set to disable, then InstantAmperage should be 0mA normally, in this case current will flow through battery and feed iDevice. it will cause less damage to battery than use battery to supply power directly.
 * ChargeLimiter could not compatible with "Optimized Battery Charging" within system Settings.app. So after v1.4 ChargeLimiter will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling ChargeLimiter if necessary.

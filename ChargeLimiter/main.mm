@@ -82,6 +82,35 @@ static int g_wind_type = 0; // 1: HUD
 }
 static UIView* _mainWnd = nil;
 static AppDelegate* _app = nil;
+- (void)scene:(UIScene*)scene willConnectToSession:(UISceneSession*)session options:(UISceneConnectionOptions*)connectionOptions API_AVAILABLE(ios(13.0)) {
+    if (connectionOptions.URLContexts != nil) {
+        [self scene:scene openURLContexts:connectionOptions.URLContexts];
+    }
+}
+- (void)scene:(UIScene*)scene openURLContexts:(NSSet*)URLContexts API_AVAILABLE(ios(13.0)) {
+    if (URLContexts == nil || URLContexts.count == 0) {
+        return;
+    }
+    UIOpenURLContext* urlContext = URLContexts.allObjects.firstObject;
+    NSURL* url = urlContext.URL; // cl:///(charge|nocharge)(/exit)
+    for (NSString* cmd in url.pathComponents) {
+        if ([cmd isEqualToString:@"charge"]) {
+            handleReq(@{
+                @"api": @"set_charge_status",
+                @"flag": @YES,
+            });
+        } else if ([cmd isEqualToString:@"nocharge"]) {
+            handleReq(@{
+                @"api": @"set_charge_status",
+                @"flag": @NO,
+            });
+        } else if ([cmd isEqualToString:@"exit"]) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
+                exit(0);
+            });
+        }
+    }
+}
 - (void)sceneWillEnterForeground:(UIScene*)scene API_AVAILABLE(ios(13.0)) {
     _mainWnd = self.window;
 }
