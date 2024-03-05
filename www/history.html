@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>ChargeLimiter</title>
+  <meta charset="UTF-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+  <link rel="shotcut icon" href="favicon.ico" />
+  <link rel="icon" href="favicon.ico">
+  <link type="text/css" rel="stylesheet" href="css/bootstrap.css" />
+  <link type="text/css" rel="stylesheet" href="css/element-ui.css" />
+  <link type="text/css" rel="stylesheet" href="css/font-awesome.css" />
+  <script src="js/polyfill.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/vue-i18n.js"></script>
+  <script src="js/element-ui.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/resize-observer.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/history.js"></script>
+  <style>
+    html, body, #app, #main_page {
+      height: 100%;
+      overflow-y: hidden;
+    }
+
+    body, input, div {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      background-color: rgb(239, 239, 244);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="m-2">
+    <div id="page_header">
+      <el-row class="mx-2">
+        <div class="page_title">
+          <i class="el-icon-arrow-left" @click="ret_main"></i>
+        </div>
+      </el-row>
+    </div>
+    <div style="text-align: center;" class="mb-3">
+      <span style="margin-bottom:0">{{$t("stat_hour")}}</span>
+      <canvas id="hour_chart" ></canvas>
+    </div>
+    <div style="text-align: center;" class="mb-3">
+      <span style="margin-bottom:0">{{$t("stat_day")}}</span>
+      <canvas id="day_chart"></canvas>
+    </div>
+  </div>
+</body>
+</html>
+

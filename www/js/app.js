@@ -1,21 +1,3 @@
-function get_field_range(data, field, pos) {
-    var minv = data[0][field];
-    var maxv = data[0][field];
-    data.forEach(x => {
-        if (x[field] < minv) {
-            minv = x[field];
-        }
-        if (x[field] > maxv) {
-            maxv = x[field];
-        }
-    });
-    var rg = maxv - minv;
-    if (rg == 0) {
-        rg = maxv * 0.1;
-    }
-    return [maxv - rg*pos, maxv + rg];
-}
-
 const i18n = new VueI18n({
     locale: get_local_lang(),
     messages: {
@@ -284,10 +266,6 @@ const App = {
             freqs: null,
             modes: null,
             actions: null,
-            hist_visible: false,
-            stat_hour: [],
-            stat_day: [],
-            stat_month: [],
         }
     },
     methods: {
@@ -593,9 +571,6 @@ const App = {
             this.acc_charge_bright = jdata.data.acc_charge_bright;
             this.acc_charge_lpm = jdata.data.acc_charge_lpm;
             this.action = jdata.data.action;
-            this.stat_hour = jdata.data.stat_hour;
-            this.stat_day = jdata.data.stat_day;
-            this.stat_month = jdata.data.stat_month;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
         },
@@ -640,178 +615,7 @@ const App = {
             ]
         },
         show_hist: function() {
-            this.hist_visible = true;
-            setTimeout(this.init_chart, 1000);
-        },
-        init_chart: function() {
-            var amperage_range = get_field_range(this.stat_hour, "InstantAmperage", 8);
-            var stat_hour = this.stat_hour.slice(Math.max(this.stat_hour.length - 48, 0));
-            new Chart(document.getElementById("hour_chart").getContext('2d'), {
-                type: "bar",
-                data: {
-                    datasets: [{
-                        barPercentage: 1,
-                        categoryPercentage: 0.9,
-                        backgroundColor: "#7bd060",
-                        label: "Capacity",
-                        data: stat_hour.map(row => {
-                            return {
-                                "x": ts_to_date(row.UpdateTime, "Dhm"),
-                                "y": row.CurrentCapacity,
-                            }
-                        }),
-                    }, {
-                        yAxisID: "Temperature",
-                        barPercentage: 1,
-                        categoryPercentage: 0.9,
-                        backgroundColor: "#dd3d33",
-                        label: "Temperature",
-                        data: stat_hour.map(row => {
-                            return {
-                                "x": ts_to_date(row.UpdateTime, "Dhm"),
-                                "y": row.Temperature/100,
-                            }
-                        })
-                    }, {
-                        yAxisID: "InstantAmperage",
-                        type: "line",
-                        borderWidth: 4,
-                        pointRadius: 2,
-                        pointHitRadius: 4,
-                        borderColor: "#4d7ffc",
-                        backgroundColor: "#4d7ffc",
-                        label: "Amperage",
-                        data: stat_hour.map(row => {
-                            return {
-                                "x": ts_to_date(row.UpdateTime, "Dhm"),
-                                "y": row.InstantAmperage,
-                            }
-                        })
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    var label = context.formattedValue;
-                                    if (context.datasetIndex == 0) {
-                                        label = label + '%';
-                                    } else if (context.datasetIndex == 1) {
-                                        label = label + '°C';
-                                    } else if (context.datasetIndex == 2) {
-                                        label = label + 'mA';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            position: "right",
-                            type: "linear",
-                            min: 0,
-                            max: 120,
-                            ticks: {
-                                callback: function(value) {
-                                    return value>100?"":value + '%';
-                                }
-                            }
-                        },
-                        Temperature: {
-                            position: "left",
-                            type: "linear",
-                            min: 0,
-                            max: 120,
-                            ticks: {
-                                callback: function(value) {
-                                    return value>50?"":value + '°C';
-                                }
-                            }
-                        },
-                        InstantAmperage: {
-                            display: false,
-                            position: "left",
-                            type: "linear",
-                            min: amperage_range[0],
-                            max: amperage_range[1],
-                            ticks: {
-                                callback: function(value) {
-                                    return value+"mA";
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            var capacity_range = get_field_range(this.stat_day, "NominalChargeCapacity", 2);
-            stat_day = this.stat_day.slice(Math.max(this.stat_day.length - 60, 0));
-            new Chart(document.getElementById("day_chart").getContext('2d'), {
-                type: "bar",
-                data: {
-                    datasets: [{
-                        barPercentage: 1,
-                        categoryPercentage: 0.9,
-                        backgroundColor: "#7bd060",
-                        label: "Capacity",
-                        data: stat_day.map(row => {
-                            return {
-                                "x": ts_to_date(row.UpdateTime, "YMD"),
-                                "y": row.NominalChargeCapacity,
-                            }
-                        }),
-                    }, {
-                        yAxisID: "CycleCount",
-                        barPercentage: 1,
-                        categoryPercentage: 0.9,
-                        backgroundColor: "#AAAAAA",
-                        label: "CycleCount",
-                        data: stat_day.map(row => {
-                            return {
-                                "x": ts_to_date(row.UpdateTime, "YMD"),
-                                "y": row.CycleCount,
-                            }
-                        })
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    var label = context.formattedValue;
-                                    if (context.datasetIndex == 0) {
-                                        label = label + 'mAh';
-                                    } else if (context.datasetIndex == 1) {
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            position: "right",
-                            type: "linear",
-                            min: capacity_range[0],
-                            max: capacity_range[1],
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toFixed(0)+"mAh";
-                                }
-                            }
-                        },
-                        CycleCount: {
-                            position: "left",
-                            type: "linear",
-                        }
-                    }
-                }
-            });
+            location.href = "/history.html";
         }
     },
     directives: {

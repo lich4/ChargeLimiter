@@ -18,7 +18,6 @@
   <script src="js/vue-i18n.js"></script>
   <script src="js/element-ui.js"></script>
   <script src="js/jquery.js"></script>
-  <script src="js/chart.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/app.js"></script>
   <style>
@@ -68,12 +67,13 @@
       background: #39383d !important;
     }
     
-    html, body, #app, #main_page {
+    html, body, #app {
       height: 100%;
       overflow-y: hidden;
     }
       
     body, input, div {
+      -webkit-overflow-scrolling: touch;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
@@ -186,323 +186,317 @@
 
 <body>
   <div id="app">
-    <div id="main_page">
-      <div id="page_header">
-        <el-row class="mx-2 py-2">
-          <div class="page_title">
-            <el-col :span="8">
-              <i class="fa fa-safari pr-4" v-if="window.source=='CL'" @click="open_safari"></i>
-              <i class="fa fa-moon-o" v-if="dark" @click="switch_dark(false)"></i>
-              <i class="fa fa-sun-o" v-else @click="switch_dark(true)"></i>
-            </el-col>
-            <el-col :span="8">{{title}}</el-col>
-            <el-col :span="8" style="text-align:center;">
-              <span class="subtitle">{{"v"+ver}}</span>
-            </el-col>
-          </div>
-        </el-row>
-      </div>
-      <el-divider class="my-0" direction="horizontal"></el-divider>
-      <div id="page_message">
-        <div v-for="i in msg_list" class="my-1">
-          <el-alert :bind_data="i.id" :title="i.title" :type="i.type" v-timeout="i.time" show-icon>
-          </el-alert>
+    <div id="page_header">
+      <el-row class="mx-2 py-2">
+        <div class="page_title">
+          <el-col :span="8">
+            <!--<i class="fa fa-safari pr-4" v-if="window.source=='CL'" @click="open_safari"></i>-->
+            <i class="fa fa-moon-o" v-if="dark" @click="switch_dark(false)"></i>
+            <i class="fa fa-sun-o" v-else @click="switch_dark(true)"></i>
+          </el-col>
+          <el-col :span="8">{{title}}</el-col>
+          <el-col :span="8" style="text-align:center;">
+            <span class="subtitle">{{"v"+ver}}</span>
+          </el-col>
         </div>
+      </el-row>
+    </div>
+    <el-divider class="my-0" direction="horizontal"></el-divider>
+    <div id="page_message">
+      <div v-for="i in msg_list" class="my-1">
+        <el-alert :bind_data="i.id" :title="i.title" :type="i.type" v-timeout="i.time" show-icon>
+        </el-alert>
       </div>
-      <div id="page_body" v-loading="loading">
-        <el-row class="mx-4 px-1 pt-2">
-          <span class="subtitle">{{$t("setting")}}</span>
+    </div>
+    <div id="page_body" v-loading="loading">
+      <el-row class="mx-4 px-1 pt-2">
+        <span class="subtitle">{{$t("setting")}}</span>
+      </el-row>
+      <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("enable")}}</el-label>
+          <el-switch :value="enable" class="right" @change="set_enable"></el-switch>
         </el-row>
-        <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("floatwnd")}}</el-label>
+          <el-switch :value="floatwnd" class="right" @change="set_floatwnd"></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("lang")}}</el-label>
+          <el-select v-model="i18n.locale" size="mini" class="right" style="width:45%" @change="change_lang">
+            <el-option v-for="i in Object.keys(i18n.messages)" :key="i" :label="i18n.messages[i].label" :value="i"></el-option>
+          </el-select>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("mode")}}</el-label>
+          <el-tooltip class="item" effect="dark" :content="$t(mode+'_desc')">
+            <span class="el-icon-warning-outline page-icon-sm"></span>
+          </el-tooltip>
+          <el-select v-model="mode" size="mini" class="right" style="width:45%" @change="change_mode">
+            <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
+          </el-select>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("update_freq")}}</el-label>
+          <el-tooltip class="item" effect="dark" :content="$t('update_freq_desc')">
+            <span class="el-icon-warning-outline page-icon-sm"></span>
+          </el-tooltip>
+          <el-select v-model="update_freq" size="mini" class="right" style="width:45%" @change="change_update_freq">
+            <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
+          </el-select>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <template v-if="mode=='edge_trigger'">
           <el-row class="py-2 col-item">
-            <el-label>{{$t("enable")}}</el-label>
-            <el-switch :value="enable" class="right" @change="set_enable"></el-switch>
+            <el-col></el-col>
+            <el-label>{{$t("charge_below")}}</el-label>
+            <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="1" :marks="marks_perc" @change="set_charge_below"></el-slider>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item">
-            <el-label>{{$t("floatwnd")}}</el-label>
-            <el-switch :value="floatwnd" class="right" @change="set_floatwnd"></el-switch>
+            <el-label>{{$t("nocharge_above")}}</el-label>
+            <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+        </template>
+        <template v-else-if="mode=='charge_on_plug'">
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("nocharge_above")}}</el-label>
+            <el-slider v-model="charge_above" class="pr-1" :min="20" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+        </template>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("temp_ctrl")}}</el-label>
+          <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <template v-if="enable_temp">
+          <el-row class="py-2 col-item">
+            <el-label class="submenu">{{$t("nocharge_temp_above")}}</el-label>
+            <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="1" :marks="marks_temp" @change="set_charge_temp_above" disable></el-slider>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item" v-if="mode=='charge_on_plug'">
+            <el-label class="submenu">{{$t("charge_temp_below")}}</el-label>
+            <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+        </template>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("acc_charge")}}</el-label>
+          <el-tooltip class="item" effect="dark" :content="$t('acc_charge_desc')">
+            <span class="el-icon-warning-outline page-icon-sm"></span>
+          </el-tooltip>
+          <el-switch :value="acc_charge" class="right" @change="set_acc_charge"></el-switch>
+        </el-row>
+        <template v-if="acc_charge">
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label class="submenu">{{$t("acc_charge_airmode")}}</el-label>
+            <el-switch :value="acc_charge_airmode" class="right" @change="set_acc_charge_airmode"></el-switch>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item">
-            <el-label>{{$t("lang")}}</el-label>
-            <el-select v-model="i18n.locale" size="mini" class="right" style="width:45%" @change="change_lang">
-              <el-option v-for="i in Object.keys(i18n.messages)" :key="i" :label="i18n.messages[i].label" :value="i"></el-option>
+            <el-label class="submenu">{{$t("acc_charge_lpm")}}</el-label>
+            <el-switch :value="acc_charge_lpm" class="right" @change="set_acc_charge_lpm"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label class="submenu">{{$t("acc_charge_blue")}}</el-label>
+            <el-switch :value="acc_charge_blue" class="right" @change="set_acc_charge_blue"></el-switch>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label class="submenu">{{$t("acc_charge_bright")}}</el-label>
+            <el-switch :value="acc_charge_bright" class="right" @change="set_acc_charge_bright"></el-switch>
+          </el-row>
+        </template>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("action")}}</el-label>
+            <el-select v-model="action" size="mini" class="right" style="width:45%" @change="change_action">
+              <el-option v-for="i in actions" :key="i.value" :label="i.label" :value="i.value"></el-option>
             </el-select>
           </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("mode")}}</el-label>
-            <el-tooltip class="item" effect="dark" :content="$t(mode+'_desc')">
-              <span class="el-icon-warning-outline page-icon-sm"></span>
-            </el-tooltip>
-            <el-select v-model="mode" size="mini" class="right" style="width:45%" @change="change_mode">
-              <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
-            </el-select>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("update_freq")}}</el-label>
-            <el-tooltip class="item" effect="dark" :content="$t('update_freq_desc')">
-              <span class="el-icon-warning-outline page-icon-sm"></span>
-            </el-tooltip>
-            <el-select v-model="update_freq" size="mini" class="right" style="width:45%" @change="change_update_freq">
-              <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
-            </el-select>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <template v-if="mode=='edge_trigger'">
-            <el-row class="py-2 col-item">
-              <el-col></el-col>
-              <el-label>{{$t("charge_below")}}</el-label>
-              <el-slider v-model="charge_below" class="pr-1" :min="0" :max="80" :step="1" :marks="marks_perc" @change="set_charge_below"></el-slider>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item">
-              <el-label>{{$t("nocharge_above")}}</el-label>
-              <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-          </template>
-          <template v-else-if="mode=='charge_on_plug'">
-            <el-row class="py-2 col-item">
-              <el-label>{{$t("nocharge_above")}}</el-label>
-              <el-slider v-model="charge_above" class="pr-1" :min="20" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-          </template>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("temp_ctrl")}}</el-label>
-            <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <template v-if="enable_temp">
-            <el-row class="py-2 col-item">
-              <el-label class="submenu">{{$t("nocharge_temp_above")}}</el-label>
-              <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="1" :marks="marks_temp" @change="set_charge_temp_above" disable></el-slider>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item" v-if="mode=='charge_on_plug'">
-              <el-label class="submenu">{{$t("charge_temp_below")}}</el-label>
-              <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-          </template>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("acc_charge")}}</el-label>
-            <el-tooltip class="item" effect="dark" :content="$t('acc_charge_desc')">
-              <span class="el-icon-warning-outline page-icon-sm"></span>
-            </el-tooltip>
-            <el-switch :value="acc_charge" class="right" @change="set_acc_charge"></el-switch>
-          </el-row>
-          <template v-if="acc_charge">
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item">
-              <el-label class="submenu">{{$t("acc_charge_airmode")}}</el-label>
-              <el-switch :value="acc_charge_airmode" class="right" @change="set_acc_charge_airmode"></el-switch>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item">
-              <el-label class="submenu">{{$t("acc_charge_lpm")}}</el-label>
-              <el-switch :value="acc_charge_lpm" class="right" @change="set_acc_charge_lpm"></el-switch>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item">
-              <el-label class="submenu">{{$t("acc_charge_blue")}}</el-label>
-              <el-switch :value="acc_charge_blue" class="right" @change="set_acc_charge_blue"></el-switch>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item">
-              <el-label class="submenu">{{$t("acc_charge_bright")}}</el-label>
-              <el-switch :value="acc_charge_bright" class="right" @change="set_acc_charge_bright"></el-switch>
-            </el-row>
-          </template>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-            <el-row class="py-2 col-item">
-              <el-label>{{$t("action")}}</el-label>
-              <el-select v-model="action" size="mini" class="right" style="width:45%" @change="change_action">
-                <el-option v-for="i in actions" :key="i.value" :label="i.label" :value="i.value"></el-option>
-              </el-select>
-            </el-row>
-        </el-card>  
-        <el-row class="mx-4 px-1 pt-2">
-          <span class="subtitle">{{$t("batinfo")}}</span>
-          <span class="right subsubbtitle pt-2">{{$t("UpdateAt")+' '+ts_to_date(bat_info.UpdateTime)}}</span>
+      </el-card>  
+      <el-row class="mx-4 px-1 pt-2">
+        <span class="subtitle">{{$t("batinfo")}}</span>
+        <span class="right subsubbtitle pt-2">{{$t("UpdateAt")+' '+ts_to_date(bat_info.UpdateTime)}}</span>
+      </el-row>
+      <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
+        <el-row class="py-2 col-item">
+          <el-col :span="12">
+            <el-label>{{$t("CurrentCapacity")}}
+            </el-label>
+          </el-col>
+          <el-col :span="12">
+            <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.CurrentCapacity" status="success"></el-progress>
+          </el-col>
         </el-row>
-        <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
-          <el-row class="py-2 col-item">
-            <el-col :span="12">
-              <el-label>{{$t("CurrentCapacity")}}
-              </el-label>
-            </el-col>
-            <el-col :span="12">
-              <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.CurrentCapacity" status="success"></el-progress>
-            </el-col>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-col :span="12">
-              <el-label>{{$t("Health")}}</el-label>
-            </el-col>
-            <el-col :span="12">
-              <el-progress :text-inside="true" :stroke-width="24" :percentage="get_health(bat_info)"></el-progress>
-            </el-col>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-col :span="12">
-              <el-label>{{$t("Temperature")}}</el-label>
-            </el-col>
-            <el-col :span="12">
-              <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.Temperature/100+30" :format="get_temp_desc"></el-progress>
-            </el-col>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item click">
-            <el-label>{{$t("IsCharging")}}</el-label>
-            <el-tooltip class="item" effect="dark" :content="$t('charge_btn_desc')">
-              <span class="el-icon-warning-outline page-icon-sm"></span>
-            </el-tooltip>
-            <el-switch :value="bat_info.IsCharging" class="right" @change="set_charge_status"></el-switch>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("BatteryInstalled")}}</el-label>
-            <el-switch :value="bat_info.BatteryInstalled" class="right" disabled></el-switch>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("CycleCount")}}</el-label>
-            <el-label class="right">{{bat_info.CycleCount}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("DesignCapacity")}}</el-label>
-            <el-label class="right">{{bat_info.DesignCapacity}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("NominalChargeCapacity")}}</el-label>
-            <el-label class="right">{{bat_info.NominalChargeCapacity}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("HardwareCapacity")}}</el-label>
-            <el-label class="right">{{get_hardware_capacity()}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("InstantAmperage")}}</el-label>
-            <el-label class="right">{{bat_info.InstantAmperage}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("BootVoltage")}}</el-label>
-            <el-label class="right">{{bat_info.BootVoltage/1000}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("Voltage")}}</el-label>
-            <el-label class="right">{{bat_info.Voltage/1000}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("Serial")}}</el-label>
-            <el-label class="right">{{bat_info.Serial}}</el-label>
-          </el-row>
-        </el-card>
-        <el-row class="mx-4 px-1 pt-2">
-          <span class="subtitle">{{$t("adaptorinfo")}}</span>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-col :span="12">
+            <el-label>{{$t("Health")}}</el-label>
+          </el-col>
+          <el-col :span="12">
+            <el-progress :text-inside="true" :stroke-width="24" :percentage="get_health(bat_info)"></el-progress>
+          </el-col>
         </el-row>
-        <el-card class="box-card mx-3 mb-2 px-2" shadow="never" v-if="adaptor_info">
-          <template v-if="adaptor_info.Manufacturer">
-            <el-row class="py-2 col-item">
-              <el-label>{{$t("Manufacturer")}}</el-label>
-              <el-label class="right">{{adaptor_info.Manufacturer}}</el-label>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-          </template>
-          <template v-if="adaptor_info.Name">
-            <el-row class="py-2 col-item">
-              <el-label>{{$t("Name")}}</el-label>
-              <el-label class="right">{{adaptor_info.Name}}</el-label>
-            </el-row>
-            <el-divider class="my-0" direction="horizontal"></el-divider>
-          </template>
-          <template v-if="adaptor_info.Description">
-            <el-row class="py-2 col-item">
-              <el-label>{{$t("Description")}}</el-label>
-              <el-label class="right">{{$t(adaptor_info.Description)+'('+adaptor_info.Description+')'}}</el-label>
-            </el-row>
-          </template>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("ExternalChargeCapable")}}</el-label>
-            <el-switch :value="bat_info.ExternalChargeCapable" class="right" disabled></el-switch>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("ExternalConnected")}}</el-label>
-            <el-switch :value="bat_info.ExternalConnected" class="right" disabled></el-switch>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("WirelessCharge")}}</el-label>
-            <el-switch :value="bat_info.IsWireless" class="right" disabled></el-switch>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("Voltage")}}</el-label>
-            <el-label class="right">{{adaptor_info.Voltage/1000}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("Current")}}</el-label>
-            <el-label class="right">{{adaptor_info.Current}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label>{{$t("Watts")}}</el-label>
-            <el-label class="right">{{adaptor_info.Watts}}</el-label>
-          </el-row>
-        </el-card>
-        <el-card class="box-card mx-3 my-3 px-2" style="text-align: center;" shadow="never">
-          <div class="my-2 click" @click="copy_to_pb">{{$t("copy_to_pb")}}</div>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <div class="my-2 click" @click="show_hist">{{$t("view_hist")}}</div>
-          <el-dialog :visible.sync="hist_visible" fullscreen="true">
-            <canvas id="hour_chart" class="mb-3"></canvas>
-            <canvas id="day_chart" class="mb-3"></canvas>
-          </el-dialog>
-        </el-card>
-        <el-row class="mx-4 px-1 pt-2">
-          <el-row class="subtitle">
-            <el-label>{{$t("author")}}</el-label>
-            <span class="right noclick">lich4</span>
-          </el-row>
-          <el-row class="subtitle">
-            <el-label>Github</el-label>
-            <a href="https://github.com/lich4" class="right noclick">https://github.com/lich4</a>
-          </el-row>
-          <el-row class="subtitle">
-            <el-label>Reddit</el-label>
-            <a href="https://www.reddit.com/r/Trollstore/comments/1an9381/aldente_for_ios_battery_charge_limiter/" class="right noclick">Reddit</a>
-          </el-row>
-          <el-row class="subtitle">
-            <el-label>QQ群</el-label>
-            <el-label class="right">669869453</el-label>
-          </el-row>
-          <el-row class="subtitle">
-            <el-label>Telegram</el-label>
-            <a class="right noclick subtitle">https://t.me/+p0pwZCBDcH0zOGZl</a>
-          </el-row>
-          <el-row class="subtitle">
-            <el-label>Email</el-label>
-            <a href="mailto:571652571@qq.com" class="right">571652571@qq.com</a>
-          </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-col :span="12">
+            <el-label>{{$t("Temperature")}}</el-label>
+          </el-col>
+          <el-col :span="12">
+            <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.Temperature/100+30" :format="get_temp_desc"></el-progress>
+          </el-col>
         </el-row>
-        <div class="py-5"></div>
-      </div>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item click">
+          <el-label>{{$t("IsCharging")}}</el-label>
+          <el-tooltip class="item" effect="dark" :content="$t('charge_btn_desc')">
+            <span class="el-icon-warning-outline page-icon-sm"></span>
+          </el-tooltip>
+          <el-switch :value="bat_info.IsCharging" class="right" @change="set_charge_status"></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("BatteryInstalled")}}</el-label>
+          <el-switch :value="bat_info.BatteryInstalled" class="right" disabled></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("CycleCount")}}</el-label>
+          <el-label class="right">{{bat_info.CycleCount}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("DesignCapacity")}}</el-label>
+          <el-label class="right">{{bat_info.DesignCapacity}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("NominalChargeCapacity")}}</el-label>
+          <el-label class="right">{{bat_info.NominalChargeCapacity}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("HardwareCapacity")}}</el-label>
+          <el-label class="right">{{get_hardware_capacity()}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("InstantAmperage")}}</el-label>
+          <el-label class="right">{{bat_info.InstantAmperage}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("BootVoltage")}}</el-label>
+          <el-label class="right">{{bat_info.BootVoltage/1000}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("Voltage")}}</el-label>
+          <el-label class="right">{{bat_info.Voltage/1000}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("Serial")}}</el-label>
+          <el-label class="right">{{bat_info.Serial}}</el-label>
+        </el-row>
+      </el-card>
+      <el-row class="mx-4 px-1 pt-2">
+        <span class="subtitle">{{$t("adaptorinfo")}}</span>
+      </el-row>
+      <el-card class="box-card mx-3 mb-2 px-2" shadow="never" v-if="adaptor_info">
+        <template v-if="adaptor_info.Manufacturer">
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("Manufacturer")}}</el-label>
+            <el-label class="right">{{adaptor_info.Manufacturer}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+        </template>
+        <template v-if="adaptor_info.Name">
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("Name")}}</el-label>
+            <el-label class="right">{{adaptor_info.Name}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+        </template>
+        <template v-if="adaptor_info.Description">
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("Description")}}</el-label>
+            <el-label class="right">{{$t(adaptor_info.Description)+'('+adaptor_info.Description+')'}}</el-label>
+          </el-row>
+        </template>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("ExternalChargeCapable")}}</el-label>
+          <el-switch :value="bat_info.ExternalChargeCapable" class="right" disabled></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("ExternalConnected")}}</el-label>
+          <el-switch :value="bat_info.ExternalConnected" class="right" disabled></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("WirelessCharge")}}</el-label>
+          <el-switch :value="bat_info.IsWireless" class="right" disabled></el-switch>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("Voltage")}}</el-label>
+          <el-label class="right">{{adaptor_info.Voltage/1000}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("Current")}}</el-label>
+          <el-label class="right">{{adaptor_info.Current}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("Watts")}}</el-label>
+          <el-label class="right">{{adaptor_info.Watts}}</el-label>
+        </el-row>
+      </el-card>
+      <el-card class="box-card mx-3 my-3 px-2" style="text-align: center;" shadow="never">
+        <div class="my-2 click" @click="copy_to_pb">{{$t("copy_to_pb")}}</div>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <div class="my-2 click" @click="show_hist">{{$t("view_hist")}}</div>
+      </el-card>
+      <el-row class="mx-4 px-1 pt-2">
+        <el-row class="subtitle">
+          <el-label>{{$t("author")}}</el-label>
+          <span class="right noclick">lich4</span>
+        </el-row>
+        <el-row class="subtitle">
+          <el-label>Github</el-label>
+          <a href="https://github.com/lich4" class="right noclick">https://github.com/lich4</a>
+        </el-row>
+        <el-row class="subtitle">
+          <el-label>Reddit</el-label>
+          <a href="https://www.reddit.com/r/Trollstore/comments/1an9381/aldente_for_ios_battery_charge_limiter/" class="right noclick">Reddit</a>
+        </el-row>
+        <el-row class="subtitle">
+          <el-label>QQ群</el-label>
+          <el-label class="right">669869453</el-label>
+        </el-row>
+        <el-row class="subtitle">
+          <el-label>Telegram</el-label>
+          <a class="right noclick subtitle">https://t.me/+p0pwZCBDcH0zOGZl</a>
+        </el-row>
+        <el-row class="subtitle">
+          <el-label>Email</el-label>
+          <a href="mailto:571652571@qq.com" class="right">571652571@qq.com</a>
+        </el-row>
+      </el-row>
+      <div class="py-5"></div>
     </div>
   </div>
 </body>
