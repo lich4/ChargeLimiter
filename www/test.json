@@ -33,6 +33,7 @@
         "status": 0,
         "data": {
             "enable": true,
+            "ver": "1.4.1",
             "update_freq": 1,
             "dark": true,
             "sysver": "13.0",

@@ -1,60 +1,12 @@
-$.ajaxSetup({
-    timeout: 1000,
-    contentType: "application/json",
-});
-
-function ipc_send(req, net_status_cb) {
-    if (!window.test) {
-        var rreq = JSON.stringify(req);
-        $.post("/bridge", rreq, (data, status) => {
-            if (net_status_cb) {
-                net_status_cb(true);
-            }
-            var callback = req["callback"];
-            if (callback) {
-                eval(callback)(data);
-            }
-        }).fail(() => {
-            if (net_status_cb) {
-                net_status_cb(false);
-            }
-        });
-    } else { // local test
-        $.get("test.json", { _: $.now() }, (data, status) => {
-            if (net_status_cb) {
-                net_status_cb(true);
-            }
-            if (!data) {
-                return;
-            }
-            var api = req["api"];
-            var callback = req["callback"];
-            if (callback) {
-                if (data[api]) {
-                    eval(callback)(data[api]);
-                } else {
-                    console.log("ipc_send unhandled err " + api);
-                }
-            }
-        }).fail(() => {
-            if (net_status_cb) {
-                net_status_cb(false);
-            }
-        });
-    }
-}
-
-function t_c_to_f(v) {
-    return 32 + 1.8 * v;
-}
-
 const App = {
     el: "#app",
     data: function () {
         return {
             daemon_alive: false,
             enable: false,
+            ver: "?",
             update_freq: 1,
+            dark: false,
             timer: null,
             bat_info: null,
         }
@@ -90,6 +42,7 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
+            this.ver = jdata.data.ver;
             this.update_freq = jdata.data.update_freq;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
@@ -100,6 +53,14 @@ const App = {
                 callback: "window.app.get_conf_cb",
             });
         },
+        switch_dark: function(flag) {
+            this.dark = flag;
+            if (flag) {
+                $("body").attr("class", "night");
+            } else {
+                $("body").removeAttr("class", "night");
+            }
+        },
     },
     mounted: function () {  
         this.get_conf();
@@ -109,10 +70,6 @@ const App = {
 window.addEventListener("load", function () {
     window.app = new Vue(App);
 })
-
-if (location.port >= 5500 && location.port <= 5510) {
-    window.test = true;
-}
 
 window.onload = () => {
     $("html").css("width", 80);

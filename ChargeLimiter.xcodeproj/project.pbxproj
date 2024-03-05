@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		181BA3A12B91BAB400CC07A6 /* md-trollstore-appex in Resources */ = {isa = PBXBuildFile; fileRef = 181BA3A02B91BAB400CC07A6 /* md-trollstore-appex */; };
+		182AAAF52B91661B006BBE9A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
+		182AAAF62B916632006BBE9A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		1839C1D12B8C250C00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		1839C1D22B8C251600FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		1839C1D32B8C251D00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
@@ -58,15 +61,18 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1806F2F32B94AF11007CFED2 /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		1806F2FF2B94AF11007CFED2 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
+		181BA3A02B91BAB400CC07A6 /* md-trollstore-appex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "md-trollstore-appex"; sourceTree = "<group>"; };
 		18257CBC2B88652600DC5F70 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		1839C1D72B8C655900FCFDEB /* Readme2.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme2.md; sourceTree = "<group>"; };
 		18497C5D2B541D6100A6C5E3 /* md-trollstore */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "md-trollstore"; sourceTree = "<group>"; };
 		18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChargeLimiter.entitlements; sourceTree = "<group>"; };
 		184EA9B72B7A373300D0981D /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		184FE8032B70BE8100525080 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		1867D8832B91A1D40006A073 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = GraphicsServices.tbd; sourceTree = "<group>"; };
 		1870F6192B85A96100B3660F /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1870F61A2B85A96200B3660F /* ChargeLimiter_rootless copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "ChargeLimiter_rootless copy-Info.plist"; path = "/Users/apple/Documents/Tool/ChargeLimiter/ChargeLimiter_rootless copy-Info.plist"; sourceTree = "<absolute>"; };
 		1878862D2B51976A00E48B28 /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1878863A2B51976A00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1878863C2B51976B00E48B28 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -87,6 +93,8 @@
 		18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = BackBoardServices.tbd; sourceTree = "<group>"; };
 		18D0C4312B807280006A7AB7 /* Package */ = {isa = PBXFileReference; lastKnownFileType = text; name = Package; path = ChargeLimiter_rootless/Package; sourceTree = SOURCE_ROOT; };
+		18D455212B91A5BD0032EDE7 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		18D455232B91A5BD0032EDE7 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		18EEB6F72B7BCAA100DCC561 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -98,12 +106,13 @@
 				184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */,
 				1839C1D22B8C251600FCFDEB /* CoreGraphics.framework in Frameworks */,
 				184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */,
-				18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */,
+				184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */,
+				182AAAF62B916632006BBE9A /* UserNotifications.framework in Frameworks */,
+				18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
 				184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */,
 				184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */,
-				184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,12 +139,13 @@
 				187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */,
 				1839C1D12B8C250C00FCFDEB /* CoreGraphics.framework in Frameworks */,
 				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
-				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
+				187886552B519B2100E48B28 /* UIKit.framework in Frameworks */,
+				182AAAF52B91661B006BBE9A /* UserNotifications.framework in Frameworks */,
+				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
 				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
 				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
-				187886552B519B2100E48B28 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,12 +158,12 @@
 				18B757232B57FDB2008A67D1 /* Readme.md */,
 				1839C1D72B8C655900FCFDEB /* Readme2.md */,
 				18497C5D2B541D6100A6C5E3 /* md-trollstore */,
+				181BA3A02B91BAB400CC07A6 /* md-trollstore-appex */,
 				18EEB6F72B7BCAA100DCC561 /* splash.png */,
 				187886522B519A5B00E48B28 /* www */,
 				1878862F2B51976A00E48B28 /* ChargeLimiter */,
 				1878862E2B51976A00E48B28 /* Products */,
 				187886492B5199D800E48B28 /* Frameworks */,
-				1870F61A2B85A96200B3660F /* ChargeLimiter_rootless copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -198,6 +208,11 @@
 				18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */,
 				187886532B519B1600E48B28 /* CFNetwork.framework */,
 				1878864E2B5199EC00E48B28 /* UIKit.framework */,
+				1867D8832B91A1D40006A073 /* NotificationCenter.framework */,
+				18D455212B91A5BD0032EDE7 /* WidgetKit.framework */,
+				18D455232B91A5BD0032EDE7 /* SwiftUI.framework */,
+				1806F2F32B94AF11007CFED2 /* Intents.framework */,
+				1806F2FF2B94AF11007CFED2 /* IntentsUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -265,6 +280,7 @@
 		187886252B51976A00E48B28 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1170;
 				ORGANIZATIONNAME = chaoge;
 				TargetAttributes = {
@@ -324,6 +340,7 @@
 			files = (
 				18EEB6F82B7BCAA100DCC561 /* splash.png in Resources */,
 				1860F2C42B5809510094AAC8 /* www in Resources */,
+				181BA3A12B91BAB400CC07A6 /* md-trollstore-appex in Resources */,
 				1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */,
 				187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */,
 				1878863B2B51976A00E48B28 /* Main.storyboard in Resources */,
@@ -348,7 +365,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function on_pkg {\n    echo on_pkg\n}\nexport -f on_pkg\n\nfunction build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\n#build_tipa\nbuild_deb\n";
+			shellScript = "function on_pkg {\n    echo on_pkg\n}\nexport -f on_pkg\n\nfunction build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n\n";
 			showEnvVarsInLog = 0;
 		};
 		184EA9B32B7A373300D0981D /* ShellScript */ = {
@@ -472,7 +489,7 @@
 				PRODUCT_NAME = ChargeLimiter;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = rootless;
-				TROLLSTORE_DEVICE_IP = 192.168.1.7;
+				TROLLSTORE_DEVICE_IP = 192.168.0.3;
 				VALID_ARCHS = arm64;
 			};
 			name = Debug;
@@ -511,7 +528,7 @@
 				PRODUCT_NAME = ChargeLimiter;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = rootless;
-				TROLLSTORE_DEVICE_IP = 192.168.1.7;
+				TROLLSTORE_DEVICE_IP = 192.168.0.3;
 				VALID_ARCHS = arm64;
 			};
 			name = Release;
@@ -753,7 +770,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.139;
+				TROLLSTORE_DEVICE_IP = 192.168.0.11;
 			};
 			name = Debug;
 		};
@@ -789,7 +806,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.139;
+				TROLLSTORE_DEVICE_IP = 192.168.0.11;
 			};
 			name = Release;
 		};

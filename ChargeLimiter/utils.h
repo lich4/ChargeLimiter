@@ -54,6 +54,7 @@ enum {
 int getJBType();
 void NSFileLog(NSString* fmt, ...);
 BOOL isDarkMode();
+NSString* getAppVer();
 NSString* getSysVer();
 NSString* getDevMdoel();
 CGFloat getOrientAngle(UIDeviceOrientation orientation);

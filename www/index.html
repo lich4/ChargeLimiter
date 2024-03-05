@@ -18,6 +18,8 @@
   <script src="js/vue-i18n.js"></script>
   <script src="js/element-ui.js"></script>
   <script src="js/jquery.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/utils.js"></script>
   <script src="js/app.js"></script>
   <style>
     .night {
@@ -121,10 +123,6 @@
       visibility: hidden;
     }
 
-    .el-slider__marks-text {
-      font-size: 8px !important;
-    }
-
     .page-icon-sm {
       font-size: 20px;
     }
@@ -175,6 +173,14 @@
     .el-card__body {
       padding: 5px;
     }
+
+    .el-dialog__body {
+      padding: 0px;
+    }
+
+    .el-slider__marks-text {
+      font-size: 8px !important;
+    }
   </style>
 </head>
 
@@ -185,12 +191,13 @@
         <el-row class="mx-2 py-2">
           <div class="page_title">
             <el-col :span="8">
+              <i class="fa fa-safari pr-4" v-if="window.source=='CL'" @click="open_safari"></i>
               <i class="fa fa-moon-o" v-if="dark" @click="switch_dark(false)"></i>
               <i class="fa fa-sun-o" v-else @click="switch_dark(true)"></i>
             </el-col>
             <el-col :span="8">{{title}}</el-col>
             <el-col :span="8" style="text-align:center;">
-              <span class="subtitle">v1.4.1</span>
+              <span class="subtitle">{{"v"+ver}}</span>
             </el-col>
           </div>
         </el-row>
@@ -462,7 +469,11 @@
         <el-card class="box-card mx-3 my-3 px-2" style="text-align: center;" shadow="never">
           <div class="my-2 click" @click="copy_to_pb">{{$t("copy_to_pb")}}</div>
           <el-divider class="my-0" direction="horizontal"></el-divider>
-          <div class="my-2 click" @click="open_safari">{{$t("open_safari")}}</div>
+          <div class="my-2 click" @click="show_hist">{{$t("view_hist")}}</div>
+          <el-dialog :visible.sync="hist_visible" fullscreen="true">
+            <canvas id="hour_chart" class="mb-3"></canvas>
+            <canvas id="day_chart" class="mb-3"></canvas>
+          </el-dialog>
         </el-card>
         <el-row class="mx-4 px-1 pt-2">
           <el-row class="subtitle">

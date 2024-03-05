@@ -331,6 +331,10 @@ BOOL isDarkMode() {
     return NO;
 }
 
+NSString* getAppVer() {
+    return [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+}
+
 NSString* getSysVer() {
     return UIDevice.currentDevice.systemVersion;
 }

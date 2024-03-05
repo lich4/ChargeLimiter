@@ -17,6 +17,7 @@
   <script src="js/vue.js"></script>
   <script src="js/element-ui.js"></script>
   <script src="js/jquery.js"></script>
+  <script src="js/utils.js"></script>
   <script src="js/float.js"></script>
   <style>
     html, body, #app {
@@ -89,7 +90,7 @@
         <el-row class="tip-line">
           <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
           <i class="fa fa-toggle-off icon toggle-off" v-else></i>
-          <span class="text">CL v1.4.1</span>
+          <span class="text">{{"CL v"+ver}}</span>
         </el-row>
         <el-row class="tip-line">
           <i class="fa fa-battery-0 icon battery" v-if="bat_info.CurrentCapacity<5"></i>

@@ -243,6 +243,10 @@ static AppDelegate* _app = nil;
     [_mainWnd addSubview:webview];
     [_mainWnd bringSubviewToFront:webview];
     [self speedUpWebView: webview];
+    if (isDarkMode()) {
+        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
+    }
+    [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
 }
 - (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
     NSString* surl = webview.request.URL.absoluteString;
@@ -630,9 +634,10 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         NSMutableDictionary* kv = [cache_kv mutableCopy];
         kv[@"enable"] = @(g_enable);
         kv[@"floatwnd"] = @(g_enable_floatwnd);
-        kv[@"dark"] = @(isDarkMode());
+        //kv[@"dark"] = @(isDarkMode());  daemon获取到的结果不随系统变化,需要从app获取
         kv[@"sysver"] = getSysVer();
         kv[@"devmodel"] = getDevMdoel();
+        kv[@"ver"] = getAppVer();
         return @{
             @"status": @0,
             @"data": kv,

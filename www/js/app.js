@@ -1,147 +1,19 @@
-String.prototype.format = function () {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function (match, number) {
-        return typeof args[number]!='undefined'?args[number]:match;
+function get_field_range(data, field, pos) {
+    var minv = data[0][field];
+    var maxv = data[0][field];
+    data.forEach(x => {
+        if (x[field] < minv) {
+            minv = x[field];
+        }
+        if (x[field] > maxv) {
+            maxv = x[field];
+        }
     });
-};
-
-function set_local_val(path, key, val) {
-    var data = localStorage.getItem(path);
-    if (!data) {
-        data = "{}";
+    var rg = maxv - minv;
+    if (rg == 0) {
+        rg = maxv * 0.1;
     }
-    var dic = JSON.parse(data);
-    dic[key] = val;
-    localStorage.setItem(path, JSON.stringify(dic));
-}
-
-function get_local_val(path, key) {
-    var data = localStorage.getItem(path);
-    if (!data) {
-        return "";
-    }
-    var val = JSON.parse(data)[key];
-    return val?val:"";
-}
-
-function get_local_lang() {
-    var lang = get_local_val("conf", "lang");
-    if (!lang) {
-        var sp = navigator.language.split("-");
-        if (sp[0] == "zh") {
-            if (sp[1] == "TW") {
-                lang = "zh_TW";
-            } else {
-                lang = "zh_CN";
-            }
-        } else {
-            lang = sp[0];
-        }
-        set_local_val("conf", "lang", lang);
-    }
-    return lang;
-}
-
-function range (start, stop, step) {
-    return Array.from({ length: (stop - start) / step}, (_, i) => start + (i * step));
-}
-
-function ts_to_date(timestamp, unit) {
-    if (!unit) {
-        unit = "YMDhms";
-    }
-    var date = new Date(timestamp * 1000);
-    var Y = date.getFullYear();
-    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
-    var D = (date.getDate() < 10)?'0' + date.getDate() : date.getDate();
-    var h = (date.getHours() < 10)?'0' + date.getHours() : date.getHours();
-    var m = (date.getMinutes() < 10)?'0' + date.getMinutes() : date.getMinutes();
-    var s = (date.getSeconds() < 10)?'0' + date.getSeconds() : date.getSeconds();
-    var result = "";
-    if (unit.indexOf("Y") != -1) {
-        result += Y;
-    }
-    if (unit.indexOf("M") != -1) {
-        if (result.length != 0) {
-            result += "-";
-        }
-        result += M;
-    }
-    if (unit.indexOf("D") != -1) {
-        if (result.length != 0) {
-            result += "-";
-        }
-        result += D;
-    }
-    if (unit.indexOf("h") != -1) {
-        if (result.length != 0) {
-            result += " ";
-        }
-        result += h;
-    }
-    if (unit.indexOf("m") != -1) {
-        if (result.length != 0) {
-            result += ":";
-        }
-        result += m;
-    }
-    if (unit.indexOf("s") != -1) {
-        if (result.length != 0) {
-            result += ":";
-        }
-        result += s;
-    }
-    return result;
-}
-
-$.ajaxSetup({
-    timeout: 1000,
-    contentType: "application/json",
-});
-
-function ipc_send(req, net_status_cb) {
-    if (!window.test) {
-        var rreq = JSON.stringify(req);
-        $.post("/bridge", rreq, (data, status) => {
-            if (net_status_cb) {
-                net_status_cb(true);
-            }
-            var callback = req["callback"];
-            if (callback) {
-                eval(callback)(data);
-            }
-        }).fail(() => {
-            if (net_status_cb) {
-                net_status_cb(false);
-            }
-        });
-    } else { // local test
-        $.get("test.json", { _: $.now() }, (data, status) => {
-            if (net_status_cb) {
-                net_status_cb(true);
-            }
-            if (!data) {
-                return;
-            }
-            var api = req["api"];
-            var callback = req["callback"];
-            if (callback) {
-                if (data[api]) {
-                    eval(callback)(data[api]);
-                } else {
-                    console.log("ipc_send unhandled err " + api);
-                }
-            }
-        }).fail(() => {
-            if (net_status_cb) {
-                net_status_cb(false);
-            }
-        });
-    }
-}
-
-function get_id() {
-    return Date.now();
+    return [maxv - rg*pos, maxv + rg];
 }
 
 const i18n = new VueI18n({
@@ -217,6 +89,7 @@ const i18n = new VueI18n({
             "usb charger": "USB charger",
             "magsafe acc": "MagSafe charger",
             copy_to_pb: "Copy all data to pasteboard",
+            view_hist: "History",
             open_safari: "Open in Safari",
             author: "Author",
             contact: "Contact",
@@ -291,6 +164,7 @@ const i18n = new VueI18n({
             "usb charger": "USB充电器",
             "magsafe acc": "MagSafe充电器",
             copy_to_pb: "拷贝所有数据到剪贴板",
+            view_hist: "历史统计",
             open_safari: "在Safari中打开",
             author: "作者",
             contact: "联系方式",
@@ -365,16 +239,13 @@ const i18n = new VueI18n({
             "usb charger": "USB充電器",
             "magsafe acc": "MagSafe充電器",
             copy_to_pb: "拷貝所有數據到剪貼板",
+            view_hist: "歷史統計",
             open_safari: "在Safari中打開",
             author: "作者",
             contact: "聯絡方式",
         }
     },
 })
-
-function t_c_to_f(v) {
-    return 32 + 1.8 * v;
-}
 
 const App = {
     el: "#app",
@@ -385,6 +256,7 @@ const App = {
             loading: false,
             daemon_alive: false,
             enable: false,
+            ver: "?",
             update_freq: 1,
             dark: false,
             sysver: "",
@@ -412,6 +284,10 @@ const App = {
             freqs: null,
             modes: null,
             actions: null,
+            hist_visible: false,
+            stat_hour: [],
+            stat_day: [],
+            stat_month: [],
         }
     },
     methods: {
@@ -694,11 +570,8 @@ const App = {
         },
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
+            this.ver = jdata.data.ver;
             this.update_freq = jdata.data.update_freq;
-            this.dark = jdata.data.dark;
-            if (this.dark) {
-                this.switch_dark(true);
-            }
             this.sysver = jdata.data.sysver;
             this.devmodel = jdata.data.devmodel;
             this.floatwnd = jdata.data.floatwnd;
@@ -720,6 +593,9 @@ const App = {
             this.acc_charge_bright = jdata.data.acc_charge_bright;
             this.acc_charge_lpm = jdata.data.acc_charge_lpm;
             this.action = jdata.data.action;
+            this.stat_hour = jdata.data.stat_hour;
+            this.stat_day = jdata.data.stat_day;
+            this.stat_month = jdata.data.stat_month;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
         },
@@ -762,6 +638,180 @@ const App = {
                 {"label": this.$t("none"), "value": ""},
                 {"label": this.$t("noti"), "value": "noti"},
             ]
+        },
+        show_hist: function() {
+            this.hist_visible = true;
+            setTimeout(this.init_chart, 1000);
+        },
+        init_chart: function() {
+            var amperage_range = get_field_range(this.stat_hour, "InstantAmperage", 8);
+            var stat_hour = this.stat_hour.slice(Math.max(this.stat_hour.length - 48, 0));
+            new Chart(document.getElementById("hour_chart").getContext('2d'), {
+                type: "bar",
+                data: {
+                    datasets: [{
+                        barPercentage: 1,
+                        categoryPercentage: 0.9,
+                        backgroundColor: "#7bd060",
+                        label: "Capacity",
+                        data: stat_hour.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "Dhm"),
+                                "y": row.CurrentCapacity,
+                            }
+                        }),
+                    }, {
+                        yAxisID: "Temperature",
+                        barPercentage: 1,
+                        categoryPercentage: 0.9,
+                        backgroundColor: "#dd3d33",
+                        label: "Temperature",
+                        data: stat_hour.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "Dhm"),
+                                "y": row.Temperature/100,
+                            }
+                        })
+                    }, {
+                        yAxisID: "InstantAmperage",
+                        type: "line",
+                        borderWidth: 4,
+                        pointRadius: 2,
+                        pointHitRadius: 4,
+                        borderColor: "#4d7ffc",
+                        backgroundColor: "#4d7ffc",
+                        label: "Amperage",
+                        data: stat_hour.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "Dhm"),
+                                "y": row.InstantAmperage,
+                            }
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.formattedValue;
+                                    if (context.datasetIndex == 0) {
+                                        label = label + '%';
+                                    } else if (context.datasetIndex == 1) {
+                                        label = label + '°C';
+                                    } else if (context.datasetIndex == 2) {
+                                        label = label + 'mA';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            position: "right",
+                            type: "linear",
+                            min: 0,
+                            max: 120,
+                            ticks: {
+                                callback: function(value) {
+                                    return value>100?"":value + '%';
+                                }
+                            }
+                        },
+                        Temperature: {
+                            position: "left",
+                            type: "linear",
+                            min: 0,
+                            max: 120,
+                            ticks: {
+                                callback: function(value) {
+                                    return value>50?"":value + '°C';
+                                }
+                            }
+                        },
+                        InstantAmperage: {
+                            display: false,
+                            position: "left",
+                            type: "linear",
+                            min: amperage_range[0],
+                            max: amperage_range[1],
+                            ticks: {
+                                callback: function(value) {
+                                    return value+"mA";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var capacity_range = get_field_range(this.stat_day, "NominalChargeCapacity", 2);
+            stat_day = this.stat_day.slice(Math.max(this.stat_day.length - 60, 0));
+            new Chart(document.getElementById("day_chart").getContext('2d'), {
+                type: "bar",
+                data: {
+                    datasets: [{
+                        barPercentage: 1,
+                        categoryPercentage: 0.9,
+                        backgroundColor: "#7bd060",
+                        label: "Capacity",
+                        data: stat_day.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "YMD"),
+                                "y": row.NominalChargeCapacity,
+                            }
+                        }),
+                    }, {
+                        yAxisID: "CycleCount",
+                        barPercentage: 1,
+                        categoryPercentage: 0.9,
+                        backgroundColor: "#AAAAAA",
+                        label: "CycleCount",
+                        data: stat_day.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "YMD"),
+                                "y": row.CycleCount,
+                            }
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.formattedValue;
+                                    if (context.datasetIndex == 0) {
+                                        label = label + 'mAh';
+                                    } else if (context.datasetIndex == 1) {
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            position: "right",
+                            type: "linear",
+                            min: capacity_range[0],
+                            max: capacity_range[1],
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0)+"mAh";
+                                }
+                            }
+                        },
+                        CycleCount: {
+                            position: "left",
+                            type: "linear",
+                        }
+                    }
+                }
+            });
         }
     },
     directives: {
@@ -791,8 +841,4 @@ window.addEventListener("load", function () {
         return false;
     });
 })
-
-if (location.port >= 5500 && location.port <= 5510) {
-    window.test = true;
-}
 
