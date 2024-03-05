@@ -1,5 +1,6 @@
 $.ajaxSetup({
     timeout: 1000,
+    contentType: "application/json",
 });
 
 function ipc_send(req, net_status_cb) {

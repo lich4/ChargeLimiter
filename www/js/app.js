@@ -46,7 +46,10 @@ function range (start, stop, step) {
     return Array.from({ length: (stop - start) / step}, (_, i) => start + (i * step));
 }
 
-function ts_to_date(timestamp) {
+function ts_to_date(timestamp, unit) {
+    if (!unit) {
+        unit = "YMDhms";
+    }
     var date = new Date(timestamp * 1000);
     var Y = date.getFullYear();
     var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
@@ -54,11 +57,46 @@ function ts_to_date(timestamp) {
     var h = (date.getHours() < 10)?'0' + date.getHours() : date.getHours();
     var m = (date.getMinutes() < 10)?'0' + date.getMinutes() : date.getMinutes();
     var s = (date.getSeconds() < 10)?'0' + date.getSeconds() : date.getSeconds();
-    return Y + '-' + M + '-' + D + ' ' + h + ':' + m + ':' + s;
+    var result = "";
+    if (unit.indexOf("Y") != -1) {
+        result += Y;
+    }
+    if (unit.indexOf("M") != -1) {
+        if (result.length != 0) {
+            result += "-";
+        }
+        result += M;
+    }
+    if (unit.indexOf("D") != -1) {
+        if (result.length != 0) {
+            result += "-";
+        }
+        result += D;
+    }
+    if (unit.indexOf("h") != -1) {
+        if (result.length != 0) {
+            result += " ";
+        }
+        result += h;
+    }
+    if (unit.indexOf("m") != -1) {
+        if (result.length != 0) {
+            result += ":";
+        }
+        result += m;
+    }
+    if (unit.indexOf("s") != -1) {
+        if (result.length != 0) {
+            result += ":";
+        }
+        result += s;
+    }
+    return result;
 }
 
 $.ajaxSetup({
     timeout: 1000,
+    contentType: "application/json",
 });
 
 function ipc_send(req, net_status_cb) {

@@ -50,30 +50,262 @@
             "acc_charge_bright": false,
             "acc_charge_lpm": true,
             "action": "",
-            "stat_hour": [
+            "stat_month": [
                 {
-                    "IsCharging": true,
-                    "UpdateTime": 1708775561,
-                    "key": "474659",
-                    "CurrentCapacity": 81,
-                    "Temperature": 1820,
-                    "InstantAmperage": 433
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1708844293,
+                    "key": "659",
+                    "CycleCount": 8
                 }
             ],
             "stat_day": [
                 {
-                    "NominalChargeCapacity": 1857,
-                    "UpdateTime": 1708775561,
-                    "key": "19777",
-                    "CycleCount": 76
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1708844293,
+                    "key": "19778",
+                    "CycleCount": 8
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1708905327,
+                    "key": "19779",
+                    "CycleCount": 8
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1708992010,
+                    "key": "19780",
+                    "CycleCount": 8
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1709078189,
+                    "key": "19781",
+                    "CycleCount": 9
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1709164647,
+                    "key": "19782",
+                    "CycleCount": 9
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1709250641,
+                    "key": "19783",
+                    "CycleCount": 9
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1709337374,
+                    "key": "19784",
+                    "CycleCount": 9
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1709423886,
+                    "key": "19785",
+                    "CycleCount": 9
+                },
+                {
+                    "NominalChargeCapacity": 8862,
+                    "UpdateTime": 1709510408,
+                    "key": "19786",
+                    "CycleCount": 10
                 }
             ],
-            "stat_month": [
+            "stat_hour": [
                 {
-                    "NominalChargeCapacity": 1857,
-                    "UpdateTime": 1708775561,
-                    "key": "659",
-                    "CycleCount": 76
+                    "IsCharging": false,
+                    "UpdateTime": 1709467219,
+                    "key": "474852",
+                    "CurrentCapacity": 80,
+                    "Temperature": 3020,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709470808,
+                    "key": "474853",
+                    "CurrentCapacity": 75,
+                    "Temperature": 3510,
+                    "InstantAmperage": 1823
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709474401,
+                    "key": "474854",
+                    "CurrentCapacity": 47,
+                    "Temperature": 3110,
+                    "InstantAmperage": 1822
+                },
+                {
+                    "IsCharging": true,
+                    "UpdateTime": 1709478000,
+                    "key": "474855",
+                    "CurrentCapacity": 47,
+                    "Temperature": 3060,
+                    "InstantAmperage": 1925
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709481609,
+                    "key": "474856",
+                    "CurrentCapacity": 90,
+                    "Temperature": 3460,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709485220,
+                    "key": "474857",
+                    "CurrentCapacity": 83,
+                    "Temperature": 3290,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709488809,
+                    "key": "474858",
+                    "CurrentCapacity": 82,
+                    "Temperature": 2830,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709492419,
+                    "key": "474859",
+                    "CurrentCapacity": 82,
+                    "Temperature": 2960,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709496009,
+                    "key": "474860",
+                    "CurrentCapacity": 82,
+                    "Temperature": 3440,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709499619,
+                    "key": "474861",
+                    "CurrentCapacity": 82,
+                    "Temperature": 3300,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709503208,
+                    "key": "474862",
+                    "CurrentCapacity": 82,
+                    "Temperature": 2900,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709506819,
+                    "key": "474863",
+                    "CurrentCapacity": 82,
+                    "Temperature": 2880,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709510408,
+                    "key": "474864",
+                    "CurrentCapacity": 82,
+                    "Temperature": 3280,
+                    "InstantAmperage": 1825
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709514020,
+                    "key": "474865",
+                    "CurrentCapacity": 78,
+                    "Temperature": 3320,
+                    "InstantAmperage": 1823
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709517608,
+                    "key": "474866",
+                    "CurrentCapacity": 69,
+                    "Temperature": 2780,
+                    "InstantAmperage": 1823
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709521217,
+                    "key": "474867",
+                    "CurrentCapacity": 65,
+                    "Temperature": 3120,
+                    "InstantAmperage": 1823
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709524806,
+                    "key": "474868",
+                    "CurrentCapacity": 56,
+                    "Temperature": 3510,
+                    "InstantAmperage": 1823
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709528414,
+                    "key": "474869",
+                    "CurrentCapacity": 48,
+                    "Temperature": 2990,
+                    "InstantAmperage": 1822
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709532003,
+                    "key": "474870",
+                    "CurrentCapacity": 41,
+                    "Temperature": 2900,
+                    "InstantAmperage": 1822
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709535616,
+                    "key": "474871",
+                    "CurrentCapacity": 29,
+                    "Temperature": 3360,
+                    "InstantAmperage": 1822
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709539209,
+                    "key": "474872",
+                    "CurrentCapacity": 24,
+                    "Temperature": 3200,
+                    "InstantAmperage": 1821
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709542808,
+                    "key": "474873",
+                    "CurrentCapacity": 29,
+                    "Temperature": 2800,
+                    "InstantAmperage": 1821
+                },
+                {
+                    "IsCharging": false,
+                    "UpdateTime": 1709545921,
+                    "key": "474874",
+                    "CurrentCapacity": 25,
+                    "Temperature": 2650,
+                    "InstantAmperage": -1822
+                },
+                {
+                    "IsCharging": true,
+                    "UpdateTime": 1709550012,
+                    "key": "474875",
+                    "CurrentCapacity": 39,
+                    "Temperature": 3380,
+                    "InstantAmperage": 1925
                 }
             ]
         }
