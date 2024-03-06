@@ -80,6 +80,10 @@
       user-select: none;
     }
 
+    [v-cloak] {
+      display: none;
+    }
+    
     a, el-label {
       -webkit-touch-callout: default;
       -webkit-user-select: auto;
@@ -185,7 +189,7 @@
 </head>
 
 <body>
-  <div id="app">
+  <div id="app" v-cloak>
     <div id="page_header">
       <el-row class="mx-2 py-2">
         <div class="page_title">

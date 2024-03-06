@@ -15,13 +15,13 @@ function set_local_val(path, key, val) {
     localStorage.setItem(path, JSON.stringify(dic));
 }
 
-function get_local_val(path, key) {
+function get_local_val(path, key, defval) {
     var data = localStorage.getItem(path);
     if (!data) {
-        return "";
+        return defval;
     }
     var val = JSON.parse(data)[key];
-    return val?val:"";
+    return val?val:defval;
 }
 
 function get_local_lang() {

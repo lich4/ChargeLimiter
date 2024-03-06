@@ -240,7 +240,8 @@ const App = {
             enable: false,
             ver: "?",
             update_freq: 1,
-            dark: false,
+            dark: get_local_val("conf", "dark", false),
+            lang: get_local_val("conf", "lang", "en"),
             sysver: "",
             devmodel: "",
             floatwnd: false,
@@ -554,10 +555,10 @@ const App = {
             this.devmodel = jdata.data.devmodel;
             this.floatwnd = jdata.data.floatwnd;
             this.mode = jdata.data.mode;
-            var lang = jdata.data.lang;
-            if (lang && lang != get_local_lang()) {
-                i18n.locale = lang;
-                set_local_val("conf", "lang", lang);
+            this.lang = jdata.data.lang;
+            if (this.lang && this.lang != get_local_lang()) {
+                i18n.locale = this.lang;
+                set_local_val("conf", "lang", this.lang);
                 this.reload_locale();
             }
             this.charge_below = jdata.data.charge_below;
@@ -592,6 +593,7 @@ const App = {
         },
         switch_dark: function(flag) {
             this.dark = flag;
+            set_local_val("conf", "dark", this.dark);
             if (flag) {
                 $("body").attr("class", "night");
             } else {
@@ -615,7 +617,8 @@ const App = {
             ]
         },
         show_hist: function() {
-            location.href = "/history.html";
+            var url = "/history.html";
+            location.href = url;
         }
     },
     directives: {
@@ -634,6 +637,9 @@ const App = {
         }
     },
     mounted: function () {
+        if (this.dark) {
+            this.switch_dark(true);
+        }
         this.reload_locale();
         this.get_conf();      
     }

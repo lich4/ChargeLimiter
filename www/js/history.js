@@ -57,6 +57,7 @@ const App = {
     i18n,
     data: function () {
         return {
+            dark: get_local_val("conf", "dark", false),
             stat_hour: [],
             stat_day: [],
             stat_month: [],
@@ -247,9 +248,19 @@ const App = {
                     }
                 }
             });
-        }
+        },
+        switch_dark: function(flag) {
+            if (flag) {
+                $("body").attr("class", "night");
+            } else {
+                $("body").removeAttr("class", "night");
+            }
+        },
     },
     mounted: function () {  
+        if (this.dark) {
+            this.switch_dark(true);
+        }
         this.get_conf();
     }
 };
