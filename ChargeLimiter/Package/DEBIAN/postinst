@@ -5,7 +5,7 @@ chmod +s /Applications/ChargeLimiter.app/ChargeLimiter
 chown root:wheel /Library/LaunchDaemons/chaoge.ChargeLimiter.plist
 killall -9 ChargeLimiter
 launchctl load /Library/LaunchDaemons/chaoge.ChargeLimiter.plist
-uicache mobile
+uicache mobile; uicache --path /Applications/ChargeLimiter.app
 
 exit 0
 

@@ -45,7 +45,7 @@ todo:
 
 注意:
 * Mac上使用的电源管理接口可以进行更底层的温控和风扇速度控制,但iOS上并无此功能,因此本工具几乎是iOS上防过充唯一选择,其实这种工具十年前就应该出现了,只是一直没人研究
-* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.如果自行调整还是建议在20-80之间.
+* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.过充/零电量充电/高温对电池会产生不良影响.
 * 系统状态栏的充电标志不一定代表在充电，实际充电状态可以在看爱思助手或者本app查看
 * 如果手动控制充电开关不生效则说明你的电池硬件无法被本app支持，请放弃使用(不支持的型号包括但不限于:马拉松,...)。如果用本app停充成功但仍然有电流(或微弱电流)则说明电池已经老化无法控电，非App可以控制
 * 悬浮窗打不开的，请先卸载旧版再从官方渠道安装(iOS12及以下目前不支持悬浮窗)。退出app重进出现按钮不生效的同理。
@@ -69,7 +69,7 @@ todo:
 * 温度高于设定的最大值
 
 
-&emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n越狱;iPhone7/X/11+iOS15/16 TrollStore  
+&emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore  
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
@@ -130,7 +130,7 @@ Conditions may trigger stoping charging:
 * Capacity higher than specified value
 * Temparature higher than specified value
 
-Test on iPhone6/7+iOS12/13 with Checkra1n jailbreak, and iPhone7/X/11+iOS15/16 with TrollStore.   
+Test on  iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.   
 If you have better ideas, please join the project and push your code   
 
 

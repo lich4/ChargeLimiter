@@ -731,44 +731,24 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     return self;
 }
 - (void)initLocalPush {
-    static void (^Block)() = ^{
-        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-        center.delegate = self;
-        [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
-            if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
-                    }];
-                });
-            }
-        }];
-    };
-    if ([NSThread isMainThread]) {
-        Block();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            Block();
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
+    // getNotificationSettingsWithCompletionHandler返回结果不准确,忽略
+    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
         });
-    }
+        
+    }];
 }
 - (void)localPush:(NSString*)title msg:(NSString*)msg {
-    static void (^Block)(NSString*) = ^(NSString* msg) {
-        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-        UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-        content.title = title;
-        content.body = msg;
-        NSTimeInterval timeInterval = [[NSDate dateWithTimeIntervalSinceNow:1] timeIntervalSinceNow];
-        UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timeInterval repeats:NO];
-        UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:title content:content trigger:trigger];
-        [center addNotificationRequest:request withCompletionHandler:nil];
-    };
-    if ([NSThread isMainThread]) {
-        Block(msg);
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            Block(msg);
-        });
-    }
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+    content.title = title;
+    content.body = msg;
+    NSTimeInterval timeInterval = [[NSDate dateWithTimeIntervalSinceNow:1] timeIntervalSinceNow];
+    UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timeInterval repeats:NO];
+    UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:title content:content trigger:trigger];
+    [center addNotificationRequest:request withCompletionHandler:nil];
 }
 - (void)serve {
     initConf();
