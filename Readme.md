@@ -1,3 +1,5 @@
+* For English(https://github.com/lich4/ChargeLimiter#Instruction)
+
 ## 使用说明
 
 MacOS系统上大名鼎鼎的AlDente，本人针对iOS重新开发，适用于长时间过充情况下保护电池健康度。  
@@ -67,6 +69,17 @@ todo:
 目前触发停充的条件：
 * 电量高于设定的最大值
 * 温度高于设定的最大值
+
+快捷指令(适用于某些巨魔用户存在后台被杀导致软件失效的情况):
++新建快捷指令 - 添加操作 - 类别 - "网页" - "Safari浏览器" - "打开URL"(以下是URL内容,标题自己设置)
+* cl:///charge           自动打开CL设置启用充电并停留在CL
+* cl:///charge/exit      自动打开CL设置启用充电后退出CL
+* cl:///nocharge         自动打开CL设置停用充电并停留在CL
+* cl:///charge/exit      自动打开CL设置停用充电后退出CL
+注意: 
+* iPhone8及以上存在至多120秒延迟
+* 上述4个指令需要和自动化中的电量条件搭配使用，来实现部分ChargeLimiter的功能
+
 
 
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore  

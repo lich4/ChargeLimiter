@@ -378,6 +378,19 @@ static int setChargeStatus(BOOL flag) {
     return 0;
 }
 
+static int disableCL() {
+    io_service_t serv = getIOPMPSServ();
+    if (serv == 0) {
+        return -1;
+    }
+    NSMutableDictionary* props = [NSMutableDictionary new];
+    props[@"IsCharging"] = @YES;
+    IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
+    props[@"PredictiveChargingInhibit"] = @YES;
+    IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
+    return 0;
+}
+
 static BOOL g_enable = YES;
 static BOOL g_enable_floatwnd = NO;
 static int g_jbtype = -1;
@@ -648,7 +661,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         if ([key isEqualToString:@"enable"]) {
             g_enable = [val boolValue];
             if (!g_enable) {
-                setChargeStatus(YES);
+                disableCL();
             }
         } else if ([key isEqualToString:@"floatwnd"]) {
             g_enable_floatwnd = [val boolValue];
