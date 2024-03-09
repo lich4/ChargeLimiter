@@ -179,7 +179,6 @@ static AppDelegate* _app = nil;
             NSURL* url = [NSURL URLWithString:initUrl];
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
-            [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
         } else if (g_wind_type == 1) {
             _mainWnd = self.view;
             UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(FLOAT_ORIGINX, FLOAT_ORIGINY, FLOAT_WIDTH, FLOAT_HEIGHT)]; // 窗口大小
@@ -239,9 +238,15 @@ static AppDelegate* _app = nil;
         }
     }
 }
-- (void)deviceOrientationDidChange:(id)sender { // 防止界面残缺
-    CGRect rt = _app.webview.frame;
-    [_app.webview setFrame:CGRectMake(rt.origin.x, rt.origin.y, rt.size.height, rt.size.width)];
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
+    UIDeviceOrientation orient = UIDevice.currentDevice.orientation;
+    if (orient == UIDeviceOrientationPortrait || orient == UIDeviceOrientationPortraitUpsideDown) {
+        CGRect rt = _app.webview.frame;
+        [_app.webview setFrame:CGRectMake(rt.origin.x, rt.origin.y, MIN(rt.size.width, rt.size.height), MAX(rt.size.width, rt.size.height))];
+    } else if (orient == UIDeviceOrientationLandscapeLeft || orient == UIDeviceOrientationLandscapeRight) {
+        CGRect rt = _app.webview.frame;
+        [_app.webview setFrame:CGRectMake(rt.origin.x, rt.origin.y, MAX(rt.size.width, rt.size.height), MIN(rt.size.width, rt.size.height))];
+    }
 }
 - (void)webViewDidFinishLoad:(UIWebView*)webview {
     [_mainWnd addSubview:webview];
