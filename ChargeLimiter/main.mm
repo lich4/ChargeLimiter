@@ -74,8 +74,7 @@ static int g_wind_type = 0; // 1: HUD
 #define FLOAT_ORIGINX   100
 #define FLOAT_ORIGINY   100
 #define FLOAT_WIDTH     80
-#define FLOAT_HEIGHT    80
-// 如果FLOAT_WIDTH!=FLOAT_HEIGHT,iPad横屏拖动会出现残缺,原因未知
+#define FLOAT_HEIGHT    60
 
 @implementation AppDelegate {
     NSString* initUrl;
@@ -119,9 +118,9 @@ static AppDelegate* _app = nil;
         _mainWnd = self.window;
     } else if (g_wind_type == 1) {
         self.window = [[HUDMainWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-        [self.window setRootViewController:[AppDelegate new]];
-        [self.window setWindowLevel:10000010.0];
-        [self.window setHidden:NO];
+        self.window.rootViewController = [AppDelegate new];
+        self.window.windowLevel = 10000010.0;
+        self.window.hidden = NO;
         [self.window makeKeyAndVisible];
         static SBSAccessibilityWindowHostingController* _accessController = [objc_getClass("SBSAccessibilityWindowHostingController") new];
         if (_accessController != nil) {
@@ -180,6 +179,7 @@ static AppDelegate* _app = nil;
             NSURL* url = [NSURL URLWithString:initUrl];
             NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
             [webview loadRequest:req];
+            [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
         } else if (g_wind_type == 1) {
             _mainWnd = self.view;
             UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(FLOAT_ORIGINX, FLOAT_ORIGINY, FLOAT_WIDTH, FLOAT_HEIGHT)]; // 窗口大小
@@ -216,8 +216,8 @@ static AppDelegate* _app = nil;
                             int f_y = MAX(y - FLOAT_HEIGHT/2, 0);
                             f_x = MIN(f_x, scrSize.width - FLOAT_WIDTH);
                             f_y = MIN(f_y, scrSize.height - FLOAT_HEIGHT);
-                            CGRect rt = CGRectMake(f_x, f_y, FLOAT_WIDTH, FLOAT_HEIGHT);
-                            [_app.webview setFrame:rt];
+                            CGRect rt = _app.webview.frame;
+                            [_app.webview setFrame:CGRectMake(f_x, f_y, rt.size.width, rt.size.height)];
                         });
                     } else {
                         [UIApplication.sharedApplication _enqueueHIDEvent:event];
@@ -225,19 +225,23 @@ static AppDelegate* _app = nil;
                 }
             });
             
-            static UIDeviceOrientation old_orient = UIDevice.currentDevice.orientation;
+            static UIDeviceOrientation cur_orient = UIDevice.currentDevice.orientation;
             static FBSOrientationObserver* orientObserver = [objc_getClass("FBSOrientationObserver") new];
             [orientObserver setHandler:^(FBSOrientationUpdate* update) {
-                if (update.orientation == old_orient) {
+                if (update.orientation == cur_orient) {
                     return;
                 }
+                cur_orient = update.orientation;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [_app.webview setTransform:CGAffineTransformMakeRotation(getOrientAngle(update.orientation))];
                 });
-                old_orient = update.orientation;
             }];
         }
     }
+}
+- (void)deviceOrientationDidChange:(id)sender { // 防止界面残缺
+    CGRect rt = _app.webview.frame;
+    [_app.webview setFrame:CGRectMake(rt.origin.x, rt.origin.y, rt.size.height, rt.size.width)];
 }
 - (void)webViewDidFinishLoad:(UIWebView*)webview {
     [_mainWnd addSubview:webview];
@@ -750,7 +754,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
         });
-        
     }];
 }
 - (void)localPush:(NSString*)title msg:(NSString*)msg {
@@ -758,6 +761,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
     content.title = title;
     content.body = msg;
+    content.sound = UNNotificationSound.defaultSound;
     NSTimeInterval timeInterval = [[NSDate dateWithTimeIntervalSinceNow:1] timeIntervalSinceNow];
     UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timeInterval repeats:NO];
     UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:title content:content trigger:trigger];
@@ -844,7 +848,6 @@ static void* make_sym_callable(void *ptr) {
 #endif
     return ptr;
 }
-
 
 @implementation HUDMainApplication
 - (instancetype)init {
