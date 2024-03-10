@@ -30,7 +30,9 @@ enum {
     SPAWN_FLAG_SUSPEND  = 4,
 };
 int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, int flag, NSDictionary* param=nil);
-
+void addPathEnv(NSString* path, BOOL tail);
+int get_pid_of(const char* name);
+NSString* findAppPath(NSString* name);
 int platformize_me();
 int set_memory_limit(int pid, int mb);
 BOOL localPortOpen(int port);

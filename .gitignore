@@ -6,4 +6,5 @@ ChargeLimiter_rootless/Package_tmp
 ChargeLimiter_roothide
 LatestBuild
 .DS_Store
+.theos
 Readme2.md

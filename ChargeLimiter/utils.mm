@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <sys/utsname.h>
+#include <sys/sysctl.h>
 
 int platformize_me() {
     int ret = 0;
@@ -147,6 +148,7 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     int spawnError = posix_spawnp(task_pid_ptr, [file UTF8String], &action, &attr, (char* const*)argsC, environ);
     NSLog(@"%@ posix_spawn %@ ret=%d -> %d", log_prefix, args.firstObject, spawnError, *task_pid_ptr);
     posix_spawnattr_destroy(&attr);
+    posix_spawn_file_actions_destroy(&action);
     for (NSUInteger i = 0; i < argCount; i++) {
         free(argsC[i]);
     }
@@ -210,6 +212,64 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
         }
     }
     return WEXITSTATUS(status);
+}
+
+void addPathEnv(NSString* path, BOOL tail) {
+    const char* c_path_env = getenv("PATH");
+    NSMutableArray* path_arr = [NSMutableArray new];
+    if (c_path_env != 0) {
+        path_arr = [[@(c_path_env) componentsSeparatedByString:@":"] mutableCopy];
+    }
+    if (tail) {
+        [path_arr addObject:path];
+    } else {
+        [path_arr insertObject:path atIndex:0];
+    }
+    NSString* path_env = [path_arr componentsJoinedByString:@":"];
+    setenv("PATH", path_env.UTF8String, 1);
+}
+
+int get_pid_of(const char* name) {
+    int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_ALL};
+    size_t length = 0;
+    sysctl(mib, 3, 0, &length, 0, 0);
+    length += sizeof(kinfo_proc) * 3;
+    kinfo_proc* proc_list = (kinfo_proc*)malloc(length);
+    int result = -1;
+    if (0 == sysctl(mib, 3, proc_list, &length, 0, 0)) {
+        for (int i = 0; i < length / sizeof(kinfo_proc); i++) {
+            int pid = proc_list[i].kp_proc.p_pid;
+            if (0 == strncmp(proc_list[i].kp_proc.p_comm, name, MAXCOMLEN)) {
+                result = pid;
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+NSString* findAppPath(NSString* name) {
+    if (name == nil) {
+        return nil;
+    }
+    NSString* appContainersPath = @"/var/containers/Bundle/Application";
+    NSError* error = nil;
+    NSArray* containers = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:appContainersPath error:&error];
+    if (!containers) {
+        return nil;
+    }
+    for (NSString* container in containers) {
+        NSString* containerPath = [appContainersPath stringByAppendingPathComponent:container];
+        BOOL isDirectory = NO;
+        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:containerPath isDirectory:&isDirectory];
+        if (exists && isDirectory) {
+            NSString* path = [containerPath stringByAppendingFormat:@"/%@.app", name];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                return path;
+            }
+        }
+    }
+    return nil;
 }
 
 NSString* getLocalIP() { // 获取wifi ipv4

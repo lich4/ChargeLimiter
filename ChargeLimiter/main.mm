@@ -103,8 +103,13 @@ static AppDelegate* _app = nil;
                 @"api": @"set_charge_status",
                 @"flag": @NO,
             });
-        } else if ([cmd isEqualToString:@"exit"]) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
+        } else if ([cmd hasPrefix:@"exit"]) {
+            int n = 1;
+            if (cmd.length > 4) {
+                NSString* nn = [cmd substringFromIndex:4];
+                n = [nn intValue];
+            }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, n * NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
                 exit(0);
             });
         }
@@ -924,6 +929,7 @@ static void* make_sym_callable(void *ptr) {
 
 
 int main(int argc, char** argv) {
+    NSLog(@"a1234");
     @autoreleasepool {
         g_jbtype = getJBType();
         if (argc == 1) {
