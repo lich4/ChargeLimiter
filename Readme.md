@@ -1,4 +1,4 @@
-* For English(https://github.com/lich4/ChargeLimiter#Instruction)
+* [For English](#Instruction)
 
 ## 使用说明
 
@@ -81,14 +81,17 @@ todo:
 * 可以在个人自动化中的电量事件使用上述指令实现指定电量开始/停止充电，也可以和其他模式结合实现开机自启(比如打开某App时触发)
 
 
-
-
-
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore  
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
 
+### 编译
+
+&emsp;&emsp;使用XCode/Theos编译, 需要Theos+MonkeyDev
+* 使用XCode调试App, https://github.com/lich4/debugserver_azj
+* 调试WebUI, https://github.com/lich4/inspectorplus
+* TrollStore快速安装, https://github.com/lich4/TrollStoreRemoteHelper
 
 ## Instruction
 
@@ -151,6 +154,14 @@ If you have better ideas, please join the project and push your code
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)
+
+
+### Compile
+
+&emsp;&emsp;XCode+MonkeyDev or Theos
+* Debug App with XCode, see https://github.com/lich4/debugserver_azj
+* Debug WebUI, see https://github.com/lich4/inspectorplus
+* Install on TrollStore, see https://github.com/lich4/TrollStoreRemoteHelper
 
 ## Special Thanks
 
