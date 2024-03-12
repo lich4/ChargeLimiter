@@ -583,6 +583,15 @@ static void onBatteryEvent(io_service_t serv) {
             }
             return; // 电量满禁止操作
         }
+        if (capacity.intValue <= 5) {
+            if (is_charging.boolValue) {
+                NSFileLog(@"stop charging for capacity");
+                if (0 == setChargeStatus(YES)) {
+                    performAcccharge(YES);
+                }
+            }
+            return; // 电量过低禁止操作
+        }
         if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
             if (isAdaptorNewConnect(old_bat_info, bat_info)) {
                 NSFileLog(@"start charging for plug in");

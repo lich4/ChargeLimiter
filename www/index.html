@@ -472,7 +472,9 @@
       <el-card class="box-card mx-3 my-3 px-2" style="text-align: center;" shadow="never">
         <div class="my-2 click" @click="copy_to_pb">{{$t("copy_to_pb")}}</div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <div class="my-2 click" @click="show_hist">{{$t("view_hist")}}</div>
+        <div class="my-2"><a href="/history.html">{{$t("view_hist")}}</a></div>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <div class="my-2"><a href="/help.html">{{$t("manual")}}</a></div>
       </el-card>
       <el-row class="mx-4 px-1 pt-2">
         <el-row class="subtitle">

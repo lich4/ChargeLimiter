@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>ChargeLimiter</title>
+  <meta charset="UTF-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+  <link rel="shotcut icon" href="favicon.ico" />
+  <link rel="icon" href="favicon.ico">
+  <link type="text/css" rel="stylesheet" href="css/bootstrap.css" />
+  <link type="text/css" rel="stylesheet" href="css/element-ui.css" />
+  <link type="text/css" rel="stylesheet" href="css/font-awesome.css" />
+  <script src="js/polyfill.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/vue-i18n.js"></script>
+  <script src="js/element-ui.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/utils.js"></script>
+  <style>
+    .night {
+        background: #000 !important;
+        color: #afafaf !important;
+    }
+    
+    html, body, #app {
+      height: 100%;
+    }
+
+    body, input, div {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      background-color: rgb(239, 239, 244);
+    }
+
+    .wordwrap * {      
+        word-break: break-all;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="m-3">
+    <div id="page_header">
+      <el-row class="mx-2">
+        <div class="page_title">
+          <i class="el-icon-arrow-left" @click="ret_main"></i>
+        </div>
+      </el-row>
+    </div>
+    <div class="wordwrap" v-if="lang=='zh_CN'">
+      <p>&emsp;&emsp;ChargeLimiter(CL)是针对iOS开发的AlDente替代工具，适用于长时间过充情况下保护电池健康度。<br>&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa)，目前支持iOS12-17。(注意: TrollStore环境下安装新版之前请先卸载旧版)<br>&emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore。  </p>
+      <p>todo:</p>
+      <ul>
+      <li>改变充电速度(待测试可行性)</li>
+      <li>iOS12悬浮窗</li>
+      <li>电池历史数据统计</li>
+      <li>支持快捷方式</li>
+      </ul>
+      <p>1.4.1版本更新日志:</p>
+      <ul>
+      <li>优化WebUI界面</li>
+      <li>IPAD悬浮窗跟随朝向</li>
+      <li>增加黑夜模式</li>
+      </ul>
+      <p>1.4版本更新日志:</p>
+      <ul>
+      <li>增加快速充电模式(飞行模式+降低屏幕亮度+低电量模式)</li>
+      <li>将启动服务改为启用,方便实时查看电池状态,不必真正关闭后台</li>
+      <li>增加悬浮窗便捷控制(可拖动改变位置,单击切换启用状态)</li>
+      <li>增加触发逻辑实现高于指定温度开始充电,仅限插电即充模式</li>
+      </ul>
+      <p>1.3版本更新日志:</p>
+      <ul>
+      <li>解决开启&quot;优化电池充电&quot;导致本工具无效的问题</li>
+      <li>增加无根越狱支持</li>
+      </ul>
+      <p>1.2版本更新日志:</p>
+      <ul>
+      <li>增加语言-繁体中文</li>
+      <li>增加插电即充模式,方便普通用户使用;边缘触发模式适合开发者和工作室使用</li>
+      <li>底层定时轮询机制改为内核设备事件通知,灵敏度得到提升</li>
+      <li>增加华氏温度</li>
+      </ul>
+      <p>1.1版本更新日志:</p>
+      <ul>
+      <li>本工具为边缘触发模式,即电量低于阈值充电,高于阈值停止,处于阈值中间则保持原状态,此时可手动设置充电开关.</li>
+      <li>由于系统原因,将最低更新频率设置到20s.更新频率影响控温精准度</li>
+      <li>修复某些显示问题,包括调整充电提醒频率,高型号页眉显示串位,增加显示电源信息.</li>
+      <li>对于8及以上的型号手动设置充电状态存在120秒延迟,增加倒计时提醒</li>
+      <li>增加电池过热保护</li>
+      </ul>
+      <p>注意:</p>
+      <ul>
+      <li>有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.过充/零电量充电/高温对电池会产生不良影响.</li>
+      <li><em>如果使用CL过程中，健康度以不正常的方式下降，请停止使用并卸载</em></li>
+      <li>系统状态栏的充电标志不一定代表在充电，实际充电状态可以在看爱思助手或者本app查看</li>
+      <li>如果手动控制充电开关不生效则说明你的电池硬件无法被本app支持，请放弃使用(不支持的型号包括但不限于:马拉松,...)。如果用本app停充成功但仍然有电流(或微弱电流)则说明电池已经老化无法控电，非App可以控制</li>
+      <li>悬浮窗打不开的，请先卸载旧版再从官方渠道安装(iOS12及以下目前不支持悬浮窗)。退出app重进出现按钮不生效的同理。</li>
+      <li>对于TrollStore环境，因任何原因导致的后台被杀(比如重启系统/重启用户空间/...)，由于后台无法自动启动所以App会失效。整夜充电发现充满请注意</li>
+      <li>App不会连着线就自发充电，充电/停充都有触发条件，请仔细查看本页说明</li>
+      <li>设定阈值和实际触发值不一定完全相同，例如设定80%上限结果到81%停充，大部分手机差距在0-1%，极少数3-5%，产生5%差异值具体原因未知，与8系及以上存在设定延迟有关，也可能与充电速度有关。</li>
+      <li>App健康度与爱思助手保持一致，若健康度超过100%则说明新电池相比该代手机发行时的原始电池容量有升级。</li>
+      <li>硬件电量若超过100%(或超过显示电量)可能是未校准或质量问题导致。</li>
+      <li>电流为正说明从充电器流入电池，电流为负说明电池为设备供电。使用本软件且停充状态下一般电流为0，此时电流流经电池为设备供电，电池起到闭合电路作用(可以理解为导线)，此时对电池的损耗应小于仅使用电池为设备供电。(<em>其实长期连电并停充，健康度可能永远不会掉</em>)。</li>
+      <li>系统自带电池优化会导致本app失效，1.3版本起会自动关闭自带优化(但系统设置里不会显示)。如果不使用本app需在系统设置中手动重置电池优化开关(先关后开)。不推荐在过新的设备上使用，因为iPhone15起自带电池优化已经很完善。</li>
+      <li>本项目是开放式项目，如果有兴趣参与或者对本项目有建议的的欢迎参提交代码  </li>
+      <li>本软件纯属偶然兴趣而开发，最开始是作者自己玩的，后来觉得其他人会需要才开源分享。本软件承诺永久免费且无广告，但因为使用本软件导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任，用户使用本App即为默认同意本条款。     </li>
+      </ul>
+      <p>目前触发充电的条件：</p>
+      <ul>
+      <li>电量低于设定的最小值</li>
+      <li>插电即充模式下在未插入电源情况下插入电源</li>
+      <li>插电即充模式下温度低于设定的最小值(版本1.4起支持)</li>
+      </ul>
+      <p>目前触发停充的条件：</p>
+      <ul>
+      <li>电量高于设定的最大值</li>
+      <li>温度高于设定的最大值</li>
+      </ul>
+      <p>快捷指令(适用于某些巨魔用户存在后台被杀导致软件失效的情况):
+      +新建快捷指令 - 添加操作 - 类别 - &quot;网页&quot; - &quot;Safari浏览器&quot; - &quot;打开URL&quot;(以下是URL内容,标题自己设置)</p>
+      <ul>
+      <li>cl:///                 打开CL</li>
+      <li>cl:///exit             打开CL,退出CL(仅拉起后台)</li>
+      <li>cl:///charge           打开CL,启用充电</li>
+      <li>cl:///charge/exit      打开CL,启用充电,退出CL</li>
+      <li>cl:///nocharge         打开CL,停用充电</li>
+      <li>cl:///nocharge/exit    打开CL,停用充电,退出CL  </li>
+      </ul>
+      <p>注意: </p>
+      <ul>
+      <li>iPhone8及以上存在至多120秒延迟</li>
+      <li>可以在个人自动化中的电量事件使用上述指令实现指定电量开始/停止充电，也可以和其他模式结合实现开机自启(比如打开某App时触发)</li>
+      </ul>      
+    </div>
+    <div class="wordwrap" v-else>
+        <p>ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iPhone/iPad long-time overcharged, which will cause damage to the battery.
+            <br><br>Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa). Currently support iOS12-17.(Notice: For TrollStore, Please uninstall older version ChargeLimiter before installing a newer one)
+            <br><br>Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.   
+        </p>
+        <p>todo:</p>
+        <ul>
+        <li>Change charging speed(to be validated)</li>
+        <li>Floating window on iOS12</li>
+        <li>Battery history data statistics</li>
+        <li>Support shortcuts</li>
+        </ul>
+        <p>1.4.1 ChangeLog:</p>
+        <ul>
+        <li>Optimize the WebUI</li>
+        <li>Floating window on iPad follow orientation</li>
+        <li>Dark mode</li>
+        </ul>
+        <p>1.4 ChangeLog:</p>
+        <ul>
+        <li>Speed up charging</li>
+        <li>Floating window(draggable;tap to enable/disable)</li>
+        <li>Start charging when temparature above specified value  </li>
+        </ul>
+        <p>Notice:</p>
+        <ul>
+        <li>Some Studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80.</li>
+        <li>The lightning icon of system status bar not necessarily means charging. The actual charging status can be found in 3utools(and similar) or CL.</li>
+        <li><em>If the health of battery keep dropping abnormally while using CL, please stop and uninstall CL</em></li>
+        <li>You can check the compatibility of battery with CL by manually toggling the &quot;Charging&quot; button, if charging status does not change within 120 seconds, then your iDevice is not supported by CL; normally it does. The &quot;InstantAmperage&quot; is 0mA normally after setting the status to false, a sign of ageing of battery if not zero(but very small value); if the mA is high enough, then CL could not help you either(lose control of current).</li>
+        <li>For TrollStore, if the daemon(of CL) get killed in any condition(such as system-reboot/userspace-reboot/...), CL will become invalid for it cannot restart daemon itself automatically.</li>
+        <li>CL only start/stop charging under certain condition as show behind.</li>
+        <li>The real value stop on trigger is not necessarily equal to the target value, the difference may have sth. to do with the &quot;120 seconds delay&quot; after iPhone8, and charging speed.</li>
+        <li>Health with value higher than 100% indicates the battery must have been replaced before, and with more capacity than battery shipped with this model first released.</li>
+        <li>Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.</li>
+        <li>InstantAmperage with positive value means current flow into battery from adaptor, negative means current flow into iDevice from battery without any adaptor. If CL is enabled and charging status set to disable, then InstantAmperage should be 0mA normally, in this case current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (<em>In fact, keep connecting to adaptor and stop charging, the heath may never drop</em>).</li>
+        <li>CL is not compatible with &quot;Optimized Battery Charging&quot; of Settings.app. After v1.4 CL will disable it automatically(won&#39;t shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It&#39;s not recommend to use CL on newest iDevice,  &quot;Optimized Battery Charging&quot; is already perfect from iPhone15。</li>
+        <li>This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.</li>
+        </ul>
+        <p>Supported mode</p>
+        <ul>
+        <li>&quot;Plug and charge&quot;, iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified. Useful for individual.</li>
+        <li>&quot;Edge trigger&quot;, iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified. Useful for developer &amp; studio.</li>
+        </ul>
+        <p>Conditions may trigger starting charging:</p>
+        <ul>
+        <li>Capacity lower than specified value</li>
+        <li>Plug in adaptor once!!! in &quot;Plug and charge&quot; mode.</li>
+        <li>Temparature lower than specified value</li>
+        </ul>
+        <p>Conditions may trigger stoping charging:</p>
+        <ul>
+        <li>Capacity higher than specified value</li>
+        <li>Temparature higher than specified value</li>
+        </ul>
+        <p>For Shortcuts.app:<br>New Shortcut - Add Action - Web - Safari - Open URLs   </p>
+        <ul>
+        <li>cl:///                 (open CL)</li>
+        <li>cl:///exit             (open CL, exit CL, launch daemon only)</li>
+        <li>cl:///charge           (open CL, start charging )</li>
+        <li>cl:///charge/exit      (open CL, start charging, exit CL)</li>
+        <li>cl:///nocharge         (open CL, stop charging)</li>
+        <li>cl:///nocharge/exit    (open CL, stop charging, exit CL)</li>
+        </ul>        
+    </div>
+    <div style="text-align: center;" class="mb-3">
+        The End
+    </div>
+  </div>
+  <script>
+    const App = {
+      el: "#app",
+      data: function () {
+          return {
+              lang: get_local_lang(),
+              dark: get_local_val("conf", "dark", false),
+          }
+      },
+      methods: {
+          ret_main: function() {
+              location.href = "index.html";
+          },
+          switch_dark: function(flag) {
+            if (flag) {
+                $("body").attr("class", "night");
+            } else {
+                $("body").removeAttr("class", "night");
+            }
+          },
+      },
+      mounted: function () {  
+          if (this.dark) {
+              this.switch_dark(true);
+          }
+      }
+    };
+    window.addEventListener("load", function () {
+        window.app = new Vue(App);
+    })
+  </script>
+</body>
+</html>
+

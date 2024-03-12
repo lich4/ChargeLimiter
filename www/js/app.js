@@ -73,6 +73,7 @@ const i18n = new VueI18n({
             copy_to_pb: "Copy all data to pasteboard",
             view_hist: "History",
             open_safari: "Open in Safari",
+            manual: "Manual",
             author: "Author",
             contact: "Contact",
         },
@@ -148,6 +149,7 @@ const i18n = new VueI18n({
             copy_to_pb: "拷贝所有数据到剪贴板",
             view_hist: "历史统计",
             open_safari: "在Safari中打开",
+            manual: "使用手册",
             author: "作者",
             contact: "联系方式",
         },
@@ -223,6 +225,7 @@ const i18n = new VueI18n({
             copy_to_pb: "拷貝所有數據到剪貼板",
             view_hist: "歷史統計",
             open_safari: "在Safari中打開",
+            manual: "使用手冊",
             author: "作者",
             contact: "聯絡方式",
         }
@@ -616,10 +619,6 @@ const App = {
                 {"label": this.$t("noti"), "value": "noti"},
             ]
         },
-        show_hist: function() {
-            var url = "/history.html";
-            location.href = url;
-        }
     },
     directives: {
         timeout: {
