@@ -1,4 +1,6 @@
-function get_field_range(data, field, pos) {
+function get_field_range(data, field, ratio) {
+    const lr = ratio[0];
+    const hr = ratio[1];
     var minv = data[0][field];
     var maxv = data[0][field];
     data.forEach(x => {
@@ -11,9 +13,9 @@ function get_field_range(data, field, pos) {
     });
     var rg = maxv - minv;
     if (rg == 0) {
-        rg = maxv * 0.1;
+        rg = (maxv * 0.1).toFixed(0);
     }
-    return [maxv - rg*pos, maxv + rg];
+    return [minv - lr * rg, maxv + hr * rg];
 }
 
 const i18n = new VueI18n({
@@ -80,7 +82,7 @@ const App = {
             });
         },
         init_chart: function() {
-            var amperage_range = get_field_range(this.stat_hour, "InstantAmperage", 8);
+            var amperage_range = get_field_range(this.stat_hour, "InstantAmperage", [5,1]);
             var stat_hour = this.stat_hour.slice(Math.max(this.stat_hour.length - 48, 0));
             new Chart(document.getElementById("hour_chart").getContext('2d'), {
                 type: "bar",
@@ -88,7 +90,7 @@ const App = {
                     datasets: [{
                         barPercentage: 1,
                         categoryPercentage: 0.9,
-                        backgroundColor: "#7bd060",
+                        backgroundColor: "#34c759",
                         label: this.$t("Capacity"),
                         data: stat_hour.map(row => {
                             return {
@@ -100,7 +102,7 @@ const App = {
                         yAxisID: "Temperature",
                         barPercentage: 1,
                         categoryPercentage: 0.9,
-                        backgroundColor: "#dd3d33",
+                        backgroundColor: "#f8801b",
                         label: this.$t("Temperature"),
                         data: stat_hour.map(row => {
                             return {
@@ -183,7 +185,8 @@ const App = {
                 }
             });
 
-            var capacity_range = get_field_range(this.stat_day, "NominalChargeCapacity", 2);
+            var capacity_range = get_field_range(this.stat_day, "NominalChargeCapacity", [1,1]);
+            var cycle_range = get_field_range(this.stat_day, "CycleCount", [1,1]);
             stat_day = this.stat_day.slice(Math.max(this.stat_day.length - 60, 0));
             new Chart(document.getElementById("day_chart").getContext('2d'), {
                 type: "bar",
@@ -191,7 +194,7 @@ const App = {
                     datasets: [{
                         barPercentage: 1,
                         categoryPercentage: 0.9,
-                        backgroundColor: "#7bd060",
+                        backgroundColor: "#34c759",
                         label: this.$t("NominalCapacity"),
                         data: stat_day.map(row => {
                             return {
@@ -203,7 +206,7 @@ const App = {
                         yAxisID: "CycleCount",
                         barPercentage: 1,
                         categoryPercentage: 0.9,
-                        backgroundColor: "#AAAAAA",
+                        backgroundColor: "#cacaca",
                         label: this.$t("CycleCount"),
                         data: stat_day.map(row => {
                             return {
@@ -243,6 +246,75 @@ const App = {
                         },
                         CycleCount: {
                             position: "left",
+                            max: cycle_range[1],
+                            type: "linear",
+                        }
+                    }
+                }
+            });
+            
+            var capacity_range = get_field_range(this.stat_month, "NominalChargeCapacity", [1,1]);
+            var cycle_range = get_field_range(this.stat_month, "CycleCount", [1,1]);
+            stat_month = this.stat_month.slice(Math.max(this.stat_month.length - 60, 0));
+            new Chart(document.getElementById("month_chart").getContext('2d'), {
+                type: "bar",
+                data: {
+                    datasets: [{
+                        barPercentage: 1,
+                        categoryPercentage: 0.9,
+                        backgroundColor: "#34c759",
+                        label: this.$t("NominalCapacity"),
+                        data: stat_month.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "YMD"),
+                                "y": row.NominalChargeCapacity,
+                            }
+                        }),
+                    }, {
+                        yAxisID: "CycleCount",
+                        barPercentage: 1,
+                        categoryPercentage: 0.9,
+                        backgroundColor: "#cacaca",
+                        label: this.$t("CycleCount"),
+                        data: stat_month.map(row => {
+                            return {
+                                "x": ts_to_date(row.UpdateTime, "YMD"),
+                                "y": row.CycleCount,
+                            }
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.formattedValue;
+                                    if (context.datasetIndex == 0) {
+                                        label = label + 'mAh';
+                                    } else if (context.datasetIndex == 1) {
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            position: "right",
+                            type: "linear",
+                            min: capacity_range[0],
+                            max: capacity_range[1],
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0)+"mAh";
+                                }
+                            }
+                        },
+                        CycleCount: {
+                            position: "left",
+                            max: cycle_range[1],
                             type: "linear",
                         }
                     }

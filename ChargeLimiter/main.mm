@@ -456,12 +456,18 @@ static void performAcccharge(BOOL flag) {
                 setLPMEnable(YES);
             }
         } else if (cache_status != nil) { // 还原状态
-            setAirEnable(NO);
-            setBlueEnable(YES);
-            setLPMEnable(NO);
+            if (acc_charge_airmode.boolValue) {
+                setAirEnable(NO);
+            }
+            if (acc_charge_blue.boolValue) {
+                setBlueEnable(YES);
+            }
             if (cache_status[@"acc_charge_bright"] != nil) {
                 NSNumber* acc_charge_bright = cache_status[@"acc_charge_bright"];
                 setBrightness(acc_charge_bright.floatValue);
+            }
+            if (acc_charge_lpm.boolValue) {
+                setLPMEnable(NO);
             }
             cache_status = nil;
         }
@@ -739,6 +745,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         for (LSApplicationProxy* proxy in list) {
             if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
                 NSFileLog(@"uninstalled, exit"); // 卸载时旧版daemon自动退出
+                disableCL();
                 exit(0);
             }
         }
@@ -748,6 +755,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     for (LSApplicationProxy* proxy in list) {
         if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
             NSFileLog(@"updated, exit"); // 覆盖安装时旧版daemon自动退出
+            disableCL();
             exit(0);
         }
     }
@@ -762,8 +770,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     center.delegate = self;
     // getNotificationSettingsWithCompletionHandler返回结果不准确,忽略
     [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError* error) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
-        });
     }];
 }
 - (void)localPush:(NSString*)title msg:(NSString*)msg {
@@ -815,13 +821,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         [LSApplicationWorkspace.defaultWorkspace addObserver:self];
         isBlueEnable(); // init
         isLPMEnable();
-    
-        if (TRACE) { // todo delete
-            static NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:600 repeats:YES block:^(NSTimer* timer) {
-                NSFileLog(@"[%d] daemon alive", getpid());
-            }];
-            [timer fire];
-        }
     }
 }
 @end
@@ -929,7 +928,6 @@ static void* make_sym_callable(void *ptr) {
 
 
 int main(int argc, char** argv) {
-    NSLog(@"a1234");
     @autoreleasepool {
         g_jbtype = getJBType();
         if (argc == 1) {

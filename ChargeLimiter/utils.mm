@@ -245,6 +245,7 @@ int get_pid_of(const char* name) {
             }
         }
     }
+    free((void*)proc_list);
     return result;
 }
 
