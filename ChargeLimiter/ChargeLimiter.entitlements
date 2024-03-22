@@ -38,8 +38,6 @@
 	<array>
 		<string>IOUserClient</string>
 	</array>
-	<key>com.apple.system-task-ports</key>
-    <true/>
 	<key>com.apple.springboard.launchapplications</key>
 	<true/>
 	<key>com.apple.SystemConfiguration.SCPreferences-write-access</key>
@@ -60,11 +58,15 @@
 	<true/>
 	<key>com.apple.powerd.lowpowermode.allow</key>
 	<true/>
+	<key>com.apple.wifi.manager-access</key>
+	<true/>
 	<key>com.apple.Pasteboard.background-access</key>
 	<true/>
 	<key>com.apple.springboard.accessibility-window-hosting</key>
 	<true/>
 	<key>SBAppUsesLocalNotifications</key>
+	<true/>
+	<key>com.apple.runningboard.process-state</key>
 	<true/>
 </dict>
 </plist>

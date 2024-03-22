@@ -249,6 +249,18 @@ int get_pid_of(const char* name) {
     return result;
 }
 
+int get_sys_boottime() {
+    static int ts = 0;
+    if (ts == 0) {
+        int mib[] = {CTL_KERN, KERN_BOOTTIME};
+        struct timeval boottime;
+        size_t sz = sizeof(boottime);
+        sysctl(mib, 2, &boottime, &sz, 0, 0);
+        ts = (int)boottime.tv_sec;
+    }
+    return ts;
+}
+
 NSString* findAppPath(NSString* name) {
     if (name == nil) {
         return nil;
@@ -393,17 +405,28 @@ BOOL isDarkMode() {
 }
 
 NSString* getAppVer() {
-    return [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    static NSString* ver = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    return ver;
 }
 
 NSString* getSysVer() {
-    return UIDevice.currentDevice.systemVersion;
+    static NSString* ver = UIDevice.currentDevice.systemVersion;
+    return ver;
+}
+
+NSOperatingSystemVersion getSysVerInt() {
+    static NSOperatingSystemVersion ver = NSProcessInfo.processInfo.operatingSystemVersion;
+    return ver;
 }
 
 NSString* getDevMdoel() {
-    struct utsname name;
-    uname(&name);
-    return @(name.machine);
+    static NSString* model = nil;
+    if (model == nil) {
+        struct utsname name;
+        uname(&name);
+        model = @(name.machine);
+    }
+    return model;
 }
 
 CGFloat getOrientAngle(UIDeviceOrientation orientation) {
@@ -433,6 +456,80 @@ NSArray* getUnusedFds() { // posix_spawn会将socket等fd继承给子进程
 }
 
 
+#define PROC_PIDPATHINFO                11
+#define PROC_PIDPATHINFO_SIZE           (MAXPATHLEN)
+
+extern "C" {
+int proc_pidinfo(int pid, int flavor, uint64_t arg, void *buffer, int buffersize);
+}
+
+@interface BKSApplicationStateMonitor: NSObject
+- (NSDictionary*)applicationInfoForApplication:(NSString*)bid;
+- (NSDictionary*)applicationInfoForPID:(int)pid;
+@end
+
+static NSArray* getAllAppProcs() {
+    NSMutableArray* result = [NSMutableArray array];
+    size_t length = 0;
+    int name[] = {CTL_KERN, KERN_PROC, KERN_PROC_ALL};
+    if (0 != sysctl(name, 3, 0, &length, 0, 0)) {
+        return nil;
+    }
+    length += 3 * sizeof(struct kinfo_proc);
+    struct kinfo_proc* proc_list = (struct kinfo_proc*)malloc(length);
+    if (0 != sysctl(name, 3, proc_list, &length, 0, 0)) {
+        free((void*)proc_list);
+        return nil;
+    }
+    int proc_count = int(length / sizeof(struct kinfo_proc));
+    if (proc_count > 4096) {
+        proc_count = 4096;
+    }
+    for (int i = 0; i < proc_count; i++) {
+        char path[PROC_PIDPATHINFO_SIZE];
+        pid_t pid = proc_list[i].kp_proc.p_pid;
+        int ret = proc_pidinfo(pid, PROC_PIDPATHINFO, 0, path, sizeof(path));
+        if (ret == 0) {
+            if (strstr(path, ".app/") != 0) {
+                [result addObject:@(pid)];
+            }
+        }
+    }
+    free((void*)proc_list);
+    return result;
+}
+
+NSString* getFrontMostBid() {
+    if (false) { // for iOS<=13 || 注入SpringBoard || 二进制在系统分区
+        static mach_port_t (*SBSSpringBoardServerPort_)() = (__typeof(SBSSpringBoardServerPort_))dlsym(RTLD_DEFAULT, "SBSSpringBoardServerPort");
+        static void (*SBFrontmostApplicationDisplayIdentifier_)(mach_port_t port, char *result) = (__typeof(SBFrontmostApplicationDisplayIdentifier_))dlsym(RTLD_DEFAULT, "SBFrontmostApplicationDisplayIdentifier");
+        static mach_port_t sb_port = SBSSpringBoardServerPort_();
+        char buf[PATH_MAX];
+        memset(buf, 0, sizeof(buf));
+        NSString* bid = nil;
+        SBFrontmostApplicationDisplayIdentifier_(sb_port, buf);
+        if (buf[0] < 'A' || buf[0] > 'z') { // 缓冲区有乱码
+            bid = nil;
+        } else {
+            bid = @(buf);
+        }
+        return bid;
+    }
+    NSArray* allAppPids = getAllAppProcs();
+    BKSApplicationStateMonitor* monitor = [objc_getClass("BKSApplicationStateMonitor") new];
+    for (NSNumber* pid in allAppPids) {
+        NSDictionary* appInfo = [monitor applicationInfoForPID:pid.intValue];
+        if (appInfo != nil) {
+            NSNumber* isFrontMost = appInfo[@"BKSApplicationStateAppIsFrontmost"];
+            if (isFrontMost.boolValue) {
+                return appInfo[@"SBApplicationStateDisplayIDKey"];
+            }
+        }
+    }
+    return nil;
+}
+
+
 @interface RadiosPreferences : NSObject
 - (BOOL)airplaneMode;
 - (void)setAirplaneMode:(BOOL)flag;
@@ -451,6 +548,36 @@ void setAirEnable(BOOL flag) {
     }
 }
 
+typedef struct __WiFiManagerClient* WiFiManagerClientRef;
+static int (*WiFiManagerClientSetPower_)(WiFiManagerClientRef manager, BOOL on);
+static BOOL (*WiFiManagerClientGetPower_)(WiFiManagerClientRef manager);
+static WiFiManagerClientRef (*WiFiManagerClientCreate_)(CFAllocatorRef allocator, int type);
+
+static WiFiManagerClientRef getWiFiMan() {
+    static WiFiManagerClientRef man = nil;
+    if (man == nil) {
+        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/MobileWiFi.framework"];
+        [b load];
+        WiFiManagerClientSetPower_ = (__typeof(WiFiManagerClientSetPower_))dlsym(RTLD_DEFAULT, "WiFiManagerClientSetPower");
+        WiFiManagerClientGetPower_ = (__typeof(WiFiManagerClientGetPower_))dlsym(RTLD_DEFAULT, "WiFiManagerClientGetPower");
+        WiFiManagerClientCreate_ = (__typeof(WiFiManagerClientCreate_))dlsym(RTLD_DEFAULT, "WiFiManagerClientCreate");
+        man = WiFiManagerClientCreate_(kCFAllocatorDefault, 0);
+    }
+    return man;
+}
+
+BOOL isWiFiEnable() {
+    WiFiManagerClientRef man = getWiFiMan();
+    return WiFiManagerClientGetPower_(man);
+}
+
+void setWiFiEnable(BOOL flag) {
+    WiFiManagerClientRef man = getWiFiMan();
+    BOOL status = WiFiManagerClientGetPower_(man);
+    if (status != flag) {
+        WiFiManagerClientSetPower_(man, flag);
+    }
+}
 
 @interface BluetoothManager : NSObject
 + (instancetype)sharedInstance;
@@ -529,15 +656,93 @@ void setLPMEnable(BOOL flag) {
     }
 }
 
+@interface CLLocationManager
++ (void)setLocationServicesEnabled:(BOOL)flag;
+- (BOOL)locationServicesEnabled;
+@end
+
+static id getLocMan() {
+    static Class man = nil;
+    if (man == nil) {
+        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/Frameworks/CoreLocation.framework/CoreLocation"];
+        [b load];
+        man = objc_getClass("CLLocationManager");
+    }
+    return man;
+}
+
+BOOL isLocEnable() {
+    id locman = getLocMan();
+    return [locman locationServicesEnabled];
+}
+
+void setLocEnable(BOOL flag) {
+    id locman = getLocMan();
+    BOOL enable = [locman locationServicesEnabled];
+    if (enable != flag) {
+        [locman setLocationServicesEnabled:flag];
+    }
+}
+
+static float (*BrightnessGet)();
+static CFTypeRef (*BrightnessCreate)(CFAllocatorRef allocator);
+static void (*BrightnessSet)(float brightness, NSInteger unknown);
+extern "C" {
+void BKSDisplayBrightnessSetAutoBrightnessEnabled(Boolean enabled);
+}
+
+void initBrightness() {
+    static bool inited = false;
+    if (!inited) {
+        BrightnessGet = (__typeof(BrightnessGet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessGetCurrent");
+        BrightnessCreate = (__typeof(BrightnessCreate))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessTransactionCreate");
+        BrightnessSet = (__typeof(BrightnessSet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessSet");
+        inited = true;
+    }
+}
+
 float getBrightness() {
-    static float (*BrightnessGet)() = (__typeof(BrightnessGet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessGetCurrent");
+    initBrightness();
     return BrightnessGet();
 }
 
 void setBrightness(float val) {
-    static CFTypeRef (*BrightnessCreate)(CFAllocatorRef allocator) = (__typeof(BrightnessCreate))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessTransactionCreate");
-    static void (*BrightnessSet)(float brightness, NSInteger unknown) = (__typeof(BrightnessSet))dlsym(RTLD_DEFAULT, "BKSDisplayBrightnessSet");
+    initBrightness();
     BrightnessCreate(kCFAllocatorDefault);
     BrightnessSet(val, 1);
+}
+
+void setAutoBrightEnable(BOOL flag) {
+    BKSDisplayBrightnessSetAutoBrightnessEnabled(flag);
+}
+
+NSString* getThermalSimulationMode() {
+    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+    NSString* mode = [defs objectForKey:@"thermalSimulationMode"];
+    if (mode == nil) {
+        mode = @"off";
+    }
+    return mode;
+}
+
+void setThermalSimulationMode(NSString* mode) {
+    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+    [defs setObject:mode forKey:@"thermalSimulationMode"]; // off/nominal/light/moderate/heavy
+    [defs synchronize];
+}
+
+NSString* getPPMSimulationMode() {
+    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+    NSString* mode = [defs objectForKey:@"ppmSimulationMode"];
+    if (mode == nil) {
+        mode = @"off";
+    }
+    return mode;
+}
+
+void setPPMSimulationMode(NSString* mode) { // off/nominal/light/moderate/heavy
+    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+    [defs setObject:mode forKey:@"ppmSimulationMode"]; // off/nominal/light/moderate/heavy
+    [defs synchronize];
 }
 

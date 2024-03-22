@@ -6,13 +6,35 @@
 #import <UserNotifications/UserNotifications.h>
 #include "utils.h"
 
+enum {
+    kSBInflowDisable        = 0,
+    kSBChargeInhibit        = 1,
+    kSBSetPollingInterval   = 2,
+    kSBSMBusReadWriteWord   = 3,
+    kSBRequestPoll          = 4,
+    kSBSetOverrideCapacity  = 5,
+    kSBSwitchToTrueCapacity = 6,
+};
+
 #define PRODUCT         "ChargeLimiter"
 #define GSERV_PORT      1230
 #define TRACE           false
+#define FLOAT_ORIGINX   100
+#define FLOAT_ORIGINY   100
+#define FLOAT_WIDTH     80
+#define FLOAT_HEIGHT    60
 
 NSString* log_prefix = @(PRODUCT "Logger");
 static NSDictionary* bat_info = nil;
+static BOOL g_enable = YES;
+static BOOL g_enable_floatwnd = NO;
+static BOOL g_use_smart = NO;
+static int g_jbtype = -1;
+static int g_wind_type = 0; // 1: HUD
+static int g_serv_boot = 0;
+
 static NSDictionary* handleReq(NSDictionary* nsreq);
+static void start_daemon();
 
 extern "C" {
 void BKSDisplayServicesStart();
@@ -70,11 +92,28 @@ void UIApplicationInitialize();
 }
 @end
 
-static int g_wind_type = 0; // 1: HUD
-#define FLOAT_ORIGINX   100
-#define FLOAT_ORIGINY   100
-#define FLOAT_WIDTH     80
-#define FLOAT_HEIGHT    60
+static NSMutableDictionary* cache_kv = nil;
+#define CONF_PATH   "/var/root/aldente.conf"
+static id getlocalKV(NSString* key) {
+    if (cache_kv == nil) {
+        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
+    }
+    if (cache_kv == nil) {
+        return nil;
+    }
+    return cache_kv[key];
+}
+
+static void setlocalKV(NSString* key, id val) {
+    if (cache_kv == nil) {
+        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
+        if (cache_kv == nil) {
+            cache_kv = [NSMutableDictionary new];
+        }
+    }
+    cache_kv[key] = val;
+    [cache_kv writeToFile:@CONF_PATH atomically:YES];
+}
 
 @implementation AppDelegate {
     NSString* initUrl;
@@ -121,7 +160,7 @@ static AppDelegate* _app = nil;
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary<UIApplicationLaunchOptionsKey,id>*)launchOptions {
     if (g_wind_type == 0) {
         _mainWnd = self.window;
-    } else if (g_wind_type == 1) {
+    } else if (g_wind_type == 1) { // from TrollSpeed
         self.window = [[HUDMainWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         self.window.rootViewController = [AppDelegate new];
         self.window.windowLevel = 10000010.0;
@@ -240,6 +279,27 @@ static AppDelegate* _app = nil;
                     [_app.webview setTransform:CGAffineTransformMakeRotation(getOrientAngle(update.orientation))];
                 });
             }];
+            
+            static CFNotificationCenterRef center = CFNotificationCenterGetDarwinNotifyCenter();
+            
+            CFNotificationCenterAddObserver(center, (__bridge const void *)self, [](CFNotificationCenterRef center, void* observer, CFStringRef name, void const* object, CFDictionaryRef userInfo) {
+                @autoreleasepool {
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
+                        NSString* bid = getFrontMostBid();
+                        NSLog2(@"%@ frontmost %@", log_prefix, bid);
+                        NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
+                        if (bid == nil || [bid isEqualToString:self_bid] || [bid isEqualToString:@"com.apple.springboard"]) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                _app.webview.hidden = NO;
+                            });
+                        } else {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                _app.webview.hidden = YES;
+                            });
+                        }
+                    });
+                }
+            }, CFSTR("com.apple.mobile.SubstantialTransition"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
         }
     }
 }
@@ -277,6 +337,9 @@ static AppDelegate* _app = nil;
     if ([url isEqualToString:@"safari://"]) {
         [UIApplication.sharedApplication openURL:[NSURL URLWithString:initUrl]];
         return NO;
+    } else if ([url isEqualToString:@"cl://start_daemon"]) {
+        start_daemon();
+        return NO;
     }
     return YES;
 }
@@ -284,12 +347,20 @@ static AppDelegate* _app = nil;
 
 
 static io_service_t getIOPMPSServ() {
-    static io_service_t serv = 0;
-    if (serv == 0) {
-        serv = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPMPowerSource"));
-        // IOPMPowerSource:AppleARMPMUPowerSource:AppleARMPMUCharger
-        //      IOAccessoryTransport:IOAccessoryPowerSource:AppleARMPMUAccessoryPS
-        // AppleSmartBattery >=iPhone11才有, 且数据相同
+    static io_service_t serv = IO_OBJECT_NULL;
+    if (serv == IO_OBJECT_NULL) {
+        NSNumber* adv_prefer_smart = getlocalKV(@"adv_prefer_smart");
+        if (adv_prefer_smart.boolValue) {
+            serv = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("AppleSmartBattery")); // >=iPhone8
+        }
+        if (serv != IO_OBJECT_NULL) {
+            g_use_smart = YES;
+        } else {// SmartBattery not support, roll back to use IOPS
+            serv = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPMPowerSource"));
+            // IOPMPowerSource:AppleARMPMUPowerSource:AppleARMPMUCharger
+            //      IOAccessoryTransport:IOAccessoryPowerSource:AppleARMPMUAccessoryPS
+            g_use_smart = NO;
+        }
     }
     return serv;
 }
@@ -342,7 +413,7 @@ static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) 
 
 static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     io_service_t serv = getIOPMPSServ();
-    if (serv == 0) {
+    if (serv == IO_OBJECT_NULL) {
         return -1;
     }
     CFMutableDictionaryRef prop = nil;
@@ -377,14 +448,14 @@ static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
     return NO;
 }
 
-static int setChargeStatus(BOOL flag) {
+static int setInflowStatus(BOOL flag) {
     io_service_t serv = getIOPMPSServ();
-    if (serv == 0) {
+    if (serv == IO_OBJECT_NULL) {
         return -1;
     }
+    // iPhone>=8 ExternalConnected重置可消除120秒延迟,且更新系统充电图标
     NSMutableDictionary* props = [NSMutableDictionary new];
-    props[@"IsCharging"] = @(flag);
-    props[@"PredictiveChargingInhibit"] = @NO; // PredictiveChargingInhibit为IsCharging总开关
+    props[@"ExternalConnected"] = @(flag);
     kern_return_t ret = IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
     if (ret != 0) {
         return -2;
@@ -392,49 +463,71 @@ static int setChargeStatus(BOOL flag) {
     return 0;
 }
 
-static int disableCL() {
+static int setChargeStatus(BOOL flag) {
+    NSNumber* adv_predictive_inhibit_charge = getlocalKV(@"adv_predictive_inhibit_charge");
     io_service_t serv = getIOPMPSServ();
-    if (serv == 0) {
+    if (serv == IO_OBJECT_NULL) {
         return -1;
     }
     NSMutableDictionary* props = [NSMutableDictionary new];
-    props[@"IsCharging"] = @YES;
-    IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
-    props[@"PredictiveChargingInhibit"] = @YES;
-    IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
+    if (adv_predictive_inhibit_charge.boolValue) { // iOS>=13  目前测试PredictiveChargingInhibit在iOS>=13生效
+        NSLog(@"%@ use predictive inhibit charge", log_prefix); // todo
+        props[@"IsCharging"] = @YES;
+        props[@"PredictiveChargingInhibit"] = @(!flag);
+    } else { // iOS<=12
+        props[@"IsCharging"] = @(flag);
+        props[@"PredictiveChargingInhibit"] = @NO; // PredictiveChargingInhibit为IsCharging总开关
+    }
+    kern_return_t ret = IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
+    if (ret != 0) {
+        return -2;
+    }
     return 0;
 }
 
-static BOOL g_enable = YES;
-static BOOL g_enable_floatwnd = NO;
-static int g_jbtype = -1;
-static NSMutableDictionary* cache_kv = nil;
-#define CONF_PATH   "/var/root/aldente.conf"
-static id getlocalKV(NSString* key) {
-    if (cache_kv == nil) {
-        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
-    }
-    if (cache_kv == nil) {
-        return nil;
-    }
-    return cache_kv[key];
-}
-
-static void setlocalKV(NSString* key, id val) {
-    if (cache_kv == nil) {
-        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
-        if (cache_kv == nil) {
-            cache_kv = [NSMutableDictionary new];
+static int setBatteryStatus(BOOL flag) {
+    NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
+    NSNumber* adv_skip_wait = getlocalKV(@"adv_skip_wait");
+    int ret = 0;
+    if (flag) {
+        if (adv_disable_inflow.boolValue) {
+            ret += setInflowStatus(flag);
+        }
+        ret += setChargeStatus(flag);
+        if (adv_skip_wait.boolValue) {
+            setInflowStatus(!flag);
+            setInflowStatus(flag);
+        }
+    } else {
+        ret += setChargeStatus(flag);
+        if (adv_disable_inflow.boolValue) {
+            ret += setInflowStatus(flag);
+        }
+        if (adv_skip_wait.boolValue) {
+            setInflowStatus(!flag);
+            setInflowStatus(flag);
         }
     }
-    cache_kv[key] = val;
-    [cache_kv writeToFile:@CONF_PATH atomically:YES];
+    return ret;
+}
+
+static void resetBatteryStatus() {
+    io_service_t serv = getIOPMPSServ();
+    if (serv == IO_OBJECT_NULL) {
+        return;
+    }
+    NSMutableDictionary* props = [NSMutableDictionary new];
+    props[@"IsCharging"] = @YES;
+    props[@"PredictiveChargingInhibit"] = @NO;
+    props[@"ExternalConnected"] = @YES;
+    IORegistryEntrySetCFProperties(serv, (__bridge CFTypeRef)props);
 }
 
 static void performAcccharge(BOOL flag) {
     static NSMutableDictionary* cache_status = nil;
     NSNumber* acc_charge = getlocalKV(@"acc_charge");
     NSNumber* acc_charge_airmode = getlocalKV(@"acc_charge_airmode");
+    NSNumber* acc_charge_wifi = getlocalKV(@"acc_charge_wifi");
     NSNumber* acc_charge_blue = getlocalKV(@"acc_charge_blue");
     NSNumber* acc_charge_bright = getlocalKV(@"acc_charge_bright");
     NSNumber* acc_charge_lpm = getlocalKV(@"acc_charge_lpm");
@@ -444,12 +537,16 @@ static void performAcccharge(BOOL flag) {
             if (acc_charge_airmode.boolValue) {
                 setAirEnable(YES);
             }
+            if (acc_charge_wifi.boolValue) {
+                setWiFiEnable(NO); // todo 支持16
+            }
             if (acc_charge_blue.boolValue) {
                 setBlueEnable(NO);
             }
             if (acc_charge_bright.boolValue) {
                 float val = getBrightness();
                 cache_status[@"acc_charge_bright"] = @(val);
+                setAutoBrightEnable(NO);
                 setBrightness(0.0);
             }
             if (acc_charge_lpm.boolValue) {
@@ -459,12 +556,18 @@ static void performAcccharge(BOOL flag) {
             if (acc_charge_airmode.boolValue) {
                 setAirEnable(NO);
             }
+            if (acc_charge_wifi.boolValue) {
+                setWiFiEnable(YES);
+            }
             if (acc_charge_blue.boolValue) {
                 setBlueEnable(YES);
             }
-            if (cache_status[@"acc_charge_bright"] != nil) {
-                NSNumber* acc_charge_bright = cache_status[@"acc_charge_bright"];
-                setBrightness(acc_charge_bright.floatValue);
+            if (acc_charge_bright.boolValue) {
+                if (cache_status[@"acc_charge_bright"] != nil) {
+                    NSNumber* acc_charge_bright = cache_status[@"acc_charge_bright"];
+                    setBrightness(acc_charge_bright.floatValue);
+                }
+                setAutoBrightEnable(YES);
             }
             if (acc_charge_lpm.boolValue) {
                 setLPMEnable(NO);
@@ -562,11 +665,20 @@ static void onBatteryEvent(io_service_t serv) {
         NSNumber* capacity = bat_info[@"CurrentCapacity"];
         NSNumber* is_charging = bat_info[@"IsCharging"];
         NSNumber* temperature_ = bat_info[@"Temperature"];
+        if (capacity.intValue <= 5) {
+            // 防止误用或意外造成无法充电
+            if (!is_charging.boolValue) {
+                setInflowStatus(YES);
+                setBatteryStatus(YES);
+                performAcccharge(YES);
+            }
+            return; // 电量过低禁止操作
+        }
         int temperature = temperature_.intValue / 100;
         if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
             if (is_charging.boolValue) {
                 NSFileLog(@"stop charging for high temperature");
-                if (0 == setChargeStatus(NO)) {
+                if (0 == setBatteryStatus(NO)) {
                     performAction(@"stop_charge");
                     performAcccharge(NO);
                 }
@@ -576,26 +688,17 @@ static void onBatteryEvent(io_service_t serv) {
         if (capacity.intValue >= charge_above.intValue) {
             if (is_charging.boolValue) {
                 NSFileLog(@"stop charging for capacity");
-                if (0 == setChargeStatus(NO)) {
+                if (0 == setBatteryStatus(NO)) {
                     performAction(@"stop_charge");
                     performAcccharge(NO);
                 }
             }
             return; // 电量满禁止操作
         }
-        if (capacity.intValue <= 5) {
-            if (is_charging.boolValue) {
-                NSFileLog(@"stop charging for capacity");
-                if (0 == setChargeStatus(YES)) {
-                    performAcccharge(YES);
-                }
-            }
-            return; // 电量过低禁止操作
-        }
-        if ([mode isEqualToString:@"charge_on_plug"]) { // 此状态下禁用charge_below
+        if ([mode isEqualToString:@"charge_on_plug"]) {
             if (isAdaptorNewConnect(old_bat_info, bat_info)) {
                 NSFileLog(@"start charging for plug in");
-                if (0 == setChargeStatus(YES)) {
+                if (0 == setBatteryStatus(YES)) {
                     performAcccharge(YES);
                 }
                 return;
@@ -603,19 +706,21 @@ static void onBatteryEvent(io_service_t serv) {
             if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
                 if (isAdaptorConnect(bat_info)) {
                     NSFileLog(@"start charging for low temperature");
-                    if (0 == setChargeStatus(YES)) {
+                    if (0 == setBatteryStatus(YES)) {
                         performAcccharge(YES);
                     }
                     return;
                 }
             }
-            return;
         }
         if (capacity.intValue <= charge_below.intValue) {
+            // 任何模式下强制低电充电
+            // 1. 防止误用造成无法充电
+            // 2. 禁流模式下电量下降后恢复充电
             if (!is_charging.boolValue) {
                 if (isAdaptorConnect(bat_info)) {
                     NSFileLog(@"start charging for capacity");
-                    if (0 == setChargeStatus(YES)) {
+                    if (0 == setBatteryStatus(YES)) {
                         performAcccharge(YES);
                     }
                     return;
@@ -626,6 +731,7 @@ static void onBatteryEvent(io_service_t serv) {
 }
 
 static void initConf() {
+    BOOL predictive_inhibit_charge_avail = getSysVerInt().majorVersion >= 13;
     NSDictionary* def_dic = @{
         @"mode": @"charge_on_plug",
         @"update_freq": @1,
@@ -637,9 +743,14 @@ static void initConf() {
         @"charge_temp_below": @10,
         @"acc_charge": @NO,
         @"acc_charge_airmode": @YES,
+        @"acc_charge_wifi": @NO,
         @"acc_charge_blue": @NO,
         @"acc_charge_bright": @NO,
         @"acc_charge_lpm": @YES,
+        @"adv_prefer_smart": @YES, // iPhone8+ iOS13+
+        @"adv_predictive_inhibit_charge": @(predictive_inhibit_charge_avail), // iPhone8+ iOS13+
+        @"adv_disable_inflow": @NO, // all (iPhone8+ iOS13+会改变系统充电图标)
+        @"adv_skip_wait": @NO,
         @"action": @"",
         @"stat_hour": @[],
         @"stat_day": @[],
@@ -673,24 +784,37 @@ static void showFloatwnd(BOOL flag) {
 static NSDictionary* handleReq(NSDictionary* nsreq) {
     NSString* api = nsreq[@"api"];
     if ([api isEqualToString:@"get_conf"]) {
-        NSMutableDictionary* kv = [cache_kv mutableCopy];
-        kv[@"enable"] = @(g_enable);
-        kv[@"floatwnd"] = @(g_enable_floatwnd);
-        //kv[@"dark"] = @(isDarkMode());  daemon获取到的结果不随系统变化,需要从app获取
-        kv[@"sysver"] = getSysVer();
-        kv[@"devmodel"] = getDevMdoel();
-        kv[@"ver"] = getAppVer();
-        return @{
-            @"status": @0,
-            @"data": kv,
-        };
+        NSString* key = nsreq[@"key"];
+        if (key == nil) {
+            NSMutableDictionary* kv = [cache_kv mutableCopy];
+            kv[@"enable"] = @(g_enable);
+            kv[@"floatwnd"] = @(g_enable_floatwnd);
+            //kv[@"dark"] = @(isDarkMode());  daemon获取到的结果不随系统变化,需要从app获取
+            kv[@"sysver"] = getSysVer();
+            kv[@"devmodel"] = getDevMdoel();
+            kv[@"ver"] = getAppVer();
+            kv[@"serv_boot"] = @(g_serv_boot);
+            kv[@"sys_boot"] = @(get_sys_boottime());
+            //kv[@"thermal_simulate_mode"] = getThermalSimulationMode(); // todo: 监视NSUserDefaults
+            //kv[@"ppm_simulate_mode"] = getPPMSimulationMode();
+            kv[@"use_smart"] = @(g_use_smart);
+            return @{
+                @"status": @0,
+                @"data": kv,
+            };
+        } else {
+            return @{
+                @"status": @0,
+                @"data": getlocalKV(key),
+            };
+        }
     } else if ([api isEqualToString:@"set_conf"]) {
         NSString* key = nsreq[@"key"];
         id val = nsreq[@"val"];
         if ([key isEqualToString:@"enable"]) {
             g_enable = [val boolValue];
             if (!g_enable) {
-                disableCL();
+                resetBatteryStatus();
             }
         } else if ([key isEqualToString:@"floatwnd"]) {
             g_enable_floatwnd = [val boolValue];
@@ -702,29 +826,32 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             if ([val isEqualToString:@"noti"]) {
                 [Service.inst initLocalPush];
             }
+        } else if ([key isEqualToString:@"adv_predictive_inhibit_charge"] || [key isEqualToString:@"adv_disable_inflow"]) {
+            resetBatteryStatus();
+        } else if ([key isEqualToString:@"use_smart"]) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_global_queue(0, 0), ^{
+                exit(0);
+            });
         }
         return @{
             @"status": @0,
         };
     } else if ([api isEqualToString:@"get_bat_info"]) {
-        BOOL update = nsreq[@"update"] != nil;
-        if (update) {
-            getBatInfo(&bat_info);
-        }
-        int status = (bat_info != nil)?0 : -1;
         return @{
-            @"status": @(status),
+            @"status": @0,
             @"data": bat_info,
         };
     } else if ([api isEqualToString:@"set_charge_status"]) {
         NSNumber* flag = nsreq[@"flag"];
         getBatInfo(&bat_info);
-        int status = -1;
-        if (flag.boolValue && !isAdaptorConnect(bat_info)) {
-            status = -3;
-        } else {
-            status = setChargeStatus(flag.boolValue);
-        }
+        int status = setChargeStatus(flag.boolValue);
+        return @{
+            @"status": @(status)
+        };
+    } else if ([api isEqualToString:@"set_inflow_status"]) {
+        NSNumber* flag = nsreq[@"flag"];
+        getBatInfo(&bat_info);
+        int status = setInflowStatus(flag.boolValue);
         return @{
             @"status": @(status)
         };
@@ -754,7 +881,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         for (LSApplicationProxy* proxy in list) {
             if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
                 NSFileLog(@"uninstalled, exit"); // 卸载时旧版daemon自动退出
-                disableCL();
                 exit(0);
             }
         }
@@ -764,7 +890,6 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     for (LSApplicationProxy* proxy in list) {
         if ([proxy.bundleIdentifier isEqualToString:self->bid]) {
             NSFileLog(@"updated, exit"); // 覆盖安装时旧版daemon自动退出
-            disableCL();
             exit(0);
         }
     }
@@ -819,14 +944,16 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             exit(0);
         }
         getBatInfo(&bat_info);
-        io_service_t serv = getIOPMPSServ();
         IONotificationPortRef port = IONotificationPortCreate(kIOMasterPortDefault);
         CFRunLoopSourceRef runSrc = IONotificationPortGetRunLoopSource(port);
         CFRunLoopAddSource(CFRunLoopGetCurrent(), runSrc, kCFRunLoopDefaultMode);
-        io_object_t noti = IO_OBJECT_NULL;
-        IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
-            onBatteryEvent(service);
-        }, nil, &noti);
+        io_service_t serv = getIOPMPSServ();
+        if (serv != IO_OBJECT_NULL) {
+            io_object_t noti = IO_OBJECT_NULL;
+            IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
+                onBatteryEvent(service);
+            }, nil, &noti);
+        }
         [LSApplicationWorkspace.defaultWorkspace addObserver:self];
         isBlueEnable(); // init
         isLPMEnable();
@@ -835,6 +962,7 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 @end
 
 
+// from TrollSpeed
 #if __arm64e__
 #include <ptrauth.h>
 #endif
@@ -935,22 +1063,26 @@ static void* make_sym_callable(void *ptr) {
 }
 @end
 
+static void start_daemon() {
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        if (!localPortOpen(GSERV_PORT)) {
+            NSLog(@"%@ start daemon", log_prefix);
+            if (g_jbtype == JBTYPE_TROLLSTORE) {
+                spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
+            }
+        }
+    });
+}
 
 int main(int argc, char** argv) {
     @autoreleasepool {
         g_jbtype = getJBType();
         if (argc == 1) {
-            dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                if (!localPortOpen(GSERV_PORT)) {
-                    NSLog(@"%@ start daemon", log_prefix);
-                    if (g_jbtype == JBTYPE_TROLLSTORE) {
-                        spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
-                    }
-                }
-            });
+            start_daemon();
             return UIApplicationMain(argc, argv, nil, @"AppDelegate");
         } else if (argc > 1) {
             if (0 == strcmp(argv[1], "daemon")) {
+                g_serv_boot = (int)time(0);
                 if (g_jbtype == JBTYPE_TROLLSTORE) {
                     signal(SIGHUP, SIG_IGN);
                     signal(SIGTERM, SIG_IGN); // 防止App被Kill以后daemon退出
@@ -961,9 +1093,14 @@ int main(int argc, char** argv) {
                 [Service.inst serve];
                 atexit_b(^{
                     [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
-                    setChargeStatus(YES);
+                    resetBatteryStatus();
                     showFloatwnd(NO);
+                    // 恢复电源连接
                 });
+                NSFileLog(@"daemon start");
+                static NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:3600 repeats:YES block:^(NSTimer* timer) {
+                    NSFileLog(@"daemon alive"); // 用于诊断
+                }];
                 [NSRunLoop.mainRunLoop run];
             } else if (0 == strcmp(argv[1], "floatwnd")) {
                 g_wind_type = 1;

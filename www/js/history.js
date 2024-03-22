@@ -246,6 +246,7 @@ const App = {
                         },
                         CycleCount: {
                             position: "left",
+                            min: cycle_range[0],
                             max: cycle_range[1],
                             type: "linear",
                         }
@@ -266,7 +267,7 @@ const App = {
                         label: this.$t("NominalCapacity"),
                         data: stat_month.map(row => {
                             return {
-                                "x": ts_to_date(row.UpdateTime, "YMD"),
+                                "x": ts_to_date(row.UpdateTime, "YM"),
                                 "y": row.NominalChargeCapacity,
                             }
                         }),
@@ -278,7 +279,7 @@ const App = {
                         label: this.$t("CycleCount"),
                         data: stat_month.map(row => {
                             return {
-                                "x": ts_to_date(row.UpdateTime, "YMD"),
+                                "x": ts_to_date(row.UpdateTime, "YM"),
                                 "y": row.CycleCount,
                             }
                         })
@@ -314,6 +315,7 @@ const App = {
                         },
                         CycleCount: {
                             position: "left",
+                            min: cycle_range[0],
                             max: cycle_range[1],
                             type: "linear",
                         }
