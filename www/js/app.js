@@ -722,6 +722,7 @@ const App = {
                 key: "enable_temp",
                 val: v,
             });
+            this.enable_temp = v;
             setTimeout(this.get_conf, 1000);
         },
         set_charge_temp_above: function(v) {
@@ -746,6 +747,7 @@ const App = {
                 key: "acc_charge",
                 val: v,
             });
+            this.acc_charge = v;
             setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_airmode: function(v) {
@@ -755,6 +757,7 @@ const App = {
                 val: v,
             });
             this.acc_charge_airmode = v;
+            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_wifi: function(v) {
             this.ipc_send_wrapper({
@@ -763,6 +766,7 @@ const App = {
                 val: v,
             });
             this.acc_charge_wifi = v;
+            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_lpm: function(v) {
             this.ipc_send_wrapper({
@@ -771,6 +775,7 @@ const App = {
                 val: v,
             });
             this.acc_charge_lpm = v;
+            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_blue: function(v) {
             this.ipc_send_wrapper({
@@ -779,6 +784,7 @@ const App = {
                 val: v,
             });
             this.acc_charge_blue = v;
+            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_bright: function(v) {
             this.ipc_send_wrapper({
@@ -787,6 +793,7 @@ const App = {
                 val: v,
             });
             this.acc_charge_bright = v;
+            setTimeout(this.get_conf, 1000);
         },
         open_safari: function() {
             location.href = "safari://";

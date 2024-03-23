@@ -6,16 +6,6 @@
 #import <UserNotifications/UserNotifications.h>
 #include "utils.h"
 
-enum {
-    kSBInflowDisable        = 0,
-    kSBChargeInhibit        = 1,
-    kSBSetPollingInterval   = 2,
-    kSBSMBusReadWriteWord   = 3,
-    kSBRequestPoll          = 4,
-    kSBSetOverrideCapacity  = 5,
-    kSBSwitchToTrueCapacity = 6,
-};
-
 #define PRODUCT         "ChargeLimiter"
 #define GSERV_PORT      1230
 #define TRACE           false
@@ -245,14 +235,9 @@ static AppDelegate* _app = nil;
                         return;
                     }
                     IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0);
-                    //int index = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIndex);
-                    //int identity = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerIdentity);
-                    //int range = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerRange);
-                    //int touch = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerTouch);
                     int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
                     int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
                     int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
-                    //NSLog(@"BKSHIDEventRegisterEventCallback index=%d identity=%d x=%d y=%d range=%d touch=%d mask=%d", index, identity, x, y, range, touch, mask);
                     if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
                         dispatch_async(dispatch_get_main_queue(), ^{
                             int f_x = MAX(x - FLOAT_WIDTH/2, 0);
@@ -286,7 +271,6 @@ static AppDelegate* _app = nil;
                 @autoreleasepool {
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
                         NSString* bid = getFrontMostBid();
-                        NSLog2(@"%@ frontmost %@", log_prefix, bid);
                         NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
                         if (bid == nil || [bid isEqualToString:self_bid] || [bid isEqualToString:@"com.apple.springboard"]) {
                             dispatch_async(dispatch_get_main_queue(), ^{
@@ -430,24 +414,6 @@ static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     return 0;
 }
 
-static BOOL isAdaptorConnect(NSDictionary* info) {
-    // 某些充电器ExternalConnected为false,这里使用ExternalChargeCapable
-    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
-    if (ExternalChargeCapable != nil) {
-        return ExternalChargeCapable.boolValue;
-    }
-    return NO;
-}
-
-static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
-    NSNumber* old_ExternalChargeCapable = oldInfo[@"ExternalChargeCapable"];
-    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
-    if (!old_ExternalChargeCapable.boolValue && ExternalChargeCapable.boolValue) {
-        return YES;
-    }
-    return NO;
-}
-
 static int setInflowStatus(BOOL flag) {
     io_service_t serv = getIOPMPSServ();
     if (serv == IO_OBJECT_NULL) {
@@ -463,6 +429,44 @@ static int setInflowStatus(BOOL flag) {
     return 0;
 }
 
+static void tryEnableInflowIfDisabled() {
+    NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
+    if (adv_disable_inflow.boolValue) {
+        static int last_check_time = (int)time(0);
+        int ts = (int)time(0);
+        if (ts - last_check_time > 60) {
+            last_check_time = ts;
+            setInflowStatus(YES);
+        }
+    }
+}
+
+static BOOL isAdaptorConnect(NSDictionary* info) {
+    // 某些充电器ExternalConnected为false,这里使用ExternalChargeCapable
+    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
+    NSNumber* ExternalConnected = info[@"ExternalConnected"];
+    if (!ExternalConnected.boolValue) {
+        tryEnableInflowIfDisabled();
+    }
+    if (ExternalChargeCapable != nil) {
+        return ExternalChargeCapable.boolValue;
+    }
+    return NO;
+}
+
+static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
+    NSNumber* old_ExternalChargeCapable = oldInfo[@"ExternalChargeCapable"];
+    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
+    NSNumber* ExternalConnected = info[@"ExternalConnected"];
+    if (!ExternalConnected.boolValue) {
+        tryEnableInflowIfDisabled();
+    }
+    if (!old_ExternalChargeCapable.boolValue && ExternalChargeCapable.boolValue) {
+        return YES;
+    }
+    return NO;
+}
+
 static int setChargeStatus(BOOL flag) {
     NSNumber* adv_predictive_inhibit_charge = getlocalKV(@"adv_predictive_inhibit_charge");
     io_service_t serv = getIOPMPSServ();
@@ -471,7 +475,6 @@ static int setChargeStatus(BOOL flag) {
     }
     NSMutableDictionary* props = [NSMutableDictionary new];
     if (adv_predictive_inhibit_charge.boolValue) { // iOS>=13  目前测试PredictiveChargingInhibit在iOS>=13生效
-        NSLog(@"%@ use predictive inhibit charge", log_prefix); // todo
         props[@"IsCharging"] = @YES;
         props[@"PredictiveChargingInhibit"] = @(!flag);
     } else { // iOS<=12
@@ -826,9 +829,11 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             if ([val isEqualToString:@"noti"]) {
                 [Service.inst initLocalPush];
             }
-        } else if ([key isEqualToString:@"adv_predictive_inhibit_charge"] || [key isEqualToString:@"adv_disable_inflow"]) {
+        } else if ([key isEqualToString:@"adv_predictive_inhibit_charge"]) {
             resetBatteryStatus();
-        } else if ([key isEqualToString:@"use_smart"]) {
+        } else if ([key isEqualToString:@"adv_disable_inflow"]) {
+            resetBatteryStatus();
+        } else if ([key isEqualToString:@"adv_prefer_smart"]) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_global_queue(0, 0), ^{
                 exit(0);
             });
@@ -951,7 +956,9 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         if (serv != IO_OBJECT_NULL) {
             io_object_t noti = IO_OBJECT_NULL;
             IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
-                onBatteryEvent(service);
+                @synchronized (Service.inst) {
+                    onBatteryEvent(service);
+                }
             }, nil, &noti);
         }
         [LSApplicationWorkspace.defaultWorkspace addObserver:self];
@@ -1066,7 +1073,6 @@ static void* make_sym_callable(void *ptr) {
 static void start_daemon() {
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         if (!localPortOpen(GSERV_PORT)) {
-            NSLog(@"%@ start daemon", log_prefix);
             if (g_jbtype == JBTYPE_TROLLSTORE) {
                 spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
             }

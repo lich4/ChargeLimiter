@@ -6,9 +6,6 @@
 &emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa),目前支持iOS12-17.(注意: TrollStore环境下安装新版之前请先卸载旧版)   
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
 
-下载地址:(https://github.com/lich4/ChargeLimiter/releases)    
-交流QQ群:669869453 
-
 ## 常见问题
 
 什么情况下需要用CL?
@@ -24,61 +21,20 @@ CL更费电吗?
 * 大部分使用者会明显延缓电池健康度下降速度.
 * 极个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
 
-## 更新日志
-
-todo:
-* 开机自动启动后台
-* 改变充电速度(待测试可行性)
-* iOS12悬浮窗
-* 电池校准
-
-1.5版本更新日志:
-* 支持禁流模式以兼容少数不支持停充的电池
-* 对iPhone8及以上型号重新优化,支持智能停充,支持Smart模式
-* 悬浮窗自动隐藏
-* 增加电池历史数据统计
-* 增加scheme和http接口,可和快捷方式搭配使用
-
-1.4.1版本更新日志:
-* 优化WebUI界面
-* IPAD悬浮窗跟随朝向
-* 增加黑夜模式
-
-1.4版本更新日志:
-* 增加快速充电模式(飞行模式+降低屏幕亮度+低电量模式)
-* 将启动服务改为启用,方便实时查看电池状态,不必真正关闭后台
-* 增加悬浮窗便捷控制(可拖动改变位置,单击切换启用状态)
-* 增加触发逻辑实现高于指定温度开始充电,仅限插电即充模式
-
-1.3版本更新日志:
-* 解决开启"优化电池充电"导致本工具无效的问题
-* 增加无根越狱支持
-
-1.2版本更新日志:
-* 增加语言-繁体中文
-* 增加插电即充模式,方便普通用户使用;边缘触发模式适合开发者和工作室使用
-* 底层定时轮询机制改为内核设备事件通知,灵敏度得到提升
-* 增加华氏温度
-
-1.1版本更新日志:
-* 本工具为边缘触发模式,即电量低于阈值充电,高于阈值停止,处于阈值中间则保持原状态,此时可手动设置充电开关.
-* 由于系统原因,将最低更新频率设置到20s.更新频率影响控温精准度
-* 修复某些显示问题,包括调整充电提醒频率,高型号页眉显示串位,增加显示电源信息.
-* 对于8及以上的型号手动设置充电状态存在120秒延迟,增加倒计时提醒
-* 增加电池过热保护
-
 ## 测试电池兼容性
 
 &emsp;&emsp;在使用CL前需要测试电池兼容性,如果不支持请放弃使用
-* 在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电流(>=50mA)则无法支持停充(有些电池返回电流值有误,此时以实际电量变化为准).目前反馈不支持停充的电池包括但不限于:马拉松.
-* 在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持停充(有些电池返回电流值有误,此时以实际电量变化为准).
+* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电流(>=50mA)则无法支持停充(有些电池返回电流值有误,此时以实际电量变化为准).目前反馈不支持停充的电池包括但不限于:马拉松.
+* 2.测试电池是否支持智能停充.开启"高级-智能停充",其余同1.
+* 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持停充(有些电池返回电流值有误,此时以实际电量变化为准).
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请停止使用并卸载.
 
 ## 使用说明
 
 * 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.过充/零电量充电/高温对电池会产生不良影响.
-
+* 插电即充模式适合普通用户使用,边缘触发模式适合工作室使用.
+* iPhone8及以上型号存在120秒设定充电状态延迟. iPad可能也存在.
 * 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者本app查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定
 * 对于TrollStore环境,因任何原因导致的后台被杀(比如重启系统/重启用户空间/...),将导致App失效.
 * App不会连着线就自发充电,充电/停充都有触发条件,请仔细查看本页说明.
@@ -88,6 +44,10 @@ todo:
 * 电流为正说明从充电器流入电池,电流为负说明电池为设备供电.使用本软件且停充状态下一般电流为0,此时电流流经电池为设备供电,电池起到闭合电路作用(可以理解为导线),此时对电池的损耗应小于仅使用电池为设备供电.禁流状态下电流一般为负,此时电池损耗和正常使用一致.
 * 系统自带电池优化会导致本app失效,1.3版本起会自动关闭自带优化(但系统设置里不会显示).如果不使用本app需在系统设置中手动重置电池优化开关(先关后开).不推荐在过新的设备上使用,因为iPhone15起自带电池优化已经很完善.
 * 本项目是开放式项目,如果有兴趣参与或者对本项目有建议的的欢迎参提交代码.本软件纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.本软件承诺永久免费且无广告,但因为使用本软件导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用本App即为默认同意本条款.     
+
+支持的模式:
+* 插电即充,重新接入电源时开始充电, 电量到达指定上限时停止充电, 适合个人使用.
+* 边缘触发,电量到达指定下限时开始充电, 电量到达指定上限时停止充电, 适合工作室使用.
 
 目前触发充电的条件：
 * 电量低于设定的最小值
@@ -136,6 +96,10 @@ HTTP接口(可配合快捷指令):
 * * Temperature 温度
 * * UpdateTime 内核数据缓存时间
 * POST http://localhost:1230 {"api":"set_charge_status","flag":true} => {"status":0}
+* POST http://localhost:1230 {"api":"set_inflow_status","flag":true} => {"status":0}
+
+下载地址:(https://github.com/lich4/ChargeLimiter/releases)    
+交流QQ群:669869453    
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
@@ -153,12 +117,7 @@ ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice 
     
 Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa). Currently support iOS12-17.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
       
-Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.     
-
-If you have better ideas, please join the project and push your code   
-Download URL:(https://github.com/lich4/ChargeLimiter/releases)    
-Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/+p0pwZCBDcH0zOGZl&color=red)    
-https://t.me/+p0pwZCBDcH0zOGZl   
+Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.
 
 ## Questions
 
@@ -168,42 +127,26 @@ Why should I use CL?
 * Want to control the temparature during charging
 
 Does CL consume more power?
-* In fact memory usage of CL's daemon is lower than most of system daemons, as for app and float window, they will consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
+* Insensitive for most users. App and float window may consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
 
 Will the battery health percentage increase after using CL for a period of time?
 * I don't think it's possible, especially for a software, but there are indeed some users have their battery health increased after using CL for a month.
 * CL will slow down dropping speed of battery health for most users.
 * Health percentage may fluctuate in certain range. There are indeed little users keep dropping health after using CL, please stop using CL in this case.
 
-## ChangeLogs
-
-todo:
-* start daemon on system reboot
-* Change charging speed(to be validated)
-* Floating window on iOS12
-* Battery history data statistics
-
-1.4.1 ChangeLog:
-* Optimize the WebUI
-* Floating window on iPad follow orientation
-* Dark mode
-
-1.4 ChangeLog:
-* Speed up charging
-* Floating window(draggable;tap to enable/disable)
-* Start charging when temparature above specified value  
-
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
-* Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
-* Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 1.Check compatibility of ChargeInhibit.Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 2.Check compatibility of PredictiveChaargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
+* 3.Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please stop and uninstall CL.
 
 ## Instruction
 
 * Some Studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80.
+* There is 120 seconds delay after setting the charging status after iPhone8, maybe the same for iPad.
 * The lightning icon of system status bar will not be updated in ChargeInhibit mode, the actual charging status can be found in 3utools(and similar) or CL, while it will be updated in DisableInflow mode(iPhone8+), this mode is enabled in "Advanced-Control inflow".
 * For TrollStore, if the daemon(of CL) get killed in any condition(such as system-reboot/userspace-reboot/...), CL will become invalid for not being able to restart daemon itself automatically.
 * CL only start/stop charging under certain conditions as show behind.
@@ -215,7 +158,7 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.
 
 Supported mode
-* "Plug and charge", iDevice will start charging whenever adaptor plug in, and stop charging when capacity increase to max threshhold specified. Useful for individual.
+* "Plug and charge", iDevice will start charging when reconnected to an adaptor, and stop charging when capacity increase to max threshhold specified. Useful for individual.
 * "Edge trigger", iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified. Useful for developer & studio.
 
 Conditions may trigger starting charging:
@@ -241,11 +184,15 @@ HTTP Interface:
 * POST http://localhost:1230 {"api":"set_conf","key":"enable","val":true} => {"status":0}
 * POST http://localhost:1230 {"api":"get_bat_info"} => {"status":0,"data":{"IsCharging":false,...}}
 * POST http://localhost:1230 {"api":"set_charge_status","flag":true} => {"status":0}
+* POST http://localhost:1230 {"api":"set_inflow_status","flag":true} => {"status":0}
 
+If you have better ideas, please join the project and push your code   
+Download URL:(https://github.com/lich4/ChargeLimiter/releases)    
+Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/+p0pwZCBDcH0zOGZl&color=red)    
+https://t.me/+p0pwZCBDcH0zOGZl   
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)
-
 
 ### Compile
 
@@ -257,6 +204,6 @@ HTTP Interface:
 ## Special Thanks
 
 * icon by elfulanopr
-
-
+* zh_TW by olivertzeng
+* dark mode by InnovatorPrime 
 

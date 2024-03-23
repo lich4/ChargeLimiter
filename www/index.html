@@ -486,7 +486,7 @@
           <el-switch :value="bat_info.ExternalChargeCapable" class="right" disabled></el-switch>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
+        <el-row class="py-2 col-item" click>
           <el-label>{{$t("ExternalConnected")}}</el-label>
           <el-tooltip class="item" effect="dark" :content="$t('inflow_btn_desc')">
             <span class="el-icon-warning-outline page-icon-sm"></span>
