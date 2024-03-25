@@ -16,6 +16,9 @@
 CL更费电吗?
 * 大多数用户感觉并不明显,CL的后台并不耗电,如果感觉确实耗电可以尝试关闭界面App和悬浮窗,或将更新频率调低到1分钟.
 
+CL支持第三方电池吗?
+* CL支持正版电池也支持大部分第三方品牌电池
+
 使用CL后能增加健康度吗？
 * 个人认为健康度递减是自然过程,软件更不可能直接修复硬件.不过有些用户使用CL一个月后确实健康度涨了.
 * 大部分使用者会明显延缓电池健康度下降速度.
@@ -128,6 +131,9 @@ Why should I use CL?
 
 Does CL consume more power?
 * Insensitive for most users. App and float window may consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
+
+Does CL support 3rd party battery?
+* CL support battery of most brands. 
 
 Will the battery health percentage increase after using CL for a period of time?
 * I don't think it's possible, especially for a software, but there are indeed some users have their battery health increased after using CL for a month.

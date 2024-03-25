@@ -536,13 +536,18 @@ NSString* getFrontMostBid() {
 - (void)setAirplaneModeWithoutMirroring:(BOOL)flag;
 @end
 
+static RadiosPreferences* getAirMan() {
+    static RadiosPreferences* radio = [objc_getClass("RadiosPreferences") new];
+    return radio;
+}
+
 BOOL isAirEnable() {
-    RadiosPreferences* radio = [objc_getClass("RadiosPreferences") new];
+    RadiosPreferences* radio = getAirMan();
     return radio.airplaneMode;
 }
 
 void setAirEnable(BOOL flag) {
-    RadiosPreferences* radio = [objc_getClass("RadiosPreferences") new];
+    RadiosPreferences* radio = getAirMan();
     if (radio.airplaneMode != flag) {
         [radio setAirplaneMode:flag];
     }
