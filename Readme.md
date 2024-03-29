@@ -1,4 +1,4 @@
-* [For English](#Instruction)
+* [For English](#Introduction)
 
 ## 介绍
 
@@ -23,6 +23,15 @@ CL支持第三方电池吗?
 * 个人认为健康度递减是自然过程,软件更不可能直接修复硬件.不过有些用户使用CL一个月后确实健康度涨了.
 * 大部分使用者会明显延缓电池健康度下降速度.
 * 极个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
+* 停充状态下一直连电源的情况下(非禁流),正常电流为0,健康度永久不掉.
+
+为什么手机用一会不充电了?(小白经常遇到的问题)
+* 本软件并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电
+* 本软件的设计思路就是减少充电次数,因此不会连着usb就充电,插电即充模式下需要重新插拔才会开始充电
+
+CL可以不依赖越狱或巨魔类工具吗?
+* CL需要用到私有API所以无法上架
+* CL需要用到特殊签名因此无法以常规IPA方式来安装
 
 ## 测试电池兼容性
 
@@ -37,7 +46,7 @@ CL支持第三方电池吗?
 
 * 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.过充/零电量充电/高温对电池会产生不良影响.
 * 插电即充模式适合普通用户使用,边缘触发模式适合工作室使用.
-* iPhone8及以上型号存在120秒设定充电状态延迟. iPad可能也存在.
+* iPhone8+存在120秒设定充电状态延迟. iPad可能也存在.
 * 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者本app查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定
 * 对于TrollStore环境,因任何原因导致的后台被杀(比如重启系统/重启用户空间/...),将导致App失效.
 * App不会连着线就自发充电,充电/停充都有触发条件,请仔细查看本页说明.
@@ -54,8 +63,8 @@ CL支持第三方电池吗?
 
 目前触发充电的条件：
 * 电量低于设定的最小值
-* 插电即充模式下在未插入电源情况下插入电源
-* 插电即充模式下温度低于设定的最小值(版本1.4起支持)
+* 插电即充模式下重新接入电源
+* 插电即充模式下温度低于设定的最小值
 
 目前触发停充的条件：
 * 电量高于设定的最大值
@@ -69,7 +78,7 @@ CL支持第三方电池吗?
 * cl:///nocharge/exit    打开CL,停用充电,退出CL  
 
 注意: 
-* iPhone8及以上存在至多120秒延迟
+* iPhone8+存在至多120秒延迟
 * 可以在个人自动化中的电量事件使用上述指令实现指定电量开始/停止充电,也可以和其他模式结合实现开机自启(比如打开某App时触发)
 
 HTTP接口(可配合快捷指令):
@@ -135,28 +144,39 @@ Does CL consume more power?
 Does CL support 3rd party battery?
 * CL support battery of most brands. 
 
+Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
+* CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
+* CL is designed to reduce the charging count, so it won't start charging for connecting to an adaptor in "Plug and charge" mode, but will start charging for re-connecting to an adaptor.
+
 Will the battery health percentage increase after using CL for a period of time?
 * I don't think it's possible, especially for a software, but there are indeed some users have their battery health increased after using CL for a month.
 * CL will slow down dropping speed of battery health for most users.
 * Health percentage may fluctuate in certain range. There are indeed little users keep dropping health after using CL, please stop using CL in this case.
+* Keep connecting to an adaptor and enable ChargeInhibit(without DisableInflow) as long as possible, the normal amperage should be 0mA, and the health of battery will never drop.
+
+* 停充状态下一直连电源的情况下,正常电流为0,健康度永久不掉.
+
+Is it possible to install CL without Jailbreak or TrollStore(-like) enviroment?
+* Private api is used in CL, so it is impossible to be published to Appstore.
+* Special entitlements is used CL, so it is impossible to be installed as common ipa files.
 
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
 * 1.Check compatibility of ChargeInhibit.Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
-* 2.Check compatibility of PredictiveChaargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
+* 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
 * 3.Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please stop and uninstall CL.
 
 ## Instruction
 
-* Some Studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80.
-* There is 120 seconds delay after setting the charging status after iPhone8, maybe the same for iPad.
+* Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80.
+* There is 120-seconds delay after setting the charging status for iPhone8+(equal or higher than), maybe the same for iPad.
 * The lightning icon of system status bar will not be updated in ChargeInhibit mode, the actual charging status can be found in 3utools(and similar) or CL, while it will be updated in DisableInflow mode(iPhone8+), this mode is enabled in "Advanced-Control inflow".
 * For TrollStore, if the daemon(of CL) get killed in any condition(such as system-reboot/userspace-reboot/...), CL will become invalid for not being able to restart daemon itself automatically.
 * CL only start/stop charging under certain conditions as show behind.
-* The real value stop on trigger is not necessarily equal to the target value, the difference may have sth. to do with the "120 seconds delay" after iPhone8, and charging speed.
+* The real value stop on trigger is not necessarily equal to the target value, the difference may have sth. to do with the "120 seconds delay" for iPhone8+, and charging speed.
 * Health, calculated with NominalChargeCapacity, with value higher than 100% indicates the battery must have been replaced before, and with more capacity than battery shipped with this model first released.
 * Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
 * InstantAmperage with positive value means the current flow into battery from adaptor, negative means the current flow into iDevice from battery without any adaptor. InstantAmperage should be 0mA normally in ChargeInhibit mode, in this case the current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (*In fact, keep connecting to any adaptor and stop charging, the health may never drop*). InstantAmperage should be negative in DisableInflow mode.
@@ -164,8 +184,8 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.
 
 Supported mode
-* "Plug and charge", iDevice will start charging when reconnected to an adaptor, and stop charging when capacity increase to max threshhold specified. Useful for individual.
-* "Edge trigger", iDevice will stop charging when capacity increase to max threshhold specified, and start charging only when capacity drop to min threshhold specified. Useful for developer & studio.
+* "Plug and charge", iDevice will start charging when reconnected to an adaptor, and stop charging when capacity increase to the max threshhold specified. Useful for individual.
+* "Edge trigger", iDevice will stop charging when capacity increase to the max threshhold specified, and start charging only when capacity drop to the min threshhold specified. Useful for developer & studio.
 
 Conditions may trigger starting charging:
 * Capacity lower than specified value

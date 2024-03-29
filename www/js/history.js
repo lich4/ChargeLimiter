@@ -1,8 +1,11 @@
-function get_field_range(data, field, ratio) {
+function get_field_range(data, field, ratio, positive) {
     const lr = ratio[0];
     const hr = ratio[1];
     var minv = data[0][field];
     var maxv = data[0][field];
+    if (positive == null) {
+        positive = true;
+    }
     data.forEach(x => {
         if (x[field] < minv) {
             minv = x[field];
@@ -15,7 +18,12 @@ function get_field_range(data, field, ratio) {
     if (rg == 0) {
         rg = (maxv * 0.1).toFixed(0);
     }
-    return [minv - lr * rg, maxv + hr * rg];
+    var min_ = minv - lr * rg;
+    if (positive && min_ < 0) {
+        min_ = 0;
+    }
+    var max_ = maxv + hr * rg;
+    return [min_, max_];
 }
 
 const i18n = new VueI18n({
@@ -82,7 +90,7 @@ const App = {
             });
         },
         init_chart: function() {
-            var amperage_range = get_field_range(this.stat_hour, "InstantAmperage", [5,1]);
+            var amperage_range = get_field_range(this.stat_hour, "InstantAmperage", [5,1], false);
             var stat_hour = this.stat_hour.slice(Math.max(this.stat_hour.length - 48, 0));
             new Chart(document.getElementById("hour_chart").getContext('2d'), {
                 type: "bar",

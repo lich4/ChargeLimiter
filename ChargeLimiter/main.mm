@@ -446,7 +446,7 @@ static BOOL isAdaptorConnect(NSDictionary* info) {
     NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
     NSNumber* ExternalConnected = info[@"ExternalConnected"];
     if (!ExternalConnected.boolValue) {
-        tryEnableInflowIfDisabled();
+        tryEnableInflowIfDisabled(); // iOS<=13禁流不影响ExternalChargeCapable所以必须用ExternalConnected判断
     }
     if (ExternalChargeCapable != nil) {
         return ExternalChargeCapable.boolValue;
@@ -1108,6 +1108,8 @@ int main(int argc, char** argv) {
                     NSFileLog(@"daemon alive"); // 用于诊断
                 }];
                 [NSRunLoop.mainRunLoop run];
+                NSFileLog(@"daemon unexpected");
+                return 0;
             } else if (0 == strcmp(argv[1], "floatwnd")) {
                 g_wind_type = 1;
                 static id<UIApplicationDelegate> appDelegate = [AppDelegate new];
@@ -1116,6 +1118,10 @@ int main(int argc, char** argv) {
                 [app setDelegate:appDelegate];
                 [app __completeAndRunAsPlugin];
                 CFRunLoopRun();
+                return 0;
+            } else if (0 == strcmp(argv[1], "reset")) { // 越狱下卸载前重置
+                resetBatteryStatus();
+                return 0;
             } else if (0 == strcmp(argv[1], "get_bat_info")) {
                 BOOL slim = argc == 3;
                 getBatInfo(&bat_info, slim);

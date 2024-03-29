@@ -277,7 +277,7 @@ const i18n = new VueI18n({
             noti: "通知",
             system: "系统",
             sec: "秒",
-            min: "分种",
+            min: "分钟",
             Serial: "序列号",
             BootVoltage: "开机电压(V)",
             Voltage: "电压(V)",
@@ -590,17 +590,6 @@ const App = {
                     "time": 3000,
                 });
                 return;
-            }
-            if (v) {
-                if (!this.bat_info.ExternalChargeCapable) {
-                    this.msg_list.push({
-                        "id": get_id(), 
-                        "title": this.$t("conn_adaptor"), 
-                        "type": "error",
-                        "time": 3000,
-                    });
-                    return;
-                }
             }
             this.ipc_send_wrapper({
                 api: "set_charge_status",

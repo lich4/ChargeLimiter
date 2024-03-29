@@ -326,7 +326,7 @@
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("adv")}}</el-label>
-          <el-switch v-model="enable_adv" class="right"></el-switch>
+          <span :class="['el-icon-arrow-'+(enable_adv?'down':'right'),'page-icon','right']" @click="enable_adv=!enable_adv"></span>
         </el-row>
         <template v-if="enable_adv">
           <el-divider class="my-0" direction="horizontal"></el-divider>
@@ -486,7 +486,7 @@
           <el-switch :value="bat_info.ExternalChargeCapable" class="right" disabled></el-switch>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item" click>
+        <el-row class="py-2 col-item click">
           <el-label>{{$t("ExternalConnected")}}</el-label>
           <el-tooltip class="item" effect="dark" :content="$t('inflow_btn_desc')">
             <span class="el-icon-warning-outline page-icon-sm"></span>
