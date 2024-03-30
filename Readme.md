@@ -23,11 +23,11 @@ CL支持第三方电池吗?
 * 个人认为健康度递减是自然过程,软件更不可能直接修复硬件.不过有些用户使用CL一个月后确实健康度涨了.
 * 大部分使用者会明显延缓电池健康度下降速度.
 * 极个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
-* 停充状态下一直连电源的情况下(非禁流),正常电流为0,健康度永久不掉.
+* 停充状态下一直连电源的情况下(非禁流),正常情况下电池电流为0,健康度永久不掉.
 
 为什么手机用一会不充电了?(小白经常遇到的问题)
-* 本软件并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电
-* 本软件的设计思路就是减少充电次数,因此不会连着usb就充电,插电即充模式下需要重新插拔才会开始充电
+* CL并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电
+* CL的设计思路就是减少充电次数,因此不会连着usb就充电,插电即充模式下需要重新插拔才会开始充电
 
 CL可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架
@@ -36,41 +36,42 @@ CL可以不依赖越狱或巨魔类工具吗?
 ## 测试电池兼容性
 
 &emsp;&emsp;在使用CL前需要测试电池兼容性,如果不支持请放弃使用
-* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电流(>=50mA)则无法支持停充(有些电池返回电流值有误,此时以实际电量变化为准).目前反馈不支持停充的电池包括但不限于:马拉松.
+* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=50mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).目前反馈不支持停充的电池包括但不限于:马拉松.
 * 2.测试电池是否支持智能停充.开启"高级-智能停充",其余同1.
-* 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持禁流(有些电池返回电流值有误,此时以实际电量变化为准).
+* 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请停止使用并卸载.
 
 ## 使用说明
 
-* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此App上下阈值默认设定为20/80.过充/零电量充电/高温对电池会产生不良影响.
+* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此CL上下阈值默认设定为20/80.过充/零电量充电/高温对电池会产生不良影响.
 * 插电即充模式适合普通用户使用,边缘触发模式适合工作室使用.
 * iPhone8+存在120秒设定充电状态延迟. iPad可能也存在.
-* 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者本app查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定
-* 对于TrollStore环境,因任何原因导致的后台被杀(比如重启系统/重启用户空间/...),将导致App失效.
-* App不会连着线就自发充电,充电/停充都有触发条件,请仔细查看本页说明.
+* 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者CL查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定
+* 对于TrollStore环境,因任何原因导致的后台被杀(比如重启系统/重启用户空间/...),将导致CL失效.
+* CL不会连着线就自发充电,充电/停充都有触发条件,请仔细查看本页说明.
 * 设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,产生5%差异值具体原因未知,与8系及以上存在设定延迟有关,也可能与充电速度有关.
 * 健康度与爱思助手保持一致,若健康度超过100%则说明新电池相比该代手机发行时的原始电池容量有升级.CL健康度是根据最大实际容量计算的.
 * 硬件电量若超过100%(或超过显示电量)可能是未校准或质量问题导致.
-* 电流为正说明从充电器流入电池,电流为负说明电池为设备供电.使用本软件且停充状态下一般电流为0,此时电流流经电池为设备供电,电池起到闭合电路作用(可以理解为导线),此时对电池的损耗应小于仅使用电池为设备供电.禁流状态下电流一般为负,此时电池损耗和正常使用一致.
-* 系统自带电池优化会导致本app失效,1.3版本起会自动关闭自带优化(但系统设置里不会显示).如果不使用本app需在系统设置中手动重置电池优化开关(先关后开).不推荐在过新的设备上使用,因为iPhone15起自带电池优化已经很完善.
-* 本项目是开放式项目,如果有兴趣参与或者对本项目有建议的的欢迎参提交代码.本软件纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.本软件承诺永久免费且无广告,但因为使用本软件导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用本App即为默认同意本条款.     
+* 电池电流为正说明从充电器流入电池,电池电流为负说明电池为设备供电.使用CL且停充状态下电池电流一般为0,此时电流流经电池为设备供电,电池起到闭合电路作用(可以理解为导线),此时对电池的损耗应小于仅使用电池为设备供电.禁流状态下电池电流一般为负,此时电池损耗和正常使用一致.
+* 系统自带电池优化会导致CL失效,1.3版本起会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).不推荐在过新的设备上使用,因为iPhone15起自带电池优化已经很完善.
+* CL是开放式项目,如果有兴趣参与或者对CL有建议的的欢迎参提交代码.CL纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.CL承诺永久免费且无广告,但因为使用CL导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用CL即为默认同意本条款.     
 
-支持的模式:
+### 支持的模式:
 * 插电即充,重新接入电源时开始充电, 电量到达指定上限时停止充电, 适合个人使用.
 * 边缘触发,电量到达指定下限时开始充电, 电量到达指定上限时停止充电, 适合工作室使用.
 
-目前触发充电的条件：
+### 目前触发充电的条件
 * 电量低于设定的最小值
 * 插电即充模式下重新接入电源
 * 插电即充模式下温度低于设定的最小值
 
-目前触发停充的条件：
+### 目前触发停充的条件
 * 电量高于设定的最大值
 * 温度高于设定的最大值
 
-快捷指令(适用于某些巨魔用户存在后台被杀导致软件失效的情况):
+### 快捷指令
+(适用于某些巨魔用户存在后台被杀导致软件失效的情况):  
 +新建快捷指令 - 添加操作 - 类别 - "网页" - "Safari浏览器" - "打开URL"(以下是URL内容,标题自己设置)
 * cl:///                        打开CL
 * cl:///exit                    打开CL,退出CL(仅拉起后台)
@@ -81,7 +82,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 * iPhone8+存在至多120秒延迟
 * 可以在个人自动化中的电量事件使用上述指令实现指定电量开始/停止充电,也可以和其他模式结合实现开机自启(比如打开某App时触发)
 
-HTTP接口(可配合快捷指令):
+### HTTP接口(可配合快捷指令)
 * POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}
 * * enable 全局开关 
 * * charge_below 电量最小值 
@@ -144,7 +145,7 @@ Why should I use CL?
 * Want to control the temparature during charging
 
 Does CL consume more power?
-* Insensitive for most users. App and float window may consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
+* Insensitive for most users. App UI and float window may consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
 
 Does CL support 3rd party battery?
 * CL support battery of most brands. 
@@ -186,21 +187,21 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * CL is not compatible with "Optimized Battery Charging" of Settings.app. After v1.4 CL will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
 * This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.
 
-Supported mode
+### Supported mode
 * "Plug and charge", iDevice will start charging when reconnected to an adaptor, and stop charging when capacity increase to the max threshhold specified. Useful for individual.
 * "Edge trigger", iDevice will stop charging when capacity increase to the max threshhold specified, and start charging only when capacity drop to the min threshhold specified. Useful for developer & studio.
 
-Conditions may trigger starting charging:
+### Conditions may trigger starting charging:
 * Capacity lower than specified value
 * Plug in an adaptor once!!! in "Plug and charge" mode.
 * Temparature lower than specified value
 
-Conditions may trigger stoping charging:
+### Conditions may trigger stoping charging:
 * Capacity higher than specified value
 * Temparature higher than specified value
 
-For Shortcuts.app:   
-New Shortcut - Add Action - Web - Safari - Open URLs   
+### For Shortcuts.app
+New Shortcut - Add Action - Web - Safari - Open URLs    
 * cl:///                         (open CL)
 * cl:///exit                   (open CL, exit CL, launch daemon only)
 * cl:///charge              (open CL, start charging)
@@ -208,7 +209,7 @@ New Shortcut - Add Action - Web - Safari - Open URLs
 * cl:///nocharge         (open CL, stop charging)
 * cl:///nocharge/exit  (open CL, stop charging, exit CL)
 
-HTTP Interface:
+### HTTP Interface
 * POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}
 * POST http://localhost:1230 {"api":"set_conf","key":"enable","val":true} => {"status":0}
 * POST http://localhost:1230 {"api":"get_bat_info"} => {"status":0,"data":{"IsCharging":false,...}}
