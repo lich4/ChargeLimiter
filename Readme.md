@@ -115,6 +115,11 @@ HTTP接口(可配合快捷指令):
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn2.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn3.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn_stat0.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn_stat1.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn_night.png)
 
 ### 编译
 
@@ -144,21 +149,19 @@ Does CL consume more power?
 Does CL support 3rd party battery?
 * CL support battery of most brands. 
 
-Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
-* CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
-* CL is designed to reduce the charging count, so it won't start charging for connecting to an adaptor in "Plug and charge" mode, but will start charging for re-connecting to an adaptor.
-
 Will the battery health percentage increase after using CL for a period of time?
 * I don't think it's possible, especially for a software, but there are indeed some users have their battery health increased after using CL for a month.
 * CL will slow down dropping speed of battery health for most users.
 * Health percentage may fluctuate in certain range. There are indeed little users keep dropping health after using CL, please stop using CL in this case.
 * Keep connecting to an adaptor and enable ChargeInhibit(without DisableInflow) as long as possible, the normal amperage should be 0mA, and the health of battery will never drop.
 
-* 停充状态下一直连电源的情况下,正常电流为0,健康度永久不掉.
+Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
+* CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
+* CL is designed to reduce the charging count, so it won't start charging for connecting to an adaptor in "Plug and charge" mode, but will start charging for re-connecting to an adaptor.
 
 Is it possible to install CL without Jailbreak or TrollStore(-like) enviroment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
-* Special entitlements is used CL, so it is impossible to be installed as common ipa files.
+* Special entitlements is used in CL, so it is impossible to be installed as common ipa files.
 
 ## Compatibility
 
@@ -219,6 +222,12 @@ https://t.me/+p0pwZCBDcH0zOGZl
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en2.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en3.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en_stat0.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en_stat1.png)
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en_night.png)
+
 
 ### Compile
 

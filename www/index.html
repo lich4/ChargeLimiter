@@ -234,25 +234,31 @@
           </el-select>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
-          <el-label>{{$t("mode")}}</el-label>
-          <el-tooltip class="item" effect="dark" :content="$t(mode+'_desc')">
-            <span class="el-icon-warning-outline page-icon-sm"></span>
-          </el-tooltip>
-          <el-select v-model="mode" size="mini" class="right" style="width:45%" @change="change_mode">
-            <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
-          </el-select>
-        </el-row>
+        <div class="py-2 col-item">
+          <el-row>
+            <el-label>{{$t("mode")}}</el-label>
+            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['mode']=!show_tips['mode']"></span>
+            <el-select v-model="mode" size="mini" class="right" style="width:45%" @change="change_mode">
+              <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
+            </el-select>
+          </el-row>
+          <el-row class="subtitle" v-if="show_tips['mode']">
+            {{$t(mode+'_desc')}}
+          </el-row>
+        </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
-          <el-label>{{$t("update_freq")}}</el-label>
-          <el-tooltip class="item" effect="dark" :content="$t('update_freq_desc')">
-            <span class="el-icon-warning-outline page-icon-sm"></span>
-          </el-tooltip>
-          <el-select v-model="update_freq" size="mini" class="right" style="width:45%" @change="change_update_freq">
-            <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
-          </el-select>
-        </el-row>
+        <div class="py-2 col-item">
+          <el-row>
+            <el-label>{{$t("update_freq")}}</el-label>
+            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['update']=!show_tips['update']"></span>
+            <el-select v-model="update_freq" size="mini" class="right" style="width:45%" @change="change_update_freq">
+              <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
+            </el-select>
+          </el-row>
+          <el-row class="subtitle" v-if="show_tips['update']">
+            {{$t('update_freq_desc')}}
+          </el-row>
+        </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-col></el-col>
@@ -282,13 +288,16 @@
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
         </template>
-        <el-row class="py-2 col-item">
-          <el-label>{{$t("acc_charge")}}</el-label>
-          <el-tooltip class="item" effect="dark" :content="$t('acc_charge_desc')">
-            <span class="el-icon-warning-outline page-icon-sm"></span>
-          </el-tooltip>
-          <el-switch :value="acc_charge" class="right" @change="set_acc_charge"></el-switch>
-        </el-row>
+        <div class="py-2 col-item">
+          <el-row>
+            <el-label>{{$t("acc_charge")}}</el-label>
+            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['acc']=!show_tips['acc']"></span>
+            <el-switch :value="acc_charge" class="right" @change="set_acc_charge"></el-switch>
+          </el-row>
+          <el-row class="subtitle" v-if="show_tips['acc']">
+            {{$t('acc_charge_desc')}}
+          </el-row>
+        </div>
         <template v-if="acc_charge">
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item">
@@ -381,7 +390,7 @@
             </el-label>
           </el-col>
           <el-col :span="12">
-            <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.CurrentCapacity" color="#34c759"></el-progress>
+            <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.CurrentCapacity" color="#34c759" text-color="white"></el-progress>
           </el-col>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
@@ -390,7 +399,7 @@
             <el-label>{{$t("Health")}}</el-label>
           </el-col>
           <el-col :span="12">
-            <el-progress :text-inside="true" :stroke-width="24" :percentage="get_health(bat_info)" color="#4d7ffc"></el-progress>
+            <el-progress :text-inside="true" :stroke-width="24" :percentage="get_health(bat_info)" color="#4d7ffc" text-color="white"></el-progress>
           </el-col>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
@@ -399,17 +408,20 @@
             <el-label>{{$t("Temperature")}}</el-label>
           </el-col>
           <el-col :span="12">
-            <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.Temperature/100+30" :format="get_temp_desc" color="#f8801b"></el-progress>
+            <el-progress :text-inside="true" :stroke-width="24" :percentage="bat_info.Temperature/100+30" :format="get_temp_desc" color="#f8801b" text-color="white"></el-progress>
           </el-col>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item click">
-          <el-label>{{$t("IsCharging")}}</el-label>
-          <el-tooltip class="item" effect="dark" :content="$t('charge_btn_desc')">
-            <span class="el-icon-warning-outline page-icon-sm"></span>
-          </el-tooltip>
-          <el-switch :value="bat_info.IsCharging" class="right" @change="set_charge_status"></el-switch>
-        </el-row>
+        <div class="py-2 col-item">
+          <el-row class="click">
+            <el-label>{{$t("IsCharging")}}</el-label>
+            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['charge']=!show_tips['charge']"></span>
+            <el-switch :value="bat_info.IsCharging" class="right" @change="set_charge_status"></el-switch>
+          </el-row>
+          <el-row class="subtitle" v-if="show_tips['charge']">
+            {{$t('charge_btn_desc')}}
+          </el-row>
+        </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("BatteryInstalled")}}</el-label>
@@ -486,13 +498,16 @@
           <el-switch :value="bat_info.ExternalChargeCapable" class="right" disabled></el-switch>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item click">
-          <el-label>{{$t("ExternalConnected")}}</el-label>
-          <el-tooltip class="item" effect="dark" :content="$t('inflow_btn_desc')">
-            <span class="el-icon-warning-outline page-icon-sm"></span>
-          </el-tooltip>
-          <el-switch :value="bat_info.ExternalConnected" class="right" @change="set_inflow_status"></el-switch>
-        </el-row>
+        <div class="py-2 col-item">
+          <el-row class="click">
+            <el-label>{{$t("ExternalConnected")}}</el-label>
+            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['inflow']=!show_tips['inflow']"></span>
+            <el-switch :value="bat_info.ExternalConnected" class="right" @change="set_inflow_status"></el-switch>
+          </el-row>
+          <el-row class="subtitle" v-if="show_tips['inflow']">
+            {{$t('inflow_btn_desc')}}
+          </el-row>
+        </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("WirelessCharge")}}</el-label>

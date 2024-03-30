@@ -84,5 +84,5 @@ todos:
 * 由于几个iPhone6长期过充导致电池鼓包,本人开发这个项目,在2024/02/03一天内开发完成并上传github
 
 1.0 ChangeLog:
-* There were several iPhone's batteries of mine bulging, so I established this project, done coding in one day in 2024/02/03, and published to github
+* Some batteries of my iPhones were bulging due to long time overcharge, so I established this project, done coding in one day in 2024/02/03, and published to github
 

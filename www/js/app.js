@@ -146,8 +146,8 @@ const i18n = new VueI18n({
             nocharge_above: "Stop charging if capacity above(%)",
             nocharge_temp_above: "Stop charging if temperature above(°C)",
             charge_temp_below: "Recover charging if temperature below(°C)",
-            charge_btn_desc: "This button used to manually start or stop charging, the charging icon on system status bar is invalid, just ignore it",
-            inflow_btn_desc: "This button used to manually start or stop inflow",
+            charge_btn_desc: "This button is used to manually start or stop charging, the charging icon on system status bar is invalid, just ignore it",
+            inflow_btn_desc: "This button is used to manually start or stop inflow",
             enable: "Enable",
             floatwnd: "Floating window",
             mode: "mode",
@@ -469,6 +469,7 @@ const App = {
             modes: null,
             actions: null,
             cuffmods: null,
+            show_tips: {},
         }
     },
     methods: {
