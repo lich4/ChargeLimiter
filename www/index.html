@@ -222,10 +222,17 @@
           <el-switch :value="enable" class="right" @change="set_enable"></el-switch>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
-          <el-label>{{$t("floatwnd")}}</el-label>
-          <el-switch :value="floatwnd" class="right" @change="set_floatwnd"></el-switch>
-        </el-row>
+        <div class="py-2 col-item">
+          <el-row>
+            <el-label>{{$t("floatwnd")}}</el-label>
+            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['floatwnd_auto']=!show_tips['floatwnd_auto'];"></span>
+            <el-switch :value="floatwnd" class="right" @change="set_floatwnd"></el-switch>
+          </el-row>
+          <el-row class="mt-2 subtitle" v-if="show_tips['floatwnd_auto']">
+            <el-label>{{$t("autohide")}}</el-label>
+            <el-switch :value="floatwnd_auto" class="right" @change="set_floatwnd_auto"></el-switch>
+          </el-row>
+        </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("lang")}}</el-label>
@@ -284,7 +291,7 @@
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item" v-if="mode=='charge_on_plug'">
             <el-label class="submenu">{{$t("charge_temp_below")}}</el-label>
-            <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="10" :max="charge_temp_above-5" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
+            <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="15" :max="charge_temp_above-1" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
         </template>

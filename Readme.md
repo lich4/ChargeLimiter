@@ -3,8 +3,10 @@
 ## 介绍
 
 &emsp;&emsp;ChargeLimiter(CL)是针对iOS开发的AlDente替代工具,适用于长时间过充情况下保护电池健康度.  
-&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa),目前支持iOS12-17.(注意: TrollStore环境下安装新版之前请先卸载旧版)   
+&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa),目前支持iOS12-16.6.(注意: TrollStore环境下安装新版之前请先卸载旧版)   
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
+
+&emsp;&emsp;由于本人缺少iOS17.0设备做开发和测试,CL v1.4.1起无法完全兼容iOS17.0.
 
 ## 常见问题
 
@@ -22,7 +24,7 @@ CL支持第三方电池吗?
 使用CL后能增加健康度吗？
 * 个人认为健康度递减是自然过程,软件更不可能直接修复硬件.不过有些用户使用CL一个月后确实健康度涨了.
 * 大部分使用者会明显延缓电池健康度下降速度.
-* 极个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
+* 个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
 * 停充状态下一直连电源的情况下(非禁流),正常情况下电池电流为0,健康度永久不掉.
 
 为什么手机用一会不充电了?(小白经常遇到的问题)
@@ -36,11 +38,15 @@ CL可以不依赖越狱或巨魔类工具吗?
 ## 测试电池兼容性
 
 &emsp;&emsp;在使用CL前需要测试电池兼容性,如果不支持请放弃使用
-* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=50mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).目前反馈不支持停充的电池包括但不限于:马拉松.
+* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=50mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 2.测试电池是否支持智能停充.开启"高级-智能停充",其余同1.
 * 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请停止使用并卸载.
+
+品牌反馈(欢迎汇报数据给我):
+* 反馈不支持停充的电池: 马拉松1例.
+* 反馈不支持智能停充的电池(开启智能停充会掉健康度): 品胜1例.
 
 ## 使用说明
 
@@ -81,6 +87,8 @@ CL可以不依赖越狱或巨魔类工具吗?
 注意: 
 * iPhone8+存在至多120秒延迟
 * 可以在个人自动化中的电量事件使用上述指令实现指定电量开始/停止充电,也可以和其他模式结合实现开机自启(比如打开某App时触发)
+
+集成快捷指令(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
 
 ### HTTP接口(可配合快捷指令)
 * POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}
@@ -133,16 +141,18 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice from getting overcharged, which will cause damage to the battery.     
     
-Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa). Currently support iOS12-17.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
+Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
       
-Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.
+Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.      
+
+Due to the lack of devices with iOS17.0 to test with, CL v1.4.1+ will not fully support iOS17.0.
 
 ## Questions
 
 Why should I use CL?
 * iDevice always connected to an adaptor
 * iDevice always charged overnight
-* Want to control the temparature during charging
+* Want to control the temperature during charging
 
 Does CL consume more power?
 * Insensitive for most users. App UI and float window may consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
@@ -169,7 +179,7 @@ Is it possible to install CL without Jailbreak or TrollStore(-like) enviroment?
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
 * 1.Check compatibility of ChargeInhibit.Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
-* 3.Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 3.Check compatibility of DisableInflow. Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please stop and uninstall CL.
 
@@ -194,11 +204,11 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 ### Conditions may trigger starting charging:
 * Capacity lower than specified value
 * Plug in an adaptor once!!! in "Plug and charge" mode.
-* Temparature lower than specified value
+* Temperature lower than specified value
 
 ### Conditions may trigger stoping charging:
 * Capacity higher than specified value
-* Temparature higher than specified value
+* Temperature higher than specified value
 
 ### For Shortcuts.app
 New Shortcut - Add Action - Web - Safari - Open URLs    
@@ -208,6 +218,8 @@ New Shortcut - Add Action - Web - Safari - Open URLs
 * cl:///charge/exit       (open CL, start charging, exit CL)
 * cl:///nocharge         (open CL, stop charging)
 * cl:///nocharge/exit  (open CL, stop charging, exit CL)
+
+Integrated shortcut(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
 
 ### HTTP Interface
 * POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}

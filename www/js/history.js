@@ -170,7 +170,7 @@ const App = {
                             position: "left",
                             type: "linear",
                             min: 0,
-                            max: 120,
+                            max: 60,
                             ticks: {
                                 callback: function(value) {
                                     return value>50?"":value + '°C';

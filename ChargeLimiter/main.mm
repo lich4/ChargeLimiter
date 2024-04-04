@@ -269,18 +269,41 @@ static AppDelegate* _app = nil;
             
             CFNotificationCenterAddObserver(center, (__bridge const void *)self, [](CFNotificationCenterRef center, void* observer, CFStringRef name, void const* object, CFDictionaryRef userInfo) {
                 @autoreleasepool {
-                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
-                        NSString* bid = getFrontMostBid();
-                        NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
-                        if (bid == nil || [bid isEqualToString:self_bid] || [bid isEqualToString:@"com.apple.springboard"]) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                _app.webview.hidden = NO;
-                            });
-                        } else {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                _app.webview.hidden = YES;
-                            });
+#define     FRONTMOST_DELAY   20
+                    static int last_access_time = 0;
+                    static bool in_process = false;
+                    int ts = (int)time(0);
+                    last_access_time = ts;
+                    if (in_process) {
+                        return;
+                    }
+                    NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
+                    NSArray* white_list = @[@"", self_bid, @"com.apple.springboard", @"com.apple.AccessibilityUIServer"];
+                    static NSString* old_bid = self_bid; // 悬浮窗从CL诞生
+                    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                        in_process = true;
+                        for (int i = ts; i < last_access_time + FRONTMOST_DELAY; i++) { // 每次通知增加上限时间,等待bid变化
+                            NSString* cur_bid = getFrontMostBid();
+                            if (![old_bid isEqualToString:cur_bid]) {
+                                NSNumber* floatwnd_auto = getlocalKV(@"floatwnd_auto");
+                                if (floatwnd_auto.boolValue) {
+                                    if ([white_list containsObject:cur_bid]) {
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                            _app.webview.hidden = NO;
+                                        });
+                                    } else {
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                            _app.webview.hidden = YES;
+                                        });
+                                    }
+                                }
+                                old_bid = cur_bid;
+                                break; // 已变化,满足条件退出
+                            }
+                            old_bid = cur_bid;
+                            [NSThread sleepForTimeInterval:1.0];
                         }
+                        in_process = false;
                     });
                 }
             }, CFSTR("com.apple.mobile.SubstantialTransition"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
@@ -303,6 +326,8 @@ static AppDelegate* _app = nil;
     [self speedUpWebView: webview];
     if (isDarkMode()) {
         [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
+    } else {
+        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(false)"];
     }
     [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
 }
@@ -582,12 +607,15 @@ static void performAcccharge(BOOL flag) {
 
 static NSDictionary* messages = @{
     @"en": @{
+        @"start_charge": @"Start charging",
         @"stop_charge": @"Stop charging",
     },
     @"zh_CN": @{
+        @"start_charge": @"开始充电",
         @"stop_charge": @"停止充电",
     },
     @"zh_TW": @{
+        @"start_charge": @"開始充電",
         @"stop_charge": @"停止充電",
     }
 };
@@ -702,17 +730,21 @@ static void onBatteryEvent(io_service_t serv) {
             if (isAdaptorNewConnect(old_bat_info, bat_info)) {
                 NSFileLog(@"start charging for plug in");
                 if (0 == setBatteryStatus(YES)) {
+                    performAction(@"start_charge");
                     performAcccharge(YES);
                 }
                 return;
             }
             if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
-                if (isAdaptorConnect(bat_info)) {
-                    NSFileLog(@"start charging for low temperature");
-                    if (0 == setBatteryStatus(YES)) {
-                        performAcccharge(YES);
+                if (!is_charging.boolValue) {
+                    if (isAdaptorConnect(bat_info)) {
+                        NSFileLog(@"start charging for low temperature");
+                        if (0 == setBatteryStatus(YES)) {
+                            performAction(@"start_charge");
+                            performAcccharge(YES);
+                        }
+                        return;
                     }
-                    return;
                 }
             }
         }
@@ -724,6 +756,7 @@ static void onBatteryEvent(io_service_t serv) {
                 if (isAdaptorConnect(bat_info)) {
                     NSFileLog(@"start charging for capacity");
                     if (0 == setBatteryStatus(YES)) {
+                        performAction(@"start_charge");
                         performAcccharge(YES);
                     }
                     return;
@@ -753,6 +786,7 @@ static void initConf() {
         @"adv_prefer_smart": @YES, // iPhone8+ iOS13+
         @"adv_predictive_inhibit_charge": @(predictive_inhibit_charge_avail), // iPhone8+ iOS13+
         @"adv_disable_inflow": @NO, // all (iPhone8+ iOS13+会改变系统充电图标)
+        @"floatwnd_auto": @NO,
         @"adv_skip_wait": @NO,
         @"action": @"",
         @"stat_hour": @[],
@@ -1094,7 +1128,7 @@ int main(int argc, char** argv) {
                     signal(SIGTERM, SIG_IGN); // 防止App被Kill以后daemon退出
                 } else {
                     platformize_me(); // for jailbreak
-                    set_memory_limit(getpid(), 80);
+                    set_mem_limit(getpid(), 80);
                 }
                 [Service.inst serve];
                 atexit_b(^{

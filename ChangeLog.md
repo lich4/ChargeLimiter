@@ -41,7 +41,7 @@ todos:
 1.4 ChangeLog:
 * Speed up charging
 * Floating window(draggable;tap to enable/disable)
-* Start charging when temparature above specified value  
+* Start charging when temperature above specified value  
 
 1.3版本更新日志:
 * 解决开启"优化电池充电"导致本工具无效的问题

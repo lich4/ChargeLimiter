@@ -150,6 +150,7 @@ const i18n = new VueI18n({
             inflow_btn_desc: "This button is used to manually start or stop inflow",
             enable: "Enable",
             floatwnd: "Floating window",
+            autohide: "Auto hide",
             mode: "mode",
             charge_on_plug: "Plug and charge",
             charge_on_plug_desc: "iDevice will start charging when replug the USB cable, and stop charging when capacity increase to max threshhold specified",
@@ -246,6 +247,7 @@ const i18n = new VueI18n({
             inflow_btn_desc: "此按钮用于手动开始或停止禁流",
             enable: "开启",
             floatwnd: "悬浮窗",
+            autohide: "自动隐藏",
             mode: "模式",
             charge_on_plug: "插电即充",
             charge_on_plug_desc: "(重新)插入电源后开始充电,到达指定的最大电量时停止充电",
@@ -342,6 +344,7 @@ const i18n = new VueI18n({
             inflow_btn_desc: "此按鈕用於手動開始或停止禁流",
             enable: "開啟",
             floatwnd: "懸浮窗",
+            autohide: "自動隱藏",
             mode: "模式",
             charge_on_plug: "插電即充",
             charge_on_plug_desc: "(重新)插入電源後充電直到到達指定的最大電量時停止充電",
@@ -438,6 +441,7 @@ const App = {
             sysver: "",
             devmodel: "",
             floatwnd: false,
+            floatwnd_auto: false,
             mode: "charge_on_plug",
             msg_list: [],
             bat_info: {},
@@ -469,7 +473,14 @@ const App = {
             modes: null,
             actions: null,
             cuffmods: null,
-            show_tips: {},
+            show_tips: {
+                floatwnd_auto: false,
+                mode: false,
+                update: false,
+                acc: false,
+                charge: false,
+                inflow: false,
+            },
         }
     },
     methods: {
@@ -517,7 +528,7 @@ const App = {
                 val: v,
             });
             this.enable = v;
-            setTimeout(this.get_conf, tmout * 1000);
+            setTimeout(this.get_conf, 1000);
         },
         set_floatwnd: function(v) {
             this.ipc_send_wrapper({
@@ -526,14 +537,26 @@ const App = {
                 val: v,
             });
             this.floatwnd = v;
-            setTimeout(this.get_conf, tmout * 1000);
+            setTimeout(this.get_conf, 1000);
+        },
+        set_floatwnd_auto: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "floatwnd_auto",
+                val: v,
+            });
+            this.floatwnd_auto = v;
+            if (this.floatwnd) {
+                this.set_floatwnd(false);
+            }
+            setTimeout(this.get_conf, 1000);
         },
         set_inflow_status: function(v) {
             this.ipc_send_wrapper({
                 api: "set_inflow_status",
                 flag: v,
             });
-            setTimeout(this.get_bat_info, tmout * 1000);
+            setTimeout(this.get_bat_info, 1000);
         },
         set_charge_status_cb: function(jdata) {
             var that = this;
@@ -604,7 +627,7 @@ const App = {
                 key: "charge_below",
                 val: v,
             });
-            setTimeout(this.get_conf, tmout * 1000);
+            setTimeout(this.get_conf, 1000);
         },
         set_charge_above: function(v) {
             this.ipc_send_wrapper({
@@ -612,7 +635,7 @@ const App = {
                 key: "charge_above",
                 val: v,
             });
-            setTimeout(this.get_conf, tmout * 1000);
+            setTimeout(this.get_conf, 1000);
         },
         change_mode: function(v) {
             this.ipc_send_wrapper({
@@ -620,7 +643,7 @@ const App = {
                 key: "mode",
                 val: v,
             });
-            setTimeout(this.get_conf, tmout * 1000);
+            setTimeout(this.get_conf, 1000);
         },
         change_action: function(v) {
             this.ipc_send_wrapper({
@@ -628,7 +651,7 @@ const App = {
                 key: "action",
                 val: v,
             });
-            setTimeout(this.get_conf, tmout * 1000);
+            setTimeout(this.get_conf, 1000);
         },
         set_use_smart: function(v) {
             this.ipc_send_wrapper({
@@ -660,7 +683,7 @@ const App = {
             setTimeout(this.get_conf, 1000);
         },
         get_health: function(item) {
-            return Math.floor(item["NominalChargeCapacity"] / item["DesignCapacity"] * 100);
+            return (item["NominalChargeCapacity"] / item["DesignCapacity"] * 100).toFixed(2);
         },
         get_hardware_capacity: function() {
             var v = (this.bat_info.AppleRawCurrentCapacity / this.bat_info.NominalChargeCapacity * 100).toFixed(2);
@@ -704,7 +727,7 @@ const App = {
         get_temp_desc: function() {
             var centigrade = this.bat_info.Temperature / 100;
             var fahrenheit = t_c_to_f(centigrade);
-            return centigrade.toFixed(0) + "°C/" + fahrenheit.toFixed(0) + "°F";
+            return centigrade.toFixed(1) + "°C/" + fahrenheit.toFixed(1) + "°F";
         },
         set_enable_temp: function(v) {
             this.ipc_send_wrapper({
@@ -814,6 +837,7 @@ const App = {
             this.sysver = jdata.data.sysver;
             this.devmodel = jdata.data.devmodel;
             this.floatwnd = jdata.data.floatwnd;
+            this.floatwnd_auto = jdata.data.floatwnd_auto;
             this.mode = jdata.data.mode;
             this.lang = jdata.data.lang;
             if (this.lang && this.lang != get_local_lang()) {

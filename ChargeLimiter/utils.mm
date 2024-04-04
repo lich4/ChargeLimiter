@@ -40,7 +40,7 @@ typedef struct memorystatus_priority_entry {
 extern "C" {
 int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void* buffer, size_t buffersize);
 }
-static int32_t get_mem_limit(int pid) {
+int32_t get_mem_limit(int pid) {
     int rc = memorystatus_control(MEMORYSTATUS_CMD_GET_PRIORITY_LIST, 0, 0, 0, 0);
     if (rc < 1) {
         return -1;
@@ -58,7 +58,7 @@ static int32_t get_mem_limit(int pid) {
     return limit;
 }
 
-int set_memory_limit(int pid, int mb) {
+int set_mem_limit(int pid, int mb) {
     if (get_mem_limit(pid) < mb) { // 单位MB
         return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_HIGH_WATER_MARK, pid, mb, 0, 0);
     }
@@ -506,10 +506,10 @@ NSString* getFrontMostBid() {
         static mach_port_t sb_port = SBSSpringBoardServerPort_();
         char buf[PATH_MAX];
         memset(buf, 0, sizeof(buf));
-        NSString* bid = nil;
+        NSString* bid = @"";
         SBFrontmostApplicationDisplayIdentifier_(sb_port, buf);
         if (buf[0] < 'A' || buf[0] > 'z') { // 缓冲区有乱码
-            bid = nil;
+            bid = @"";
         } else {
             bid = @(buf);
         }
@@ -522,11 +522,14 @@ NSString* getFrontMostBid() {
         if (appInfo != nil) {
             NSNumber* isFrontMost = appInfo[@"BKSApplicationStateAppIsFrontmost"];
             if (isFrontMost.boolValue) {
-                return appInfo[@"SBApplicationStateDisplayIDKey"];
+                if (appInfo[@"SBApplicationStateDisplayIDKey"] != nil) {
+                    return appInfo[@"SBApplicationStateDisplayIDKey"];
+                }
+                return @"";
             }
         }
     }
-    return nil;
+    return @"";
 }
 
 
@@ -745,7 +748,7 @@ NSString* getPPMSimulationMode() {
     return mode;
 }
 
-void setPPMSimulationMode(NSString* mode) { // off/nominal/light/moderate/heavy
+void setPPMSimulationMode(NSString* mode) {
     NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
     [defs setObject:mode forKey:@"ppmSimulationMode"]; // off/nominal/light/moderate/heavy
     [defs synchronize];
