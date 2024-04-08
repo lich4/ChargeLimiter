@@ -6,7 +6,7 @@
 &emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa),目前支持iOS12-16.6.(注意: TrollStore环境下安装新版之前请先卸载旧版)   
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
 
-&emsp;&emsp;由于本人缺少iOS17.0设备做开发和测试,CL v1.4.1起无法完全兼容iOS17.0.
+![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/banner.jpg)
 
 ## 常见问题
 
@@ -35,6 +35,12 @@ CL可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架
 * CL需要用到特殊签名因此无法以常规IPA方式来安装
 
+## 已知问题
+
+* 由于缺少开发环境和设备, CL可能不兼容iOS<=11.x, v1.4.1起无法完全兼容iOS17+.
+* 悬浮窗暂不支持iOS<=12.x.
+* DEB版本CL可能会由于某些tweak导致启动卡屏,这并非CL本身的bug,这些tweak注入到com.apple.UIKit,可以在此目录寻找:/Library/MobileSubstrate/DynamicLibraries(有根),或/var/jb/Library/MobileSubstrate/DynamicLibraries(无根).
+
 ## 测试电池兼容性
 
 &emsp;&emsp;在使用CL前需要测试电池兼容性,如果不支持请放弃使用
@@ -43,6 +49,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请停止使用并卸载.
+* 高级菜单中的默认选项适合绝大多数电池, 也可以自行DIY以最大程度减缓电池健康度下降速度
 
 品牌反馈(欢迎汇报数据给我):
 * 反馈不支持停充的电池: 马拉松1例.
@@ -145,9 +152,7 @@ Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollSt
       
 Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.      
 
-Due to the lack of devices with iOS17.0 to test with, CL v1.4.1+ will not fully support iOS17.0.
-
-## Questions
+## FAQ
 
 Why should I use CL?
 * iDevice always connected to an adaptor
@@ -174,6 +179,12 @@ Is it possible to install CL without Jailbreak or TrollStore(-like) enviroment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
 * Special entitlements is used in CL, so it is impossible to be installed as common ipa files.
 
+## Known issues
+
+* Due to the lack of devices to test with, CL may not supported on iOS<=11, and v1.4.1+ may not fully supported on iOS17+.
+* Floating window is not supported on iOS<=12.
+* For deb version, some tweaks will cause CL to stuck at SplashScreen, it's not a bug of CL itself. these tweaks, injected into com.apple.UIKit, can be found in /Library/MobileSubstrate/DynamicLibraries(rootful), and /var/jb/Library/MobileSubstrate/DynamicLibraries(rootless).
+
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
@@ -182,6 +193,7 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * 3.Check compatibility of DisableInflow. Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please stop and uninstall CL.
+* For the items in Advanced menu, default configuration is suitable for most batteries, DIY them to minimize the dropping speed of health of battery.
 
 ## Instruction
 
