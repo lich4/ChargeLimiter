@@ -72,23 +72,18 @@
       overflow-y: hidden;
     }
       
-    body, input, div {
-      -webkit-overflow-scrolling: touch;
-      -webkit-touch-callout: none;
+    div, el-label, .el-select > .el-input > .el-input__inner, .el-switch, .el-select {
       -webkit-user-select: none;
-      -khtml-user-select: none;
-      user-select: none;
+      -webkit-overflow-scrolling: touch;
     }
 
     [v-cloak] {
       display: none;
     }
     
-    a, el-label {
-      -webkit-touch-callout: default;
+    body, a {
       -webkit-user-select: auto;
-      -khtml-user-select: auto;
-      user-select: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     #page_body {
@@ -143,14 +138,6 @@
       color: #409EFF;
     }
 
-    .wordwrap { 
-      white-space: pre-wrap;      /* CSS3 */   
-      white-space: -moz-pre-wrap; /* Firefox */    
-      white-space: -pre-wrap;     /* Opera <7 */   
-      white-space: -o-pre-wrap;   /* Opera 7 */    
-      word-wrap: break-word;      /* IE */
-    }
-
     .subtitle {
       color: grey;
       font-size: 13px
@@ -170,6 +157,19 @@
       font-size: 13px;
     }
 
+    .subsubmenu {
+      margin-left: 20px;
+      font-size: 10px;
+    }
+
+    .input_number > .el-col > .el-row > .el-input-number {
+      width: 120px;
+    }
+
+    .input_number > .el-input-number {
+      width: 140px;
+    }
+
     .el-card {
       border-radius: 15px;
     }
@@ -180,6 +180,10 @@
 
     .el-dialog__body {
       padding: 0px;
+    }
+
+    .el-progress-bar__inner {
+      text-align: left !important;
     }
 
     .el-slider__marks-text {
@@ -215,8 +219,9 @@
     <div id="page_body" v-loading="loading">
       <el-row class="mx-4 px-1 pt-2">
         <span class="subtitle">{{$t("setting")}}</span>
+        <span :class="['el-icon-'+(show_tips['setting']?'remove':'circle-plus'),'page-icon-sm','right']" @click="show_tips['setting']=!show_tips['setting']"></span>
       </el-row>
-      <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
+      <el-card class="box-card mx-3 mb-2 px-2" shadow="never" v-if="show_tips['setting']">
         <el-row class="py-2 col-item">
           <el-label>{{$t("enable")}}</el-label>
           <el-switch :value="enable" class="right" @change="set_enable"></el-switch>
@@ -236,7 +241,7 @@
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("lang")}}</el-label>
-          <el-select v-model="i18n.locale" size="mini" class="right" style="width:45%" @change="change_lang">
+          <el-select v-model="i18n.locale" size="mini" class="right" style="width:140px" @change="change_lang">
             <el-option v-for="i in Object.keys(i18n.messages)" :key="i" :label="i18n.messages[i].label" :value="i"></el-option>
           </el-select>
         </el-row>
@@ -245,7 +250,7 @@
           <el-row>
             <el-label>{{$t("mode")}}</el-label>
             <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['mode']=!show_tips['mode']"></span>
-            <el-select v-model="mode" size="mini" class="right" style="width:45%" @change="change_mode">
+            <el-select v-model="mode" size="mini" class="right" style="width:140px" @change="change_mode">
               <el-option v-for="i in modes" :key="i.value" :label="i.label" :value="i.value"></el-option>
             </el-select>
           </el-row>
@@ -258,7 +263,7 @@
           <el-row>
             <el-label>{{$t("update_freq")}}</el-label>
             <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['update']=!show_tips['update']"></span>
-            <el-select v-model="update_freq" size="mini" class="right" style="width:45%" @change="change_update_freq">
+            <el-select v-model="update_freq" size="mini" class="right" style="width:140px" @change="change_update_freq">
               <el-option v-for="i in freqs" :key="i.value" :label="i.label" :value="i.value"></el-option>
             </el-select>
           </el-row>
@@ -267,34 +272,63 @@
           </el-row>
         </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
-          <el-col></el-col>
-          <el-label>{{$t("charge_below")}}</el-label>
-          <el-slider v-model="charge_below" class="pr-1" :min="5" :max="80" :step="1" :marks="marks_perc" @change="set_charge_below"></el-slider>
+        <el-row class="py-2 col-item input_number">
+          <el-col :span="12">
+            <el-row><el-label>{{$t("start_charge")}}</el-label></el-row>
+            <el-row><el-label class="submenu">{{$t("CurrentCapacity")}} ≤</el-label></el-row>
+          </el-col>
+          <el-col :span="12" class="mt-3">
+            <el-row class="right">
+              <el-input-number v-model="charge_below" size="mini" :min="5" :max="80" :step="5" @change="set_charge_below"></el-input-number>
+              %
+            </el-row>
+          </el-col>
         </el-row>
-        <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
-          <el-label>{{$t("nocharge_above")}}</el-label>
-          <el-slider v-model="charge_above" class="pr-1" :min="charge_below+5" :max="100" :step="1" :marks="marks_perc" @change="set_charge_above"></el-slider>
+        <el-row class="py-2 col-item input_number">
+          <el-col :span="12">
+            <el-row><el-label>{{$t("stop_charge")}}</el-label></el-row>
+            <el-row><el-label class="submenu">{{$t("CurrentCapacity")}} ≥</el-label></el-row>
+          </el-col>
+          <el-col :span="12" class="mt-3">
+            <el-row class="right">
+              <el-input-number v-model="charge_above" size="mini" :min="charge_below+5" :max="100" :step="5" @change="set_charge_above"></el-input-number>
+              %
+            </el-row>
+          </el-col>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("temp_ctrl")}}</el-label>
           <el-switch :value="enable_temp" class="right" @change="set_enable_temp"></el-switch>
         </el-row>
-        <el-divider class="my-0" direction="horizontal"></el-divider>
         <template v-if="enable_temp">
-          <el-row class="py-2 col-item">
-            <el-label class="submenu">{{$t("nocharge_temp_above")}}</el-label>
-            <el-slider class="mx-3" v-model="charge_temp_above" class="pr-1" :min="20" :max="45" :step="1" :marks="marks_temp" @change="set_charge_temp_above" disable></el-slider>
+          <el-row class="pb-2 col-item input_number">
+            <el-col :span="10">
+              <el-row><el-label class="submenu">{{$t("stop_charge")}}</el-label></el-row>
+              <el-row><el-label class="submenu">{{$t("Temperature")}} ≥</el-label></el-row>
+            </el-col>
+            <el-col :span="14" class="mt-3">
+              <el-row class="right">
+                <el-input-number style="width:100px" v-model="charge_temp_above" size="mini" :min="20" :max="50" :step="1" @change="set_charge_temp_above"></el-input-number>
+                <el-label style="font-size:10px">{{" = "+t_c_to_f(charge_temp_above).toFixed(0)+"°F"}}</el-label>
+              </el-row>
+            </el-col>
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item" v-if="mode=='charge_on_plug'">
-            <el-label class="submenu">{{$t("charge_temp_below")}}</el-label>
-            <el-slider class="mx-3" v-model="charge_temp_below" class="pr-1" :min="15" :max="charge_temp_above-1" :step="1" :marks="marks_temp" @change="set_charge_temp_below" disable></el-slider>
+            <el-col :span="10">
+              <el-row><el-label class="submenu">{{$t("start_charge")}}</el-label></el-row>
+              <el-row><el-label class="submenu">{{$t("Temperature")}} ≤</el-label></el-row>
+            </el-col>
+            <el-col :span="14" class="mt-3">
+              <el-row class="right">
+                <el-input-number style="width:100px" v-model="charge_temp_below" size="mini" :min="10" :max="charge_temp_above-1" :step="1" @change="set_charge_temp_below"></el-input-number>
+                <el-label style="font-size:10px">{{" = "+t_c_to_f(charge_temp_below).toFixed(0)+"°F"}}</el-label>
+              </el-row>
+            </el-col>
           </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
         </template>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
         <div class="py-2 col-item">
           <el-row>
             <el-label>{{$t("acc_charge")}}</el-label>
@@ -335,7 +369,7 @@
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
           <el-label>{{$t("action")}}</el-label>
-          <el-select v-model="action" size="mini" class="right" style="width:45%" @change="change_action">
+          <el-select v-model="action" size="mini" class="right" style="width:140px" @change="change_action">
             <el-option v-for="i in actions" :key="i.value" :label="i.label" :value="i.value"></el-option>
           </el-select>
         </el-row>
@@ -360,31 +394,59 @@
             <el-label class="submenu">{{$t("adv_disable_inflow")}}</el-label>
             <el-switch :value="adv_disable_inflow" class="right" @change="set_disable_inflow"></el-switch>
           </el-row>
-          <!--<el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label class="submenu">{{$t("adv_thermal_simulate")}}</el-label>
-            <el-select v-model="thermal_simulate_mode" size="mini" class="right" style="width:45%">
-              <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
-            </el-select>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label class="submenu">{{$t("thermal_simulate_mode")}}</el-label>
-            <el-label class="right">{{$t(thermal_simulate_mode)}}</el-label>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label class="submenu">{{$t("adv_ppm_simulate")}}</el-label>
-            <el-select v-model="ppm_simulate_mode" size="mini" class="right" style="width:45%">
-              <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
-            </el-select>
-          </el-row>
-          <el-divider class="my-0" direction="horizontal"></el-divider>
-          <el-row class="py-2 col-item">
-            <el-label class="submenu">{{$t("ppm_simulate_mode")}}</el-label>
-            <el-label class="right">{{$t(ppm_simulate_mode)}}</el-label>
-          </el-row>-->
+          <template v-if="adv_thermal_avail">
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+            <div class="py-2 col-item">
+              <el-row>
+                <el-label class="submenu">{{$t("adv_thermal_simulate")}}</el-label>
+                <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['cuff']=!show_tips['cuff']"></span>
+                <el-label class="submenu right">{{$t(thermal_simulate_mode)}}</el-label>
+              </el-row>
+              <el-row class="submenu subtitle" v-if="show_tips['cuff']">
+                {{$t('adv_thermal_simulate_desc')}}
+              </el-row>
+              <el-row class="pt-1">
+                <el-label class="submenu">{{$t("set")}}</el-label>
+                <el-select v-model="adv_def_thermal_mode" size="mini" class="right" style="width:140px" @change="change_def_thermal_mode">
+                  <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
+                </el-select>
+              </el-row>
+            </div>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+            <div class="py-2 col-item">
+              <el-row>
+                <el-label class="submenu">{{$t("adv_ppm_simulate")}}</el-label>
+                <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['ppm']=!show_tips['ppm']"></span>
+              </el-row>
+              <el-row class="submenu subtitle" v-if="show_tips['ppm']">
+                {{$t("adv_ppm_simulate_desc")}}
+              </el-row>
+              <el-row class="pt-1">
+                <el-label class="submenu">{{$t("set")}}</el-label>
+                <el-select v-model="ppm_simulate_mode" size="mini" class="right" style="width:140px" @change="change_ppm_mode">
+                  <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
+                </el-select>
+              </el-row>
+            </div>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+            <el-row class="py-2 col-item">
+              <el-label class="submenu">{{$t("adv_limit_inflow")}}</el-label>
+              <el-switch :value="adv_limit_inflow" class="right" @change="set_limit_inflow"></el-switch>
+              <template v-if="adv_limit_inflow">
+                <el-row class="col-item my-1">
+                  <el-label class="subsubmenu">{{$t("adv_thermal_simulate")}}</el-label>
+                  <el-select v-model="adv_limit_inflow_mode" size="mini" class="right" style="width:140px" @change="change_limit_inflow_mode">
+                    <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
+                  </el-select>
+                </el-row>
+              </template>
+            </el-row>
+          </template>
         </template>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <div style="text-align: center;">
+          <div class="my-2 click" @click="reset_conf">{{$t("reset")}}</div>
+        </div>
       </el-card>  
       <el-row class="mx-4 px-1 pt-2">
         <span class="subtitle">{{$t("batinfo")}}</span>
@@ -453,6 +515,11 @@
         <el-row class="py-2 col-item">
           <el-label>{{$t("HardwareCapacity")}}</el-label>
           <el-label class="right">{{get_hardware_capacity()}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("Amperage")}}</el-label>
+          <el-label class="right">{{bat_info.Amperage}}</el-label>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
@@ -583,11 +650,11 @@
         </el-row>
         <el-row class="subtitle">
           <el-label>QQ群</el-label>
-          <el-label class="right">669869453</el-label>
+          <el-label class="right">754802907</el-label>
         </el-row>
         <el-row class="subtitle">
           <el-label>Telegram</el-label>
-          <a class="right noclick subtitle">https://t.me/+p0pwZCBDcH0zOGZl</a>
+          <a class="right noclick subtitle">https://t.me/chargelimiter</a>
         </el-row>
         <el-row class="subtitle">
           <el-label>Email</el-label>
@@ -599,3 +666,4 @@
   </div>
 </body>
 </html>
+

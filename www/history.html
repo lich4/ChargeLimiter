@@ -42,17 +42,29 @@
     body {
       background-color: rgb(239, 239, 244);
     }
+
+    .page-icon {
+      font-size: 30px;
+    }
+
+    canvas {
+      font-family: "FontAwesome";
+    }
   </style>
 </head>
 
 <body>
   <div id="app" class="m-2">
     <div id="page_header">
-      <el-row class="mx-2">
+      <el-row class="mx-2 pt-2">
         <div class="page_title">
-          <i class="el-icon-arrow-left" @click="ret_main"></i>
+          <i class="el-icon-arrow-left page-icon" @click="ret_main"></i>
         </div>
       </el-row>
+    </div>
+    <div style="text-align: center;" class="mb-3">
+      <span style="margin-bottom:0">{{$t("stat_min5")}}</span>
+      <canvas id="min5_chart" ></canvas>
     </div>
     <div style="text-align: center;" class="mb-3">
       <span style="margin-bottom:0">{{$t("stat_hour")}}</span>

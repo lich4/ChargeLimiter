@@ -1,0 +1,119 @@
+## ChargeLimiter
+
+ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice from getting overcharged, which will cause damage to the battery.     
+
+Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
+
+Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.      
+
+This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.    
+
+## FAQ
+
+Why should I use CL?
+* iDevice always connected to a power source
+* iDevice always charged overnight
+* Want to control the temperature during charging
+
+Does CL consume more power?
+* Insensitive for most users. App UI and float window may consume a little power if frequancy is 1sec. if you feel the capacity dropping fast, try to set the update frequency to 1min.
+
+Does CL support 3rd party battery?
+* CL support battery of most brands. 
+
+Will the battery health percentage increase after using CL for a period of time?
+* I don't think it's possible, especially for a software, but there are indeed some users have their battery health increased after using CL for a month.
+* CL will slow down dropping speed of battery health for most users.
+* Health percentage may fluctuate in certain range. There are indeed little users keep dropping health after using CL, please stop using CL in this case.
+* Keep connecting to a power source and enable ChargeInhibit(without DisableInflow) as long as possible, the normal amperage should be 0mA, and the health of battery will never drop.
+
+Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
+* CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
+* CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
+
+Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
+* Private api is used in CL, so it is impossible to be published to Appstore.
+* Special entitlements is used in CL, so it is impossible to be installed as common ipa files.
+
+## Compatibility
+
+Please test battery compatibility before using CL, stop and uninstall CL if unsupported
+* 1.Check compatibility of ChargeInhibit.Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
+* 3.Check compatibility of DisableInflow. Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
+* If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
+
+## Notice
+
+* For iPhone8+(equal or higher than), there is 120-seconds delay after setting the charging status , maybe the same for iPad.
+* In ChargeInhibit mode, The lightning icon of system status bar will not be updated, and the actual charging status can be found in 3utools(and similar) or CL, while it will be updated in DisableInflow mode(iPhone8+), this mode is enabled in "Advanced-Control inflow".
+* For TrollStore, if the daemon(of CL) get killed in any condition(such as system-reboot/userspace-reboot/...), CL will become invalid for not being able to restart daemon itself automatically.
+* CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, it will only start/stop charging under certain conditions as show behind.
+* CL is not compatible with "Optimized Battery Charging" of Settings.app. sCL will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
+
+## Instruction
+
+### "Enable" button
+
+Enable or disable CL globally. CL will become an readonly observer if disabled, and shows battery information only.
+
+### Floating window
+
+* View battery information and daemon status in realtime
+* Drag to move anywhere.
+* Tap to enable or disable CL globally. same as "Enable" button.
+* Hide itself when other Apps in foreground if "Auto hide" enabled.
+
+### Mode
+
+"Plug and charge" mode is for individual, charge and discharge at any time, triggers as follows:
+* Start charging on replug the USB cable if condition meets.
+* Start charging if curren capacity lower than specified value.
+* Stop charging if curren capacity higher than specified value.
+* Start charging if temperature lower than specified value.
+* Stop charging if temperature higher than specified value.
+
+"Edge trigger" mode is for developer & studio, with iDevice always connecting to an power source, triggers as follows:
+* Start charging if curren capacity lower than specified value.
+* Stop charging if curren capacity higher than specified value.
+* Stop charging if temperature higher than specified value.
+
+### Update frequency
+
+* Update frequency is data updating speed of UI, both App UI and floating window.
+* Lower frequency, more power maybe saved. Insensitive to most users with 1sec, it's up to you.
+
+### The threshhold 
+
+* Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80/10/35. Long-time-overcharged/Out of power/High temperature will do harm to the battery.
+* Please set temperature threshhold according to "History-Hourly Data".
+* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% mostly, a little users got 3-5% , this may have sth. to do with the "120 seconds delay" for iPhone8+, and charging speed.
+
+### Action
+
+Action on trigger start/stop charging. Please reset it after reinstalling/updating CL.
+
+### Advanced
+
+* For "SmartBattery" and "Predictive charging inhibit", default configuration is for most users. Recombination them to find the best configuration for yourself.
+* Auto inhibit inflow, DisableInflow mode is for batteries doesn't support ChargeInhibit mode, iDevice will start to consume power of battery after stopping charging if enabled.
+* Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage.
+* Peak Power, control peak power performance under low temperature or low capacity, Do not change it unless you know what you are doing.
+* Auto limit inflow, apply thermal simulation against high temperature and health dropping of the batteries losing control of Amperage. You can find the fitful level in this way: Start charging when current capacity below 30%(the lower capacity, the higher amperage), try to select "Advanced-Thermal simulate" level(from "Norminal" to "Heavy", the higher level, the lower amperage), a few seconds later, we shall see the amperage changed. When you catch the acceptable amperage value, set the level to "Advanced-Auto limit inflow-Thermal simulation". In this case, the thermal simulate level will be set to level specified in "Advanced-Auto limit inflow-Thermal simulation" automatically when CL start charging, and will be set to default level specified in "Advanced-Thermal simulate" when CL stop charging.
+
+### Battery Information
+
+* Health, calculated with NominalChargeCapacity, with value higher than 100% indicates the battery must have been replaced before, and with more capacity than battery shipped with this model first released.
+* Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
+* InstantAmperage with positive value means the current flow into battery from the power source, negative means the current flow into iDevice from battery without any power source. InstantAmperage should be 0mA normally in ChargeInhibit mode, in this case the current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (*In fact, keep connecting to any power source and stop charging, the health may never drop*). InstantAmperage should be negative in DisableInflow mode.
+
+### History
+
+&emsp;&emsp;Show battery status for a period of time, slide horizontally to shift time, and click the legend to hide or show specific source.
+
+* Five minute data, show battery status in detail for each charge or discharge cycle, including CurrentCapacity/Temperature/Amperage.
+* Hourly data, show battery status for all charge or discharge cycles, including CurrentCapacity/Temperature/Amperage.
+* Daily data, show battery health in detail for each day.
+* Monthly data, show battery health for each month.
+

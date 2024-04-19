@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <sys/utsname.h>
 #include <sys/sysctl.h>
+#include <notify.h>
 
 int platformize_me() {
     int ret = 0;
@@ -321,7 +322,7 @@ BOOL localPortOpen(int port) {
     connect(sock, (struct sockaddr*)&ip4, sizeof(ip4));
     FD_ZERO(&fdset);
     FD_SET(sock, &fdset);
-    tv.tv_sec = 3;
+    tv.tv_sec = 1;
     tv.tv_usec = 0;
     if (select(sock + 1, NULL, &fdset, NULL, &tv) == 1) {
         socklen_t len = sizeof(so_error);
@@ -341,6 +342,7 @@ NSString* getAppEXEPath() {
 
 int getJBType() {
     /*  EXE和DAEMON路径可能不同,需要综合判断
+        注意本函数里不能直接从特殊路径存在直接判断,因为可能有巨魔/越狱混合环境
         有根越狱: /Applications/ChargeLimiter.app/ChargeLimiter (也可能是roothide)
         无根越狱: /var/jb/Applications/ChargeLimiter.app/ChargeLimiter
                 [/private]/preboot/[UUID]/jb-[UUID]/procursus/Applications/ChargeLimiter.app/ChargeLimiter
@@ -351,33 +353,42 @@ int getJBType() {
 #ifdef THEOS_PACKAGE_INSTALL_PREFIX
     return JBTYPE_ROOTLESS;
 #endif
-    NSString* path = getAppEXEPath();
+    Dl_info di;
+    dladdr((void*)getJBType, &di);
+    NSString* path = @(di.dli_fname);
     if ([path hasPrefix:@"/Applications"]) {
         return JBTYPE_ROOT; // may be roothide for daemon
     }
     if ([path hasPrefix:@"/private"]) {
         path = [path substringFromIndex:8];
     }
-    if ([path hasPrefix:@"/var/jb"]) {
+    if ([path hasPrefix:@"/var/jb"] || [path hasPrefix:@"/preboot"]) {
         return JBTYPE_ROOTLESS;
     }
-    NSArray* parts = [path componentsSeparatedByString:@"/"];
-    if (parts.count < 4) {
+    if ([path containsString:@".app/"]) { // for App
+        if ([path hasPrefix:@"/Applications"]) {
+            return JBTYPE_ROOT;
+        }
+        NSArray* parts = [path componentsSeparatedByString:@"/"];
+        if (parts.count < 4) {
+            return JBTYPE_UNKNOWN;
+        }
+        NSString* path_3 = parts[parts.count - 3];
+        if (path_3.length == 36) { // UUID
+            return JBTYPE_TROLLSTORE;
+        }
+        NSString* path_4 = parts[parts.count - 4];
+        if ([path_4 hasPrefix:@".jbroot-"]) {
+            return JBTYPE_ROOTHIDE;
+        }
         return JBTYPE_UNKNOWN;
+    } else { // for Tweak/Daemon
+        return JBTYPE_ROOT;
+        // todo
     }
-    NSString* path_3 = parts[parts.count - 3];
-    if (path_3.length == 36) { // UUID
-        return JBTYPE_TROLLSTORE;
-    }
-    NSString* path_4 = parts[parts.count - 4];
-    if ([path_4 hasPrefix:@".jbroot-"]) {
-        return JBTYPE_ROOTHIDE;
-    }
-    return JBTYPE_ROOT;
 }
 
 void NSFileLog(NSString* fmt, ...) {
-#define LOG_PATH    "/var/root/aldente.log"
     va_list va;
     va_start(va, fmt);
     NSDateFormatter* formatter = [NSDateFormatter new];
@@ -724,33 +735,93 @@ void setAutoBrightEnable(BOOL flag) {
     BKSDisplayBrightnessSetAutoBrightnessEnabled(flag);
 }
 
-NSString* getThermalSimulationMode() {
-    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
-    NSString* mode = [defs objectForKey:@"thermalSimulationMode"];
-    if (mode == nil) {
-        mode = @"off";
+NSDictionary* getThermalData() {
+    if (@available(iOS 11.0, *)) {
+        int mib[2] = {CTL_HW, HW_MODEL};
+        char buf[256];
+        size_t sz = sizeof(buf);
+        sysctl(mib, 2, buf, &sz, 0, 0);
+        NSString* path = [NSString stringWithFormat:@"/System/Library/Watchdog/ThermalMonitor.bundle/%s.bundle/Info.plist", buf];
+        if (@available(iOS 13.0, *)) {
+            path = [NSString stringWithFormat:@"/System/Library/ThermalMonitor/%s-Info.plist", buf];
+        }
+        return [NSDictionary dictionaryWithContentsOfFile:path];
     }
-    return mode;
+    return nil;
+}
+
+NSString* getPerfManState() {
+    if (@available(iOS 11.0, *)) {
+        static int token = 0;
+        if (token == 0) {
+            notify_register_check("com.apple.thermalmonitor.ageAwareMitigationState", &token);
+        }
+        if (token != 0) {
+            uint64_t state = 0;
+            notify_get_state(token, &state);
+            if (state == 1) { // PPC_PERFMGMT_ENABLED
+                return @"enable";
+            } else if (state == 2) { // PPC_PERFMGMT_DISABLED
+                return @"disable";
+            } else if (state == 3) { // PPC_PERFMGMT_USER_DISABLED
+                return @"user_disable";
+            } else {
+                return @"unknown";
+            }
+        }
+    }
+    return @"off";
+}
+
+void DisablePerfMan() {
+    notify_post("com.apple.thermalmonitor.ageAwareMitigationsDisabled");
+}
+
+NSString* getThermalSimulationMode() {
+    if (@available(iOS 11.0, *)) {
+        switch (NSProcessInfo.processInfo.thermalState) {
+            case NSProcessInfoThermalStateNominal:
+                return @"nominal";
+            case NSProcessInfoThermalStateFair:
+                return @"light";
+            case NSProcessInfoThermalStateSerious:
+                return @"moderate";
+            case NSProcessInfoThermalStateCritical:
+                return @"heavy";
+        }
+    }
+    return @"off";
 }
 
 void setThermalSimulationMode(NSString* mode) {
-    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
-    [defs setObject:mode forKey:@"thermalSimulationMode"]; // off/nominal/light/moderate/heavy
-    [defs synchronize];
+    if (@available(iOS 11.0, *)) {
+        NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+        [defs setObject:mode forKey:@"thermalSimulationMode"]; // off/nominal/light/moderate/heavy
+        [defs synchronize];
+    }
 }
 
+static NSString* ppm_mode = nil;
 NSString* getPPMSimulationMode() {
-    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
-    NSString* mode = [defs objectForKey:@"ppmSimulationMode"];
-    if (mode == nil) {
-        mode = @"off";
+    if (@available(iOS 11.0, *)) {
+        if (ppm_mode == nil) {
+            NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+            ppm_mode = [defs objectForKey:@"ppmSimulationMode"];
+            if (ppm_mode == nil) {
+                ppm_mode = @"off";
+            }
+        }
+        return ppm_mode;
     }
-    return mode;
+    return @"off";
 }
 
 void setPPMSimulationMode(NSString* mode) {
-    NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
-    [defs setObject:mode forKey:@"ppmSimulationMode"]; // off/nominal/light/moderate/heavy
-    [defs synchronize];
+    if (@available(iOS 11.0, *)) {
+        NSUserDefaults* defs = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.cltm"];
+        [defs setObject:mode forKey:@"ppmSimulationMode"]; // off/nominal/light/moderate/heavy
+        [defs synchronize];
+        ppm_mode = mode;
+    }
 }
 

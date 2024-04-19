@@ -1,20 +1,7 @@
-#include <arpa/inet.h>
-#include <dlfcn.h>
-#include <ifaddrs.h>
-#include <objc/runtime.h>
-#include <spawn.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ifndef UTILS_H
+#define UTILS_H
 
-#import <Foundation/Foundation.h>
-#import <os/log.h>
-#import <UIKit/UIKit.h>
-
-#define NSLog2(FORMAT, ...) os_log(OS_LOG_DEFAULT,"%{public}@", [NSString stringWithFormat:FORMAT, ##__VA_ARGS__])
-
-extern NSString* log_prefix;
+#include "common.h"
 
 @interface LSApplicationProxy : NSObject
 @property (nonatomic, readonly) NSString* bundleIdentifier;
@@ -80,8 +67,14 @@ void setLocEnable(BOOL flag);
 float getBrightness();
 void setBrightness(float val);
 void setAutoBrightEnable(BOOL flag);
+
+NSDictionary* getThermalData();
+NSString* getPerfManState();
+void DisablePerfMan();
 NSString* getThermalSimulationMode();
 void setThermalSimulationMode(NSString* mode);
 NSString* getPPMSimulationMode();
 void setPPMSimulationMode(NSString* mode);
+
+#endif // UTILS_H
 

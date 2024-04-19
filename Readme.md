@@ -9,6 +9,12 @@
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/banner.jpg)
 
+## 已知BUG
+
+* 由于缺少开发环境和设备, CL可能不兼容iOS<=11.x, v1.4.1起无法完全兼容iOS17+.
+* 悬浮窗暂不支持iOS<=12.x.
+* DEB版本CL可能会由于某些tweak导致启动卡屏,这并非CL本身的bug,这些tweak注入到com.apple.UIKit,可以在此目录寻找:/Library/MobileSubstrate/DynamicLibraries(有根),或/var/jb/Library/MobileSubstrate/DynamicLibraries(无根).
+
 ## 常见问题
 
 什么情况下需要用CL?
@@ -36,24 +42,23 @@ CL可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架.
 * CL需要用到特殊签名因此无法以常规IPA方式来安装.
 
-## 已知问题
-
-* 由于缺少开发环境和设备, CL可能不兼容iOS<=11.x, v1.4.1起无法完全兼容iOS17+.
-* 悬浮窗暂不支持iOS<=12.x.
-* DEB版本CL可能会由于某些tweak导致启动卡屏,这并非CL本身的bug,这些tweak注入到com.apple.UIKit,可以在此目录寻找:/Library/MobileSubstrate/DynamicLibraries(有根),或/var/jb/Library/MobileSubstrate/DynamicLibraries(无根).
+夏天怎样降低电池温度?
+* 使用CL的Powercuff功能减少硬件用电量,充电状态下会同时降低充电功率
+* 充电状态下,使用低功率充电头充电
+* 购买手机散热器
 
 ## 测试电池兼容性
 
 &emsp;&emsp;在使用CL前需要测试电池兼容性,如果不支持请放弃使用
-* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=50mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).
+* 1.测试电池是否支持停充.在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=5mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 2.测试电池是否支持智能停充.开启"高级-智能停充",其余同1.
-* 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=50mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
+* 3.测试电池是否支持禁流.在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=5mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请自行调整高级菜单中的选项或卸载CL.
 
 品牌反馈(欢迎汇报数据给我):
 * 反馈不支持停充的电池: 马拉松1例.
-* 反馈不支持智能停充的电池(开启智能停充会掉健康度): 品胜1例.
+* 反馈不支持智能停充的电池(开启智能电池会掉健康度): 品胜1例.
 
 ## 使用前必看
 
@@ -90,6 +95,11 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 电量高于设定值时停止充电
 * 温度高于设定值时停止充电
 
+&emsp;&emsp;触发优先级从高到低: 
+* 充电(电量极低)
+* 停充(电量>温度)
+* 充电(电量>温度>插电)
+
 ### 更新频率
 
 * 更新频率用于设定CL界面App和悬浮窗的数据更新频率.
@@ -97,10 +107,9 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 ### 阈值设定
 
-&emsp;&emsp;有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此CL阈值默认设定为20/80/10/35,长期过充/零电量充电/高温对电池会产生不良影响.    
-&emsp;&emsp;温度阈值的设定,可根据"历史统计-小时数据"的温度数据设置合适的阈值.   
-&emsp;&emsp;设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,产生5%差异值具体原因未知,与8系及以上存在设定延迟有关,也可能与充电速度有关.   
-&emsp;&emsp;自动限流中电流阈值的设定,可在电量小于30%时充电,电量越低时充电电流越高,得到最大充电电流值并设置合适的电流值到"高级-自动限流-瞬时电流"中.此时手动设置"高级-高温模拟-设置",等级从"正常"到"轻度",设置后几秒内可以观察到电流会逐渐降低,达到合适的电流值,将该等级设置到"高级-自动限流-高温模拟"中.   
+* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此CL阈值默认设定为20/80/10/35,长期过充/零电量充电/高温对电池会产生不良影响.    
+* 温度阈值的设定,可根据"历史统计-小时数据"的温度数据设置合适的阈值.   
+* 设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,差异值与120秒延迟有关,与充电速度有关,也与电池质量有关.停充后如果存在微弱电流可能造成差值.
 
 ### 行为
 
@@ -111,14 +120,23 @@ CL可以不依赖越狱或巨魔类工具吗?
 * SmartBattery和智能停充,绝大多数用户使用默认配置即可,非正版电池如果使用默认配置导致健康度异常下降,可以自定义以最大程度减缓健康度下降速度.
 * 自动禁流,用于兼容不支持停充的电池.开启禁流后等同于消耗电池电量,此时电池损耗和正常使用一致.
 * 高温模拟,Powercuff,温度越高,硬件(充电器/CPU/背光/无线通信)耗电越少,手机越卡顿,充电电流电压也越低.
-* 峰值性能,用于控制低温和电池性能较差时的峰值性能,不建议修改.
-* 自动限流,用于自身流控不好的电池,电流过大会导致电池温度过高,健康度下降.确定合适的等级: 可在电量小于30%时充电,电量越低时充电电流越高,手动设置"高级-高温模拟-设置"(等级从"正常"到"轻度",等级越高电流越小),每次设置后几秒内可以观察到电流变化,达到合适的电流值时,将该等级设置到"高级-自动限流-高温模拟"中.自动限流在充电时自动设置为指定高温模拟等级(高级-自动限流-高温模拟),停充时自动恢复到默认等级(高级-高温模拟-设置).
+* 峰值性能,用于控制低温和电量不足时的峰值性能,不建议修改.
+* 自动限流,用于自身流控不好的电池,电流过大会导致电池温度过高,健康度下降.选择合适的高温模拟等级: 可在电量小于30%时充电,电量越低时充电电流越高,手动设置"高级-高温模拟-设置"(等级从"正常"到"轻度",等级越高电流越小),每次设置后几秒内可以观察到电流变化,达到合适的电流值时,将该等级设置到"高级-自动限流-高温模拟"中.自动限流在充电时自动设置为指定高温模拟等级(高级-自动限流-高温模拟),停充时自动恢复到默认等级(高级-高温模拟-设置).
 
 ### 电池信息
 
 * 健康度与爱思助手保持一致,若健康度超过100%则说明新电池相比该代手机发行时的原始电池容量有升级.CL健康度是根据最大实际容量计算的.
 * 硬件电量若超过100%(或超过显示电量)可能是未校准或质量问题导致.
 * 电流以"瞬时电流"为准,电池电流为正说明从充电器流入电池,电池电流为负说明电池为设备供电.使用CL且停充状态下电池电流一般为0,此时电流流经电池为设备供电,电池起到闭合电路作用(可以理解为导线),此时对电池的损耗应小于仅使用电池为设备供电.禁流状态下电池电流一般为负.
+
+### 历史统计
+
+&emsp;&emsp;统计图用于查看一段时间内的电池状态,左右滑动可时移,点击上方标签可显示或隐藏特定指标
+
+* 五分钟数据图,详细展示每次充放电时的电量/温度/电流及充电状态
+* 小时数据图,概览充放电时的电量/温度/电流变化及充电状态
+* 天数据图,详细展示每天健康度变化
+* 月数据图,概览每月健康度变化
 
 ### 快捷指令
 (适用于某些巨魔用户存在服务被杀导致软件失效的情况):  
@@ -135,6 +153,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 集成快捷指令(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
 
 ### HTTP接口(可配合快捷指令)
+
 * POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}
 * * enable 全局开关 
 * * charge_below 电量最小值 
@@ -191,6 +210,12 @@ Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Pa
 
 This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.    
 
+## Known issues
+
+* Due to the lack of devices to test with, CL may not supported on iOS<=11, and v1.4.1+ may not fully supported on iOS17+.
+* Floating window is not supported on iOS<=12.
+* For deb version, some tweaks will cause CL to stuck at SplashScreen, it's not a bug of CL itself. these tweaks, injected into com.apple.UIKit, can be found in /Library/MobileSubstrate/DynamicLibraries(rootful), and /var/jb/Library/MobileSubstrate/DynamicLibraries(rootless).
+
 ## FAQ
 
 Why should I use CL?
@@ -214,22 +239,16 @@ Why does my iPhone won't charge any more after using for a while(Most questions 
 * CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
 
-Is it possible to install CL without Jailbreak or TrollStore(-like) enviroment?
+Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
 * Special entitlements is used in CL, so it is impossible to be installed as common ipa files.
-
-## Known issues
-
-* Due to the lack of devices to test with, CL may not supported on iOS<=11, and v1.4.1+ may not fully supported on iOS17+.
-* Floating window is not supported on iOS<=12.
-* For deb version, some tweaks will cause CL to stuck at SplashScreen, it's not a bug of CL itself. these tweaks, injected into com.apple.UIKit, can be found in /Library/MobileSubstrate/DynamicLibraries(rootful), and /var/jb/Library/MobileSubstrate/DynamicLibraries(rootless).
 
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
-* 1.Check compatibility of ChargeInhibit.Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 1.Check compatibility of ChargeInhibit.Disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
-* 3.Check compatibility of DisableInflow. Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 50mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 3.Check compatibility of DisableInflow. Disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
 
@@ -245,7 +264,7 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 
 ### "Enable" button
 
-Enable or disable CL globally. CL will become an observer if disabled, and shows battery information only.
+Enable or disable CL globally. CL will become an readonly observer if disabled, and shows battery information only.
 
 ### Floating window
 
@@ -268,6 +287,11 @@ Enable or disable CL globally. CL will become an observer if disabled, and shows
 * Stop charging if curren capacity higher than specified value.
 * Stop charging if temperature higher than specified value.
 
+triggers precedence from high to low: 
+* Start charging(Extremely low capacity) 
+* Stop charging(Capacity > Temperature)
+* Start charging((Capacity > Temperature > Plug in)
+
 ### Update frequency
 
 * Update frequency is data updating speed of UI, both App UI and floating window.
@@ -277,7 +301,7 @@ Enable or disable CL globally. CL will become an observer if disabled, and shows
 
 * Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80/10/35. Long-time-overcharged/Out of power/High temperature will do harm to the battery.
 * Please set temperature threshhold according to "History-Hourly Data".
-* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% mostly, a little users got 3-5% , this may have sth. to do with the "120 seconds delay" for iPhone8+, and charging speed.
+* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% mostly, a little users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%.
 
 ### Action
 
@@ -288,7 +312,7 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 * For "SmartBattery" and "Predictive charging inhibit", default configuration is for most users. Recombination them to find the best configuration for yourself.
 * Auto inhibit inflow, DisableInflow mode is for batteries doesn't support ChargeInhibit mode, iDevice will start to consume power of battery after stopping charging if enabled.
 * Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage.
-* Peak Power, control peak power performance under low temperature or bad battery performance, Do not change it unless you know what you are doing.
+* Peak Power, control peak power performance under low temperature or low capacity, Do not change it unless you know what you are doing.
 * Auto limit inflow, apply thermal simulation against high temperature and health dropping of the batteries losing control of Amperage. You can find the fitful level in this way: Start charging when current capacity below 30%(the lower capacity, the higher amperage), try to select "Advanced-Thermal simulate" level(from "Norminal" to "Heavy", the higher level, the lower amperage), a few seconds later, we shall see the amperage changed. When you catch the acceptable amperage value, set the level to "Advanced-Auto limit inflow-Thermal simulation". In this case, the thermal simulate level will be set to level specified in "Advanced-Auto limit inflow-Thermal simulation" automatically when CL start charging, and will be set to default level specified in "Advanced-Thermal simulate" when CL stop charging.
 
 ### Battery Information
@@ -296,6 +320,15 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 * Health, calculated with NominalChargeCapacity, with value higher than 100% indicates the battery must have been replaced before, and with more capacity than battery shipped with this model first released.
 * Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
 * InstantAmperage with positive value means the current flow into battery from the power source, negative means the current flow into iDevice from battery without any power source. InstantAmperage should be 0mA normally in ChargeInhibit mode, in this case the current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (*In fact, keep connecting to any power source and stop charging, the health may never drop*). InstantAmperage should be negative in DisableInflow mode.
+
+### History
+
+&emsp;&emsp;Show battery status for a period of time, slide horizontally to shift time, and click the legend to hide or show specific source.
+
+* Five minute data, show battery status in detail for each charge or discharge cycle, including CurrentCapacity/Temperature/Amperage.
+* Hourly data, show battery status for all charge or discharge cycles, including CurrentCapacity/Temperature/Amperage.
+* Daily data, show battery health in detail for each day.
+* Monthly data, show battery health for each month.
 
 ### For Shortcuts.app
 New Shortcut - Add Action - Web - Safari - Open URLs    
@@ -317,8 +350,8 @@ Integrated shortcut(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f4143789
 
 If you have better ideas, please join the project and push your code   
 Download URL:(https://github.com/lich4/ChargeLimiter/releases)    
-Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/+p0pwZCBDcH0zOGZl&color=red)    
-https://t.me/+p0pwZCBDcH0zOGZl   
+Telegram group:  ![](https://img.shields.io/static/v1?label=&message=https://t.me/chargelimiter&color=red)    
+https://t.me/chargelimiter   
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_en1.png)

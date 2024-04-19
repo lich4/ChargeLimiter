@@ -1,60 +1,22 @@
 #import <Foundation/Foundation.h>
 #import <GCDWebServers/GCDWebServers.h>
-#import <IOKit/IOKit.h>
-#include <IOKit/hid/IOHIDService.h>
-#import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
+#include "ui.h"
 #include "utils.h"
-
-#define PRODUCT         "ChargeLimiter"
-#define GSERV_PORT      1230
-#define TRACE           false
-#define FLOAT_ORIGINX   100
-#define FLOAT_ORIGINY   100
-#define FLOAT_WIDTH     80
-#define FLOAT_HEIGHT    60
+#include <sqlite3.h>
 
 NSString* log_prefix = @(PRODUCT "Logger");
+int log_level = 1; // 0:normal 1:detail // todo
 static NSDictionary* bat_info = nil;
 static BOOL g_enable = YES;
 static BOOL g_enable_floatwnd = NO;
 static BOOL g_use_smart = NO;
 static int g_jbtype = -1;
-static int g_wind_type = 0; // 1: HUD
 static int g_serv_boot = 0;
+int g_wind_type = 0; // 1: HUD
 
-static NSDictionary* handleReq(NSDictionary* nsreq);
+NSDictionary* handleReq(NSDictionary* nsreq);
 static void start_daemon();
-
-extern "C" {
-void BKSDisplayServicesStart();
-void BKSHIDEventRegisterEventCallback(void (*)(void*, void*, IOHIDServiceRef, IOHIDEventRef));
-void UIApplicationInstantiateSingleton(id aclass);
-void UIApplicationInitialize();
-}
-
-@interface UIApplication(Private)
-- (void)__completeAndRunAsPlugin;
-- (void)_enqueueHIDEvent:(IOHIDEventRef)event;
-- (void)_run;
-@end
-
-@interface UIWindow(Private)
-- (unsigned int)_contextId;
-@end
-
-@interface SBSAccessibilityWindowHostingController: NSObject
-- (void)registerWindowWithContextID:(unsigned)arg1 atLevel:(double)arg2;
-@end
-
-@interface FBSOrientationUpdate: NSObject
-- (UIDeviceOrientation)orientation;
-- (CGFloat)duration;
-@end
-
-@interface FBSOrientationObserver: NSObject
-- (void)setHandler:(void(^)(FBSOrientationUpdate*))handler;
-@end
 
 @interface Service: NSObject<UNUserNotificationCenterDelegate> 
 + (instancetype)inst;
@@ -64,27 +26,8 @@ void UIApplicationInitialize();
 - (void)localPush:(NSString*)title msg:(NSString*)msg;
 @end
 
-@interface AppDelegate : UIViewController<UIApplicationDelegate, UIWindowSceneDelegate, UIWebViewDelegate>
-@property(strong, nonatomic) UIWindow* window;
-@property(retain) UIWebView* webview;
-@end
-
-@interface HUDMainWindow: UIWindow
-@end
-
-@implementation HUDMainWindow
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    return self;
-}
-- (BOOL)_isWindowServerHostingManaged {
-    return NO;
-}
-@end
-
 static NSMutableDictionary* cache_kv = nil;
-#define CONF_PATH   "/var/root/aldente.conf"
-static id getlocalKV(NSString* key) {
+id getlocalKV(NSString* key) {
     if (cache_kv == nil) {
         cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
     }
@@ -94,7 +37,7 @@ static id getlocalKV(NSString* key) {
     return cache_kv[key];
 }
 
-static void setlocalKV(NSString* key, id val) {
+void setlocalKV(NSString* key, id val) {
     if (cache_kv == nil) {
         cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
         if (cache_kv == nil) {
@@ -104,256 +47,6 @@ static void setlocalKV(NSString* key, id val) {
     cache_kv[key] = val;
     [cache_kv writeToFile:@CONF_PATH atomically:YES];
 }
-
-@implementation AppDelegate {
-    NSString* initUrl;
-}
-static UIView* _mainWnd = nil;
-static AppDelegate* _app = nil;
-- (void)scene:(UIScene*)scene willConnectToSession:(UISceneSession*)session options:(UISceneConnectionOptions*)connectionOptions API_AVAILABLE(ios(13.0)) {
-    if (connectionOptions.URLContexts != nil) {
-        [self scene:scene openURLContexts:connectionOptions.URLContexts];
-    }
-}
-- (void)scene:(UIScene*)scene openURLContexts:(NSSet*)URLContexts API_AVAILABLE(ios(13.0)) {
-    if (URLContexts == nil || URLContexts.count == 0) {
-        return;
-    }
-    UIOpenURLContext* urlContext = URLContexts.allObjects.firstObject;
-    NSURL* url = urlContext.URL; // cl:///(charge|nocharge)(/exit)
-    for (NSString* cmd in url.pathComponents) {
-        if ([cmd isEqualToString:@"charge"]) {
-            handleReq(@{
-                @"api": @"set_charge_status",
-                @"flag": @YES,
-            });
-        } else if ([cmd isEqualToString:@"nocharge"]) {
-            handleReq(@{
-                @"api": @"set_charge_status",
-                @"flag": @NO,
-            });
-        } else if ([cmd hasPrefix:@"exit"]) {
-            int n = 1;
-            if (cmd.length > 4) {
-                NSString* nn = [cmd substringFromIndex:4];
-                n = [nn intValue];
-            }
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, n * NSEC_PER_SEC), dispatch_get_global_queue(0, 0), ^{
-                exit(0);
-            });
-        }
-    }
-}
-- (void)sceneWillEnterForeground:(UIScene*)scene API_AVAILABLE(ios(13.0)) {
-    _mainWnd = self.window;
-}
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary<UIApplicationLaunchOptionsKey,id>*)launchOptions {
-    if (g_wind_type == 0) {
-        _mainWnd = self.window;
-    } else if (g_wind_type == 1) { // from TrollSpeed
-        self.window = [[HUDMainWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-        self.window.rootViewController = [AppDelegate new];
-        self.window.windowLevel = 10000010.0;
-        self.window.hidden = NO;
-        [self.window makeKeyAndVisible];
-        static SBSAccessibilityWindowHostingController* _accessController = [objc_getClass("SBSAccessibilityWindowHostingController") new];
-        if (_accessController != nil) {
-            unsigned int _contextId = [self.window _contextId];
-            double windowLevel = [self.window windowLevel];
-            [_accessController registerWindowWithContextID:_contextId atLevel:windowLevel];
-        }
-    }
-    return YES;
-}
-- (void)speedUpWebView:(UIWebView*)webview { // 优化UIWebView反应速度
-    // 不用WKWebView的原因: TrollStore环境下,需要no-container/no-sandbox执行子进程,而WKWebView在iOS>=16下需要container-required才能工作,考虑和越狱的一致性选择UIWebView
-    // 如果不执行js也可以用SFSafariViewController替代
-    for (UIView* view in webview.scrollView.subviews) {
-        if ([view.class.description isEqualToString:@"UIWebBrowserView"]) {
-            NSArray* gestures = view.gestureRecognizers;
-            for (UIGestureRecognizer* gestureRecognizer in gestures) {
-                if ([gestureRecognizer isKindOfClass:UITapGestureRecognizer.class]) {
-                    UITapGestureRecognizer* tapRecognizer = (UITapGestureRecognizer*)gestureRecognizer;
-                    if (tapRecognizer.numberOfTapsRequired > 1 || tapRecognizer.numberOfTouchesRequired > 1) {
-                        gestureRecognizer.enabled = NO;
-                    }
-                } else if ([gestureRecognizer isKindOfClass:UILongPressGestureRecognizer.class]) {
-                    gestureRecognizer.enabled = NO;
-                } else if ([gestureRecognizer isKindOfClass:UIPanGestureRecognizer.class]) {
-                    gestureRecognizer.enabled = NO;
-                } else {
-                    NSString* type = NSStringFromClass(gestureRecognizer.class);
-                    if ([type isEqualToString:@"UIWebTouchEventsGestureRecognizer"]) {
-                    } else {
-                        gestureRecognizer.enabled = NO;
-                    }
-                }
-            }
-            break;
-        }
-    }
-}
-- (void)viewDidAppear:(BOOL)animated {
-    @autoreleasepool {
-        [super viewDidAppear:animated];
-        static CGSize scrSize = UIScreen.mainScreen.bounds.size;
-        _app = self;
-        if (g_wind_type == 0) {
-            NSString* imgpath = [NSString stringWithFormat:@"%@/splash.png", NSBundle.mainBundle.bundlePath];
-            UIImage* image = [UIImage imageWithContentsOfFile:imgpath];
-            UIImageView* imageview = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, scrSize.width, scrSize.height)];
-            imageview.image = image;
-            imageview.contentMode = UIViewContentModeScaleAspectFill;
-            [_mainWnd addSubview:imageview];
-            
-            UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, scrSize.width, scrSize.height)];
-            webview.delegate = self;
-            self.webview = webview;
-            initUrl = [NSString stringWithFormat:@"http://127.0.0.1:%d", GSERV_PORT];
-            NSURL* url = [NSURL URLWithString:initUrl];
-            NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
-            [webview loadRequest:req];
-        } else if (g_wind_type == 1) {
-            _mainWnd = self.view;
-            UIWebView* webview = [[UIWebView alloc] initWithFrame:CGRectMake(FLOAT_ORIGINX, FLOAT_ORIGINY, FLOAT_WIDTH, FLOAT_HEIGHT)]; // 窗口大小
-            webview.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.0];
-            webview.opaque = NO;
-            webview.delegate = self;
-            self.webview = webview;
-            initUrl = [NSString stringWithFormat:@"http://127.0.0.1:%d/float.html", GSERV_PORT];
-            NSURL* url = [NSURL URLWithString:initUrl];
-            NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:3.0];
-            [webview loadRequest:req];
-            BKSHIDEventRegisterEventCallback([](void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
-                @autoreleasepool {
-                    IOHIDEventType type = IOHIDEventGetType(event);
-                    if (type != kIOHIDEventTypeDigitizer) {
-                        return;
-                    }
-                    CFArrayRef ref = IOHIDEventGetChildren(event);
-                    if (!ref || CFArrayGetCount(ref) == 0) {
-                        return;
-                    }
-                    IOHIDEventRef event2 = (IOHIDEventRef)CFArrayGetValueAtIndex(ref, 0);
-                    int x = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerX);
-                    int y = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerY);
-                    int mask = IOHIDEventGetIntegerValue(event2, kIOHIDEventFieldDigitizerEventMask);
-                    if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            int f_x = MAX(x - FLOAT_WIDTH/2, 0);
-                            int f_y = MAX(y - FLOAT_HEIGHT/2, 0);
-                            f_x = MIN(f_x, scrSize.width - FLOAT_WIDTH);
-                            f_y = MIN(f_y, scrSize.height - FLOAT_HEIGHT);
-                            CGRect rt = _app.webview.frame;
-                            [_app.webview setFrame:CGRectMake(f_x, f_y, rt.size.width, rt.size.height)];
-                        });
-                    } else {
-                        [UIApplication.sharedApplication _enqueueHIDEvent:event];
-                    }
-                }
-            });
-            
-            static UIDeviceOrientation cur_orient = UIDevice.currentDevice.orientation;
-            static FBSOrientationObserver* orientObserver = [objc_getClass("FBSOrientationObserver") new];
-            [orientObserver setHandler:^(FBSOrientationUpdate* update) {
-                if (update.orientation == cur_orient) {
-                    return;
-                }
-                cur_orient = update.orientation;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [_app.webview setTransform:CGAffineTransformMakeRotation(getOrientAngle(update.orientation))];
-                });
-            }];
-            
-            static CFNotificationCenterRef center = CFNotificationCenterGetDarwinNotifyCenter();
-            
-            CFNotificationCenterAddObserver(center, (__bridge const void *)self, [](CFNotificationCenterRef center, void* observer, CFStringRef name, void const* object, CFDictionaryRef userInfo) {
-                @autoreleasepool {
-#define     FRONTMOST_DELAY   20
-                    static int last_access_time = 0;
-                    static bool in_process = false;
-                    int ts = (int)time(0);
-                    last_access_time = ts;
-                    if (in_process) {
-                        return;
-                    }
-                    NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
-                    NSArray* white_list = @[@"", self_bid, @"com.apple.springboard", @"com.apple.AccessibilityUIServer"];
-                    static NSString* old_bid = self_bid; // 悬浮窗从CL诞生
-                    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                        in_process = true;
-                        for (int i = ts; i < last_access_time + FRONTMOST_DELAY; i++) { // 每次通知增加上限时间,等待bid变化
-                            NSString* cur_bid = getFrontMostBid();
-                            if (![old_bid isEqualToString:cur_bid]) {
-                                NSNumber* floatwnd_auto = getlocalKV(@"floatwnd_auto");
-                                if (floatwnd_auto.boolValue) {
-                                    if ([white_list containsObject:cur_bid]) {
-                                        dispatch_async(dispatch_get_main_queue(), ^{
-                                            _app.webview.hidden = NO;
-                                        });
-                                    } else {
-                                        dispatch_async(dispatch_get_main_queue(), ^{
-                                            _app.webview.hidden = YES;
-                                        });
-                                    }
-                                }
-                                old_bid = cur_bid;
-                                break; // 已变化,满足条件退出
-                            }
-                            old_bid = cur_bid;
-                            [NSThread sleepForTimeInterval:1.0];
-                        }
-                        in_process = false;
-                    });
-                }
-            }, CFSTR("com.apple.mobile.SubstantialTransition"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-        }
-    }
-}
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
-    UIDeviceOrientation orient = UIDevice.currentDevice.orientation;
-    if (orient == UIDeviceOrientationPortrait || orient == UIDeviceOrientationPortraitUpsideDown) {
-        CGRect rt = _app.webview.frame;
-        [_app.webview setFrame:CGRectMake(rt.origin.x, rt.origin.y, MIN(rt.size.width, rt.size.height), MAX(rt.size.width, rt.size.height))];
-    } else if (orient == UIDeviceOrientationLandscapeLeft || orient == UIDeviceOrientationLandscapeRight) {
-        CGRect rt = _app.webview.frame;
-        [_app.webview setFrame:CGRectMake(rt.origin.x, rt.origin.y, MAX(rt.size.width, rt.size.height), MIN(rt.size.width, rt.size.height))];
-    }
-}
-- (void)webViewDidFinishLoad:(UIWebView*)webview {
-    [_mainWnd addSubview:webview];
-    [_mainWnd bringSubviewToFront:webview];
-    [self speedUpWebView: webview];
-    if (isDarkMode()) {
-        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
-    } else {
-        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(false)"];
-    }
-    [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
-}
-- (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
-    NSString* surl = webview.request.URL.absoluteString;
-    [NSThread sleepForTimeInterval:0.5];
-    if (surl.length == 0) { // 服务端未初始化时url会被置空
-        surl = initUrl;
-    }
-    NSURL* url = [NSURL URLWithString:surl];
-    NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:3.0];
-    [webview loadRequest:req];
-}
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
-    NSString* url = request.URL.absoluteString;
-    if ([url isEqualToString:@"safari://"]) {
-        [UIApplication.sharedApplication openURL:[NSURL URLWithString:initUrl]];
-        return NO;
-    } else if ([url isEqualToString:@"cl://start_daemon"]) {
-        start_daemon();
-        return NO;
-    }
-    return YES;
-}
-@end
-
 
 static io_service_t getIOPMPSServ() {
     static io_service_t serv = IO_OBJECT_NULL;
@@ -454,42 +147,21 @@ static int setInflowStatus(BOOL flag) {
     return 0;
 }
 
-static void tryEnableInflowIfDisabled() {
-    NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
-    if (adv_disable_inflow.boolValue) {
-        static int last_check_time = (int)time(0);
-        int ts = (int)time(0);
-        if (ts - last_check_time > 60) {
-            last_check_time = ts;
-            setInflowStatus(YES);
-        }
+static BOOL isAdaptorConnect(NSDictionary* info) { // 是否连接电源
+    // 某些充电器ExternalConnected为false,而禁流时ExternalConnected/ExternalChargeCapable均为false
+    NSDictionary* AdapterDetails = info[@"AdapterDetails"];
+    if (AdapterDetails == nil) {
+        return NO;
     }
-}
-
-static BOOL isAdaptorConnect(NSDictionary* info) {
-    // 某些充电器ExternalConnected为false,这里使用ExternalChargeCapable
-    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
-    NSNumber* ExternalConnected = info[@"ExternalConnected"];
-    if (!ExternalConnected.boolValue) {
-        tryEnableInflowIfDisabled(); // iOS<=13禁流不影响ExternalChargeCapable所以必须用ExternalConnected判断
+    NSString* PSDesc = AdapterDetails[@"Description"];
+    if (PSDesc == nil || [PSDesc isEqualToString:@"batt"]) {
+        return NO;
     }
-    if (ExternalChargeCapable != nil) {
-        return ExternalChargeCapable.boolValue;
-    }
-    return NO;
+    return YES;
 }
 
 static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
-    NSNumber* old_ExternalChargeCapable = oldInfo[@"ExternalChargeCapable"];
-    NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
-    NSNumber* ExternalConnected = info[@"ExternalConnected"];
-    if (!ExternalConnected.boolValue) {
-        tryEnableInflowIfDisabled();
-    }
-    if (!old_ExternalChargeCapable.boolValue && ExternalChargeCapable.boolValue) {
-        return YES;
-    }
-    return NO;
+    return !isAdaptorConnect(oldInfo) && isAdaptorConnect(info);
 }
 
 static int setChargeStatus(BOOL flag) {
@@ -499,7 +171,7 @@ static int setChargeStatus(BOOL flag) {
         return -1;
     }
     NSMutableDictionary* props = [NSMutableDictionary new];
-    if (adv_predictive_inhibit_charge.boolValue) { // iOS>=13  目前测试PredictiveChargingInhibit在iOS>=13生效
+    if (adv_predictive_inhibit_charge.boolValue) { // 目前测试PredictiveChargingInhibit在iOS>=13生效
         props[@"IsCharging"] = @YES;
         props[@"PredictiveChargingInhibit"] = @(!flag);
     } else { // iOS<=12
@@ -514,26 +186,15 @@ static int setChargeStatus(BOOL flag) {
 }
 
 static int setBatteryStatus(BOOL flag) {
-    NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
-    NSNumber* adv_skip_wait = getlocalKV(@"adv_skip_wait");
-    int ret = 0;
-    if (flag) {
-        if (adv_disable_inflow.boolValue) {
-            ret += setInflowStatus(flag);
-        }
-        ret += setChargeStatus(flag);
-        if (adv_skip_wait.boolValue) {
-            setInflowStatus(!flag);
-            setInflowStatus(flag);
-        }
-    } else {
-        ret += setChargeStatus(flag);
-        if (adv_disable_inflow.boolValue) {
-            ret += setInflowStatus(flag);
-        }
-        if (adv_skip_wait.boolValue) {
-            setInflowStatus(!flag);
-            setInflowStatus(flag);
+    int ret = setChargeStatus(flag);
+    NSNumber* adv_limit_inflow = getlocalKV(@"adv_limit_inflow");
+    if (adv_limit_inflow.boolValue) {
+        if (flag) {
+            NSString* mode = getlocalKV(@"adv_limit_inflow_mode");
+            setThermalSimulationMode(mode);
+        } else {
+            NSString* mode = getlocalKV(@"adv_def_thermal_mode");
+            setThermalSimulationMode(mode);
         }
     }
     return ret;
@@ -637,6 +298,119 @@ static void performAction(NSString* msgid) {
     }
 }
 
+static sqlite3* db = NULL;
+static void updateDBData(const char* tbl, int tid, NSDictionary* info) {
+    @autoreleasepool {
+        if (!db) {
+            return;
+        }
+        NSData* jdata = [NSJSONSerialization dataWithJSONObject:info options:0 error:nil];
+        if (jdata == nil) {
+            return;
+        }
+        NSString* jstr = [[NSString alloc] initWithData:jdata encoding:NSUTF8StringEncoding];
+        char sql[256];
+        sprintf(sql, "insert or ignore into %s values(:1, :2)", tbl);
+        sqlite3_stmt* stmt = NULL;
+        sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+        sqlite3_bind_int(stmt, 1, tid);
+        sqlite3_bind_text(stmt, 2, jstr.UTF8String, -1, SQLITE_STATIC);
+        sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+    }
+}
+
+static void initDB() {
+    @autoreleasepool {
+        sqlite3* cdb = NULL;
+        if (sqlite3_open(DB_PATH, &cdb) != SQLITE_OK) {
+            return;
+        }
+        char* err;
+        const char* tbls[] = {"min5", "hour", "day", "month", NULL};
+        for (int i = 0; tbls[i]; i++) {
+            char sql[256];
+            sprintf(sql, "create table if not exists %s(id integer primary key, data text)", tbls[i]);
+            if (sqlite3_exec(cdb, sql, NULL, NULL, &err) != SQLITE_OK) {
+                sqlite3_close(cdb);
+                return;
+            }
+        }
+        db = cdb;
+        // 迁移老数据
+        NSArray* arr = getlocalKV(@"stat_min5");
+        if (arr != nil && arr.count > 0) {
+            for (NSDictionary* item in arr) {
+                NSMutableDictionary* mitem = item.mutableCopy;
+                NSString* key = mitem[@"key"];
+                [mitem removeObjectForKey:@"key"];
+                updateDBData("min5", key.intValue, mitem);
+            }
+            setlocalKV(@"stat_min5", nil);
+        }
+        arr = getlocalKV(@"stat_hour");
+        if (arr != nil && arr.count > 0) {
+            for (NSDictionary* item in arr) {
+                NSMutableDictionary* mitem = item.mutableCopy;
+                NSString* key = mitem[@"key"];
+                [mitem removeObjectForKey:@"key"];
+                updateDBData("hour", key.intValue, mitem);
+            }
+            setlocalKV(@"stat_hour", nil);
+        }
+        arr = getlocalKV(@"stat_day");
+        if (arr != nil && arr.count > 0) {
+            for (NSDictionary* item in getlocalKV(@"stat_day")) {
+                NSMutableDictionary* mitem = item.mutableCopy;
+                NSString* key = mitem[@"key"];
+                [mitem removeObjectForKey:@"key"];
+                updateDBData("day", key.intValue, mitem);
+            }
+            setlocalKV(@"stat_day", nil);
+        }
+        arr = getlocalKV(@"stat_month");
+        if (arr != nil && arr.count > 0) {
+            for (NSDictionary* item in getlocalKV(@"stat_month")) {
+                NSMutableDictionary* mitem = item.mutableCopy;
+                NSString* key = mitem[@"key"];
+                [mitem removeObjectForKey:@"key"];
+                updateDBData("month", key.intValue, mitem);
+            }
+            setlocalKV(@"stat_month", nil);
+        }
+    }
+}
+
+static void uninitDB() {
+    if (db != NULL) {
+        sqlite3_close(db);
+    }
+}
+
+static NSArray* getDBData(const char* tbl, int n, int last_id) {
+    @autoreleasepool {
+        if (!db) {
+            return @[];
+        }
+        NSMutableArray* result = [NSMutableArray array];
+        char sql[256];
+        sprintf(sql, "select data from %s where id > %d order by id asc limit %d", tbl, last_id, n);
+        sqlite3_stmt* stmt = NULL;
+        sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const char* jstr = (const char*)sqlite3_column_text(stmt, 0);
+            NSData* jdata = [NSData dataWithBytes:(void*)jstr length:strlen(jstr)];
+            NSDictionary* jobj = [NSJSONSerialization JSONObjectWithData:jdata options:0 error:nil];
+            if (jobj == nil) {
+                continue;
+            }
+            [result addObject:jobj];
+        }
+        sqlite3_finalize(stmt);
+        return result;
+    }
+}
+
 static NSMutableDictionary* getFilteredMDic(NSDictionary* dic, NSArray* filter) {
     NSMutableDictionary* mdic = [NSMutableDictionary new];
     for (NSString* key in filter) {
@@ -649,32 +423,17 @@ static NSMutableDictionary* getFilteredMDic(NSDictionary* dic, NSArray* filter) 
 
 static void updateStatistics() {
     int ts = (int)time(0);
-    NSString* hourKey = [@(ts/3600) stringValue];
-    NSString* dayKey = [@(ts/86400) stringValue];
-    NSString* monthKey = [@(ts/2592000) stringValue];
-    NSMutableArray* stat_hour = [getlocalKV(@"stat_hour") mutableCopy];
-    NSMutableArray* stat_day = [getlocalKV(@"stat_day") mutableCopy];
-    NSMutableArray* stat_month = [getlocalKV(@"stat_month") mutableCopy];
-    if (stat_hour.count == 0 || ![stat_hour.lastObject[@"key"] isEqualToString:hourKey]) {
-        NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CurrentCapacity", @"InstantAmperage", @"IsCharging", @"Temperature", @"UpdateTime"]);
-        mBatInfo[@"key"] = hourKey;
-        [stat_hour addObject:mBatInfo];
-        NSArray* new_stat = [stat_hour subarrayWithRange:NSMakeRange(MAX((int)stat_hour.count - 100, 0), MIN(stat_hour.count, 100))];
-        setlocalKV(@"stat_hour", new_stat);
-    }
-    if (stat_day.count == 0 || ![stat_day.lastObject[@"key"] isEqualToString:dayKey]) {
-        NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CycleCount", @"NominalChargeCapacity", @"UpdateTime"]);
-        mBatInfo[@"key"] = dayKey;
-        [stat_day addObject:mBatInfo];
-        NSArray* new_stat = [stat_day subarrayWithRange:NSMakeRange(MAX((int)stat_day.count - 100, 0), MIN(stat_day.count, 100))];
-        setlocalKV(@"stat_day", new_stat);
-    }
-    if (stat_month.count == 0 || ![stat_month.lastObject[@"key"] isEqualToString:monthKey]) {
-        NSMutableDictionary* mBatInfo = getFilteredMDic(bat_info, @[@"CycleCount", @"NominalChargeCapacity", @"UpdateTime"]);
-        mBatInfo[@"key"] = monthKey;
-        [stat_month addObject:mBatInfo];
-        setlocalKV(@"stat_month", stat_month);
-    }
+    NSDictionary* info_h = getFilteredMDic(bat_info, @[
+        @"Amperage", @"AppleRawCurrentCapacity", @"CurrentCapacity", @"ExternalChargeCapable", @"ExternalConnected",
+        @"InstantAmperage", @"IsCharging", @"Temperature", @"UpdateTime", @"Voltage"
+    ]);
+    updateDBData("min5", ts / 300, info_h);
+    updateDBData("hour", ts / 3600, info_h);
+    NSDictionary* info_d = getFilteredMDic(bat_info, @[
+        @"CycleCount", @"DesignCapacity", @"NominalChargeCapacity", @"UpdateTime"
+    ]);
+    updateDBData("day", ts / 86400, info_d);
+    updateDBData("month", ts / 2592000, info_d);
 }
 
 static void onBatteryEvent(io_service_t serv) {
@@ -695,83 +454,115 @@ static void onBatteryEvent(io_service_t serv) {
         NSNumber* charge_temp_below = getlocalKV(@"charge_temp_below");
         NSNumber* capacity = bat_info[@"CurrentCapacity"];
         NSNumber* is_charging = bat_info[@"IsCharging"];
+        NSNumber* is_inflow_enabled = bat_info[@"ExternalConnected"];
+        BOOL is_adaptor_connected = isAdaptorConnect(bat_info);
+        NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
         NSNumber* temperature_ = bat_info[@"Temperature"];
-        if (capacity.intValue <= 5) {
+        float temperature = temperature_.intValue / 100.0;
+        // 优先级: 电量极低 > 停充(电量>温度) > 充电(电量>温度) > 插电
+        if (capacity.intValue <= 5) { // 电量极低,优先级=1
             // 防止误用或意外造成无法充电
-            if (!is_charging.boolValue) {
+            if (is_adaptor_connected && !is_charging.boolValue) {
+                NSFileLog(@"start charging for extremely low capacity");
                 setInflowStatus(YES);
                 setBatteryStatus(YES);
                 performAcccharge(YES);
             }
-            return; // 电量过低禁止操作
+            return;
         }
-        int temperature = temperature_.intValue / 100;
-        if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) {
+        if (capacity.intValue >= charge_above.intValue) { // 停充-电量高,优先级=2
+            if (is_charging.boolValue) {
+                NSFileLog(@"stop charging for high capacity");
+                setBatteryStatus(NO);
+                performAction(@"stop_charge");
+                performAcccharge(NO);
+            }
+            if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
+                NSFileLog(@"disable inflow for high capacity");
+                setInflowStatus(NO);
+            }
+            return;
+        }
+        if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) { // 停充-温度高,优先级=3
             if (is_charging.boolValue) {
                 NSFileLog(@"stop charging for high temperature");
-                if (0 == setBatteryStatus(NO)) {
-                    performAction(@"stop_charge");
-                    performAcccharge(NO);
+                setBatteryStatus(NO);
+                performAction(@"stop_charge");
+                performAcccharge(NO);
+            }
+            if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
+                NSFileLog(@"disable inflow for high temperature");
+                setInflowStatus(NO);
+            }
+            return;
+        }
+        if (capacity.intValue <= charge_below.intValue) { // 充电-电量低,优先级=4
+            // 禁流模式下电量下降后恢复充电
+            if (is_adaptor_connected) {
+                if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
+                    NSFileLog(@"enable inflow for low capacity");
+                    setInflowStatus(YES);
+                }
+                if (!is_charging.boolValue) {
+                    NSFileLog(@"start charging for low capacity");
+                    setBatteryStatus(YES);
+                    performAction(@"start_charge");
+                    performAcccharge(YES);
+                }
+            }
+            return;
+        }
+        if ([mode isEqualToString:@"charge_on_plug"]) {
+            if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) { // 充电-温度低,优先级=5
+                if (is_adaptor_connected) {
+                    if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
+                        NSFileLog(@"enable inflow for low temperature");
+                        setInflowStatus(YES);
+                    }
+                    if (!is_charging.boolValue) {
+                        NSFileLog(@"start charging for low temperature");
+                        setBatteryStatus(YES);
+                        performAction(@"start_charge");
+                        performAcccharge(YES);
+                    }
                 }
                 return;
             }
-        }
-        if (capacity.intValue >= charge_above.intValue) {
-            if (is_charging.boolValue) {
-                NSFileLog(@"stop charging for capacity");
-                if (0 == setBatteryStatus(NO)) {
-                    performAction(@"stop_charge");
-                    performAcccharge(NO);
+            if (isAdaptorNewConnect(old_bat_info, bat_info)) { // 充电-插电,优先级=6
+                if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
+                    NSFileLog(@"enable inflow for plug in");
+                    setInflowStatus(YES);
                 }
-            }
-            return; // 电量满禁止操作
-        }
-        if ([mode isEqualToString:@"charge_on_plug"]) {
-            if (isAdaptorNewConnect(old_bat_info, bat_info)) {
-                NSFileLog(@"start charging for plug in");
-                if (0 == setBatteryStatus(YES)) {
+                if (!is_charging.boolValue) {
+                    NSFileLog(@"start charging for plug in");
+                    setBatteryStatus(YES);
                     performAction(@"start_charge");
                     performAcccharge(YES);
                 }
                 return;
             }
-            if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) {
+        } else if ([mode isEqualToString:@"edge_trigger"]) {
+            if (isAdaptorNewConnect(old_bat_info, bat_info)) {
                 if (!is_charging.boolValue) {
-                    if (isAdaptorConnect(bat_info)) {
-                        NSFileLog(@"start charging for low temperature");
-                        if (0 == setBatteryStatus(YES)) {
-                            performAction(@"start_charge");
-                            performAcccharge(YES);
-                        }
-                        return;
-                    }
+                    NSFileLog(@"stop charging for plug in");
+                    setBatteryStatus(NO);
                 }
-            }
-        }
-        if (capacity.intValue <= charge_below.intValue) {
-            // 任何模式下强制低电充电
-            // 1. 防止误用造成无法充电
-            // 2. 禁流模式下电量下降后恢复充电
-            if (!is_charging.boolValue) {
-                if (isAdaptorConnect(bat_info)) {
-                    NSFileLog(@"start charging for capacity");
-                    if (0 == setBatteryStatus(YES)) {
-                        performAction(@"start_charge");
-                        performAcccharge(YES);
-                    }
-                    return;
+                if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
+                    NSFileLog(@"disable inflow for plug in");
+                    setInflowStatus(NO);
                 }
             }
         }
     }
 }
 
-static void initConf() {
-    BOOL predictive_inhibit_charge_avail = getSysVerInt().majorVersion >= 13;
+static void initConf(BOOL reset) {
+    BOOL predictive_inhibit_charge_avail = NO;
+    if (@available(iOS 13.0, *)) {
+        predictive_inhibit_charge_avail = YES;
+    }
+    BOOL adv_thermal_avail = getThermalData() != nil;
     NSDictionary* def_dic = @{
-        @"mode": @"charge_on_plug",
-        @"update_freq": @1,
-        @"lang": @"",
         @"charge_below": @20,
         @"charge_above": @80,
         @"enable_temp": @NO,
@@ -783,22 +574,57 @@ static void initConf() {
         @"acc_charge_blue": @NO,
         @"acc_charge_bright": @NO,
         @"acc_charge_lpm": @YES,
-        @"adv_prefer_smart": @YES, // iPhone8+ iOS13+
+        @"adv_prefer_smart": @NO, // iPhone8+ iOS13+
         @"adv_predictive_inhibit_charge": @(predictive_inhibit_charge_avail), // iPhone8+ iOS13+
         @"adv_disable_inflow": @NO, // all (iPhone8+ iOS13+会改变系统充电图标)
-        @"floatwnd_auto": @NO,
-        @"adv_skip_wait": @NO,
+        @"adv_thermal_avail": @(adv_thermal_avail),
+        @"adv_limit_inflow": @NO,
+        @"adv_limit_inflow_mode": @"moderate",
+        @"adv_def_thermal_mode": @"off", // powercuff
         @"action": @"",
-        @"stat_hour": @[],
-        @"stat_day": @[],
-        @"stat_month": @[],
     };
-    for (NSString* key in def_dic) {
-        id val = getlocalKV(key);
-        if (val == nil) {
-            setlocalKV(key, def_dic[key]);
+    if (reset) {
+        BOOL resetBattery = NO;
+        BOOL restartDaemon = NO;
+        for (NSString* key in def_dic) {
+            id valDef = def_dic[key];
+            id val = getlocalKV(key);
+            if (![valDef isEqual:val]) {
+                if ([@[@"adv_predictive_inhibit_charge", @"adv_disable_inflow"] containsObject:key]) {
+                    resetBattery = YES;
+                }
+                if ([key isEqualToString:@"adv_prefer_smart"]) {
+                    restartDaemon = YES;
+                }
+                setlocalKV(key, valDef);
+            }
+        }
+        if (resetBattery) {
+            resetBatteryStatus();
+        }
+        if (restartDaemon) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_global_queue(0, 0), ^{
+                exit(0);
+            });
+        }
+    } else {
+        NSMutableDictionary* def_mdic = def_dic.mutableCopy;
+        [def_mdic addEntriesFromDictionary:@{
+            @"enable": @YES,
+            @"mode": @"charge_on_plug",
+            @"update_freq": @1,
+            @"lang": @"en",
+            @"floatwnd_auto": @NO,
+        }];
+        for (NSString* key in def_mdic) {
+            id val = getlocalKV(key);
+            if (val == nil) {
+                setlocalKV(key, def_mdic[key]);
+            }
         }
     }
+    NSNumber* enable = getlocalKV(@"enable");
+    g_enable = enable.boolValue;
 }
 
 static void showFloatwnd(BOOL flag) {
@@ -818,7 +644,7 @@ static void showFloatwnd(BOOL flag) {
     }
 }
 
-static NSDictionary* handleReq(NSDictionary* nsreq) {
+NSDictionary* handleReq(NSDictionary* nsreq) {
     NSString* api = nsreq[@"api"];
     if ([api isEqualToString:@"get_conf"]) {
         NSString* key = nsreq[@"key"];
@@ -832,8 +658,8 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             kv[@"ver"] = getAppVer();
             kv[@"serv_boot"] = @(g_serv_boot);
             kv[@"sys_boot"] = @(get_sys_boottime());
-            //kv[@"thermal_simulate_mode"] = getThermalSimulationMode(); // todo: 监视NSUserDefaults
-            //kv[@"ppm_simulate_mode"] = getPPMSimulationMode();
+            kv[@"thermal_simulate_mode"] = getThermalSimulationMode();
+            kv[@"ppm_simulate_mode"] = getPPMSimulationMode();
             kv[@"use_smart"] = @(g_use_smart);
             return @{
                 @"status": @0,
@@ -848,18 +674,20 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     } else if ([api isEqualToString:@"set_conf"]) {
         NSString* key = nsreq[@"key"];
         id val = nsreq[@"val"];
+        if ([key isEqualToString:@"floatwnd"]) {
+            g_enable_floatwnd = [val boolValue];
+            showFloatwnd(g_enable_floatwnd);
+        } else if ([key isEqualToString:@"ppm_simulate_mode"]) {
+            setPPMSimulationMode(val);
+        } else {
+            setlocalKV(key, val);
+        }
         if ([key isEqualToString:@"enable"]) {
             g_enable = [val boolValue];
             if (!g_enable) {
                 resetBatteryStatus();
             }
-        } else if ([key isEqualToString:@"floatwnd"]) {
-            g_enable_floatwnd = [val boolValue];
-            showFloatwnd(g_enable_floatwnd);
-        } else {
-            setlocalKV(key, val);
-        }
-        if ([key isEqualToString:@"action"]) {
+        } else if ([key isEqualToString:@"action"]) {
             if ([val isEqualToString:@"noti"]) {
                 [Service.inst initLocalPush];
             }
@@ -871,7 +699,14 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_global_queue(0, 0), ^{
                 exit(0);
             });
+        } else if ([key isEqualToString:@"adv_def_thermal_mode"]) {
+            setThermalSimulationMode(val);
         }
+        return @{
+            @"status": @0,
+        };
+    } else if ([api isEqualToString:@"reset_conf"]) {
+        initConf(YES);
         return @{
             @"status": @0,
         };
@@ -879,6 +714,19 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
         return @{
             @"status": @0,
             @"data": bat_info,
+        };
+    } else if ([api isEqualToString:@"get_statistics"]) {
+        NSDictionary* conf = nsreq[@"conf"];
+        NSMutableDictionary* data = [NSMutableDictionary dictionary];
+        for (NSString* tbl in conf) {
+            NSDictionary* conf_for_tbl = conf[tbl];
+            NSNumber* n = conf_for_tbl[@"n"];
+            NSNumber* last_id = conf_for_tbl[@"last_id"];
+            data[tbl] = getDBData(tbl.UTF8String, n.intValue, last_id.intValue);
+        }
+        return @{
+            @"status": @0,
+            @"data": data,
         };
     } else if ([api isEqualToString:@"set_charge_status"]) {
         NSNumber* flag = nsreq[@"flag"];
@@ -957,7 +805,8 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
     [center addNotificationRequest:request withCompletionHandler:nil];
 }
 - (void)serve {
-    initConf();
+    initConf(NO);
+    initDB();
     static GCDWebServer* _webServer = nil;
     if (_webServer == nil) {
         if (localPortOpen(GSERV_PORT)) {
@@ -1002,116 +851,16 @@ static NSDictionary* handleReq(NSDictionary* nsreq) {
 }
 @end
 
-
-// from TrollSpeed
-#if __arm64e__
-#include <ptrauth.h>
-#endif
-
-@interface UIEventDispatcher : NSObject
-- (void)_installEventRunLoopSources:(CFRunLoopRef)arg1;
-@end
-
-@interface UIEventFetcher : NSObject
-- (void)_receiveHIDEvent:(IOHIDEventRef)arg1;
-- (void)setEventFetcherSink:(UIEventDispatcher *)arg1;
-@end
-
-@interface HUDMainApplication : UIApplication
-@end
-
-static void* make_sym_readable(void *ptr) {
-#if __arm64e__
-    if (!ptr) return ptr;
-    ptr = ptrauth_strip(ptr, ptrauth_key_function_pointer);
-#endif
-    return ptr;
-}
-
-static void* make_sym_callable(void *ptr) {
-#if __arm64e__
-    if (!ptr) return ptr;
-    ptr = ptrauth_sign_unauthenticated(ptrauth_strip(ptr, ptrauth_key_function_pointer), ptrauth_key_function_pointer, 0);
-#endif
-    return ptr;
-}
-
-@implementation HUDMainApplication
-- (instancetype)init {
-    self = [super init];
-    do {
-        UIEventDispatcher* dispatcher = (UIEventDispatcher*)[self valueForKey:@"eventDispatcher"];
-        if (!dispatcher) {
-            break;
-        }
-        if ([dispatcher respondsToSelector:@selector(_installEventRunLoopSources:)]) { // -[UIApplication _run]
-            CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
-            [dispatcher _installEventRunLoopSources:mainRunLoop];
-        } else { // iOS>=16?
-            IMP runMethodIMP = class_getMethodImplementation([self class], @selector(_run));
-            if (!runMethodIMP) {
-                break;
-            }
-            uint32_t *runMethodPtr = (uint32_t *)make_sym_readable((void *)runMethodIMP);
-            void (*orig_UIEventDispatcher__installEventRunLoopSources_)(id _Nonnull, SEL _Nonnull, CFRunLoopRef) = NULL;
-            for (int i = 0; i < 0x140; i++) {
-                // mov x2, x0
-                // mov x0, x?
-                if (runMethodPtr[i] != 0xaa0003e2 || (runMethodPtr[i + 1] & 0xff000000) != 0xaa000000) {
-                    continue;
-                }
-                // bl -[UIEventDispatcher _installEventRunLoopSources:]
-                uint32_t blInst = runMethodPtr[i + 2];
-                uint32_t *blInstPtr = &runMethodPtr[i + 2];
-                if ((blInst & 0xfc000000) != 0x94000000) {
-                    continue;
-                }
-                int32_t blOffset = blInst & 0x03ffffff;
-                if (blOffset & 0x02000000)
-                    blOffset |= 0xfc000000;
-                blOffset <<= 2;
-                uint64_t blAddr = (uint64_t)blInstPtr + blOffset;
-                // cbz x0, loc_?????????
-                uint32_t cbzInst = *((uint32_t *)make_sym_readable((void *)blAddr));
-                if ((cbzInst & 0xff000000) != 0xb4000000) {
-                    continue;
-                }
-                orig_UIEventDispatcher__installEventRunLoopSources_ = (void (*)(id  _Nonnull __strong, SEL _Nonnull, CFRunLoopRef))make_sym_callable((void *)blAddr);
-            }
-            if (!orig_UIEventDispatcher__installEventRunLoopSources_) {
-                break;
-            }
-            CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
-            orig_UIEventDispatcher__installEventRunLoopSources_(dispatcher, @selector(_installEventRunLoopSources:), mainRunLoop);
-        }
-        UIEventFetcher *fetcher = [objc_getClass("UIEventFetcher") new];
-        [dispatcher setValue:fetcher forKey:@"eventFetcher"];
-        if ([fetcher respondsToSelector:@selector(setEventFetcherSink:)]) {
-            [fetcher setEventFetcherSink:dispatcher];
-        } else { // iOS>=16?
-            [fetcher setValue:dispatcher forKey:@"eventFetcherSink"];
-        }
-        [self setValue:fetcher forKey:@"eventFetcher"];
-    } while (NO);
-    
-    Method mori_handlePan = class_getInstanceMethod(UIScrollView.class, @selector(handlePan:));
-    Method mnew_handlePan = class_getInstanceMethod(HUDMainApplication.class, @selector(handlePan:));
-    method_exchangeImplementations(mori_handlePan, mnew_handlePan);
-    return self;
-}
-- (void)handlePan:(UIPanGestureRecognizer*)recognizer {
-    // 避免悬浮窗滑动崩溃
-}
-@end
-
 static void start_daemon() {
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        if (!localPortOpen(GSERV_PORT)) {
-            if (g_jbtype == JBTYPE_TROLLSTORE) {
+    if (g_jbtype == JBTYPE_TROLLSTORE) {
+        NSTimer* start_daemon_timer = [NSTimer timerWithTimeInterval:10 repeats:YES block:^(NSTimer* timer) {
+            if (!localPortOpen(GSERV_PORT)) {
                 spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
             }
-        }
-    });
+        }];
+        [start_daemon_timer fire];
+        [NSRunLoop.currentRunLoop addTimer:start_daemon_timer forMode:NSDefaultRunLoopMode];
+    }
 }
 
 int main(int argc, char** argv) {
@@ -1132,19 +881,16 @@ int main(int argc, char** argv) {
                 }
                 [Service.inst serve];
                 atexit_b(^{
-                    [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
                     resetBatteryStatus();
                     showFloatwnd(NO);
-                    // 恢复电源连接
+                    uninitDB();
+                    [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
                 });
-                NSFileLog(@"daemon start");
-                static NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:3600 repeats:YES block:^(NSTimer* timer) {
-                    NSFileLog(@"daemon alive"); // 用于诊断
-                }];
                 [NSRunLoop.mainRunLoop run];
                 NSFileLog(@"daemon unexpected");
                 return 0;
             } else if (0 == strcmp(argv[1], "floatwnd")) {
+                start_daemon();
                 g_wind_type = 1;
                 static id<UIApplicationDelegate> appDelegate = [AppDelegate new];
                 UIApplicationInstantiateSingleton(HUDMainApplication.class);

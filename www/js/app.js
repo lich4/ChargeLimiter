@@ -142,13 +142,14 @@ const i18n = new VueI18n({
             sysinfo: "System information",
             update_freq: "Update frequency",
             update_freq_desc: "Lower frequency, slower UI responses, but may save more power",
-            charge_below: "Start charging if capacity below(%)",
-            nocharge_above: "Stop charging if capacity above(%)",
-            nocharge_temp_above: "Stop charging if temperature above(°C)",
-            charge_temp_below: "Recover charging if temperature below(°C)",
+            start_charge: "Start charging",
+            stop_charge: "Stop charging",
             charge_btn_desc: "This button is used to manually start or stop charging, the charging icon on system status bar is invalid, just ignore it",
             inflow_btn_desc: "This button is used to manually start or stop inflow",
             enable: "Enable",
+            disable: "Disable",
+            user_disable: "UserDisable",
+            unknown: "Unknown",
             floatwnd: "Floating window",
             autohide: "Auto hide",
             mode: "mode",
@@ -168,11 +169,21 @@ const i18n = new VueI18n({
             adv: "Advanced",
             adv_prefer_smart: "Use SmartBattery",
             adv_predictive_inhibit_charge: "Predictive charging inhibit",
-            adv_disable_inflow: "Control inflow",
-            adv_thermal_simulate: "Thermal simulation(Powercuff) during charging",
-            adv_ppm_simulate: "LowTemp/PeakPower performance(PPM)",
-            thermal_simulate_mode: "Powercuff mode",
-            ppm_simulate_mode: "PPM mode",
+            adv_disable_inflow: "Auto inhibit inflow",
+            adv_limit_inflow: "Auto limit inflow",
+            adv_thermal_simulate: "Thermal simulation",
+            adv_thermal_simulate_desc: "Powercuff, limit hardware power usage by simulating high temperature, also limit amperage and voltage during charging",
+            adv_ppm_simulate: "Peak Power status",
+            adv_ppm_simulate_desc: "Low Temperature and PeakPower performance management",
+            perf_man: "Performance management",
+            autoset: "Auto set",
+            set: "Set",
+            reset: "Reset All",
+            off: "Off",
+            nominal: "Nominal",
+            light: "Light",
+            moderate: "Moderate",
+            heavy: "Heavy",
             none: "None",
             noti: "Notification",
             system: "system",
@@ -186,6 +197,7 @@ const i18n = new VueI18n({
             Watts: "Watts(W)",
             DesignCapacity: "Design capacity(mAh)",
             NominalChargeCapacity: "Nominal charge capacity(mAh)",
+            Amperage: "Amperage(mA)",
             InstantAmperage: "Instant amperage(mA)",
             CurrentCapacity: "Current capacity",
             HardwareCapacity: "Hardware capacity",
@@ -201,7 +213,7 @@ const i18n = new VueI18n({
             WirelessCharge: "Wireless charge",
             UpdateAt: "Updated at",
             Health: "Health",
-            conn_adaptor: "Please connect to an adaptor first",
+            conn_adaptor: "Please connect to a power source first",
             wait_update: "Please wait {0} sec to take effect",
             conn_daemon_error: "Service connect failed",
             input_error: "Input error",
@@ -216,11 +228,6 @@ const i18n = new VueI18n({
             model: "Device model",
             sysboot: "System boot time",
             servboot: "Service boot time",
-            off: "Off",
-            nominal: "Nominal",
-            light: "Light",
-            moderate: "Moderate",
-            heavy: "Heavy",
             copy_to_pb: "Copy all data to pasteboard",
             view_hist: "History",
             open_safari: "Open in Safari",
@@ -239,13 +246,14 @@ const i18n = new VueI18n({
             sysinfo: "系统信息",
             update_freq: "更新频率",
             update_freq_desc: "降低频率后UI响应速度变慢,但可能更省电",
-            charge_below: "电量低于(%)开始充电",
-            nocharge_above: "电量高于(%)停止充电",
-            nocharge_temp_above: "温度高于(°C)停止充电",
-            charge_temp_below: "温度低于(°C)恢复充电",
+            start_charge: "开始充电",
+            stop_charge: "停止充电",
             charge_btn_desc: "此按钮用于手动开始或停止充电,系统状态栏充电状态无效,以CL显示为准",
             inflow_btn_desc: "此按钮用于手动开始或停止禁流",
-            enable: "开启",
+            enable: "启用",
+            disable: "禁用",
+            user_disable: "用户禁用",
+            unknown: "未知",
             floatwnd: "悬浮窗",
             autohide: "自动隐藏",
             mode: "模式",
@@ -265,11 +273,16 @@ const i18n = new VueI18n({
             adv: "高级",
             adv_prefer_smart: "使用SmartBattery",
             adv_predictive_inhibit_charge: "智能停充",
-            adv_disable_inflow: "停充时启用禁流",
-            adv_thermal_simulate: "充电时模拟温度(Powercuff)",
-            adv_ppm_simulate: "低温性能/峰值性能(PPM)",
-            thermal_simulate_mode: "Powercuff模式",
-            ppm_simulate_mode: "PPM模式",
+            adv_disable_inflow: "停充时自动禁流",
+            adv_limit_inflow: "充电时自动限流",
+            adv_thermal_simulate: "高温模拟",
+            adv_thermal_simulate_desc: "Powercuff,模拟高温以限制硬件电量使用,也会降低充电电流和电压",
+            adv_ppm_simulate: "峰值性能状态",
+            adv_ppm_simulate_desc: "低温或电量不足时的峰值性能",
+            perf_man: "性能管理",
+            autoset: "自动设置",
+            set: "设置",
+            reset: "重置所有",
             off: "无",
             nominal: "正常",
             light: "轻度",
@@ -288,7 +301,8 @@ const i18n = new VueI18n({
             Watts: "功率(W)",
             DesignCapacity: "设计容量(mAh)",
             NominalChargeCapacity: "实际容量(mAh)",
-            InstantAmperage: "电流(mA)",
+            Amperage: "电流(mA)",
+            InstantAmperage: "瞬时电流(mA)",
             CurrentCapacity: "当前电量",
             HardwareCapacity: "硬件电量",
             Temperature: "温度(°C)",
@@ -336,13 +350,14 @@ const i18n = new VueI18n({
             sysinfo: "系統資訊",
             update_freq: "更新頻率",
             update_freq_desc: "降低頻率後UI響應速度變慢,但可能更省電",
-            charge_below: "電量低於(%)開始充電",
-            nocharge_above: "電量高於(%)停止充電",
-            nocharge_temp_above: "溫度高於(°C)停止充電",
-            charge_temp_below: "溫度低於(°C)恢復充電",
+            start_charge: "開始充電",
+            stop_charge: "停止充電",
             charge_btn_desc: "此按鈕用於手動開始或停止充電,系統狀態欄充電狀態無效,以CL顯示為準",
             inflow_btn_desc: "此按鈕用於手動開始或停止禁流",
-            enable: "開啟",
+            enable: "啟用",
+            disable: "禁用",
+            user_disable: "用戶禁用",
+            unknown: "未知",
             floatwnd: "懸浮窗",
             autohide: "自動隱藏",
             mode: "模式",
@@ -362,11 +377,16 @@ const i18n = new VueI18n({
             adv: "高級",
             adv_prefer_smart: "使用SmartBattery",
             adv_predictive_inhibit_charge: "智能停充",
-            adv_disable_inflow: "停充時啟用禁流",
-            adv_thermal_simulate: "充電時模擬溫度(Powercuff)",
-            adv_ppm_simulate: "低溫性能/峰值性能設置",
-            thermal_simulate_mode: "Powercuff模式",
-            ppm_simulate_mode: "PPM模式",
+            adv_disable_inflow: "停充時自動禁流",
+            adv_limit_inflow: "充電時自動限流",
+            adv_thermal_simulate: "高溫模擬",
+            adv_thermal_simulate_desc: "Powercuff,模擬高溫以限制硬件電量使用,也會降低充電電流和電壓",
+            adv_ppm_simulate: "峰值性能狀態",
+            adv_ppm_simulate_desc: "低溫或電量不足時的峰值性能",
+            perf_man: "性能管理",
+            autoset: "自動設置",
+            set: "設置",
+            reset: "重置所有",
             off: "無",
             nominal: "正常",
             light: "輕度",
@@ -385,7 +405,8 @@ const i18n = new VueI18n({
             Watts: "功率(W)",
             DesignCapacity: "表定容量(mAh)",
             NominalChargeCapacity: "實際容量(mAh)",
-            InstantAmperage: "電流(mA)",
+            Amperage: "電流(mA)",
+            InstantAmperage: "瞬時電流(mA)",
             CurrentCapacity: "目前電量",
             HardwareCapacity: "硬體電量",
             Temperature: "溫度(°C)",
@@ -462,25 +483,33 @@ const App = {
             adv_prefer_smart: false,
             adv_predictive_inhibit_charge: false,
             adv_disable_inflow: false,
+            adv_thermal_avail: true,
+            adv_limit_inflow: false,
+            adv_limit_inflow_mode: "",
+            adv_def_thermal_mode: "",
+            thermal_simulate_mode: "",
+            ppm_simulate_mode: "",
             sys_boot: 0,
             serv_boot: 0,
             use_smart: false,
             count_msg: "",
             timer: null,
-            marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
-            marks_temp: range(0, 60, 5).reduce((m, o)=>{m[o] = o + "°C/" + t_c_to_f(o).toFixed(0) + "°F"; return m;}, {}),
             freqs: null,
             modes: null,
             actions: null,
             cuffmods: null,
             show_tips: {
+                setting: true,
                 floatwnd_auto: false,
                 mode: false,
                 update: false,
                 acc: false,
                 charge: false,
                 inflow: false,
+                cuff: false,
+                ppm: false,
             },
+            show_conn_err: true,
         }
     },
     methods: {
@@ -490,8 +519,8 @@ const App = {
         ipc_send_wrapper: function(req) {
             var that = this;
             ipc_send(req, status => {
-                if (!status) {
-                    this.msg_list.push({
+                if (!status && that.show_conn_err) {
+                    that.msg_list.push({
                         "id": get_id(), 
                         "title": that.$t("conn_daemon_error"), 
                         "type": "error",
@@ -499,6 +528,53 @@ const App = {
                     });
                 }
                 that.daemon_alive = status;
+            });
+        },
+        wait_state_chage: function(obj, key, tmout, cb) {
+            var that = this;
+            if (this.h_) {
+                this.msg_list.push({
+                    "id": get_id(), 
+                    "title": this.$t("wait"), 
+                    "type": "error",
+                    "time": 3000,
+                });
+                return;
+            }
+            that.h_msg = {
+                "id": get_id(), 
+                "title": that.$t("wait_update").format(tmout),
+                "type": "info",
+                "time": tmout * 1000,
+            };
+            var old_status = obj[key];
+            that.h_ = setInterval(()=>{
+                if (that.update_freq > 1) {
+                    that.get_conf();
+                    that.get_bat_info();
+                }
+                tmout -= 1;
+                that.h_msg.title = that.$t("wait_update").format(tmout);
+                if (tmout <= 0 || old_status != obj[key]) {
+                    clearInterval(that.h_);
+                    that.h_ = null;
+                    var index = that.msg_list.findIndex(e => e.id == that.h_msg.id);
+                    if (index > -1) {
+                        that.msg_list.splice(index, 1);
+                    }
+                    if (cb) {
+                        cb();
+                    }
+                }
+            }, 1000);
+            this.msg_list.push(that.h_msg);
+        },
+        wait_daemon_alive: function() {
+            var that = this;
+            this.daemon_alive = false;
+            this.show_conn_err = false;
+            this.wait_state_chage(this, "daemon_alive", 10, function() {
+                that.show_conn_err = true;
             });
         },
         get_bat_info_cb: function(jdata) {
@@ -528,7 +604,6 @@ const App = {
                 val: v,
             });
             this.enable = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_floatwnd: function(v) {
             this.ipc_send_wrapper({
@@ -537,7 +612,6 @@ const App = {
                 val: v,
             });
             this.floatwnd = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_floatwnd_auto: function(v) {
             this.ipc_send_wrapper({
@@ -549,46 +623,21 @@ const App = {
             if (this.floatwnd) {
                 this.set_floatwnd(false);
             }
-            setTimeout(this.get_conf, 1000);
         },
         set_inflow_status: function(v) {
             this.ipc_send_wrapper({
                 api: "set_inflow_status",
                 flag: v,
             });
-            setTimeout(this.get_bat_info, 1000);
+            setTimeout(this.get_conf, 1000);
         },
         set_charge_status_cb: function(jdata) {
-            var that = this;
             var status = jdata.status;
             if (status == 0) {
-                var tmout = 0;
                 if (this.bat_info.PostChargeWaitSeconds) {
-                    tmout = this.bat_info.PostChargeWaitSeconds;
-                    var tmout_count = tmout;
-                    that.h_msg = {
-                        "id": get_id(), 
-                        "title": that.$t("wait_update").format(tmout_count),
-                        "type": "info",
-                        "time": tmout * 1000,
-                    };
-                    var old_status = that.bat_info.IsCharging;
-                    that.h_ = setInterval(()=>{
-                        tmout_count -= 1;
-                        that.h_msg.title = that.$t("wait_update").format(tmout_count);
-                        if (tmout_count <= 0 || old_status != that.bat_info.IsCharging) {
-                            clearInterval(that.h_);
-                            that.h_ = null;
-                            var index = that.msg_list.findIndex(e => e.id == that.h_msg.id);
-                            if (index > -1) {
-                                that.msg_list.splice(index, 1);
-                            }
-                        }
-                    }, 1000);
-                    this.msg_list.push(that.h_msg);
+                    var tmout = this.bat_info.PostChargeWaitSeconds;
+                    this.wait_state_chage(this.bat_info, "IsCharging", tmout);
                 }
-                tmout += 1;
-                setTimeout(this.get_bat_info, tmout * 1000);
             } else if (status == -3) {
                 this.msg_list.push({
                     "id": get_id(), 
@@ -606,15 +655,6 @@ const App = {
             }  
         },
         set_charge_status: function(v) {
-            if (this.h_) {
-                this.msg_list.push({
-                    "id": get_id(), 
-                    "title": this.$t("wait"), 
-                    "type": "error",
-                    "time": 3000,
-                });
-                return;
-            }
             this.ipc_send_wrapper({
                 api: "set_charge_status",
                 callback: "window.app.set_charge_status_cb",
@@ -659,10 +699,7 @@ const App = {
                 key: "adv_prefer_smart",
                 val: v,
             });
-            setTimeout(() => {
-                location.href = "cl://start_daemon";
-            }, 200);
-            setTimeout(this.get_conf, 3000); // 须重启daemon
+            this.wait_daemon_alive();
         },
         set_predictive_inhibit_charge: function(v) {
             this.ipc_send_wrapper({
@@ -671,7 +708,6 @@ const App = {
                 val: v,
             });
             this.adv_predictive_inhibit_charge = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_disable_inflow: function(v) {
             this.ipc_send_wrapper({
@@ -680,7 +716,44 @@ const App = {
                 val: v,
             });
             this.adv_disable_inflow = v;
+        },
+        change_def_thermal_mode: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "adv_def_thermal_mode",
+                val: v,
+            });
             setTimeout(this.get_conf, 1000);
+        },
+        change_ppm_mode: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "ppm_simulate_mode",
+                val: v,
+            });
+            setTimeout(this.get_conf, 1000);
+        },
+        set_limit_inflow: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "adv_limit_inflow",
+                val: v,
+            });
+            this.adv_limit_inflow = v;
+        },
+        change_limit_inflow_mode: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "adv_limit_inflow_mode",
+                val: v,
+            });
+            setTimeout(this.get_conf, 1000);
+        },
+        reset_conf: function() {
+            this.ipc_send_wrapper({
+                api: "reset_conf",
+            });
+            this.wait_daemon_alive();
         },
         get_health: function(item) {
             return (item["NominalChargeCapacity"] / item["DesignCapacity"] * 100).toFixed(2);
@@ -736,7 +809,6 @@ const App = {
                 val: v,
             });
             this.enable_temp = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_charge_temp_above: function(v) {
             this.ipc_send_wrapper({
@@ -761,7 +833,6 @@ const App = {
                 val: v,
             });
             this.acc_charge = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_airmode: function(v) {
             this.ipc_send_wrapper({
@@ -770,7 +841,6 @@ const App = {
                 val: v,
             });
             this.acc_charge_airmode = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_wifi: function(v) {
             this.ipc_send_wrapper({
@@ -779,7 +849,6 @@ const App = {
                 val: v,
             });
             this.acc_charge_wifi = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_lpm: function(v) {
             this.ipc_send_wrapper({
@@ -788,7 +857,6 @@ const App = {
                 val: v,
             });
             this.acc_charge_lpm = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_blue: function(v) {
             this.ipc_send_wrapper({
@@ -797,7 +865,6 @@ const App = {
                 val: v,
             });
             this.acc_charge_blue = v;
-            setTimeout(this.get_conf, 1000);
         },
         set_acc_charge_bright: function(v) {
             this.ipc_send_wrapper({
@@ -806,7 +873,6 @@ const App = {
                 val: v,
             });
             this.acc_charge_bright = v;
-            setTimeout(this.get_conf, 1000);
         },
         open_safari: function() {
             location.href = "safari://";
@@ -831,41 +897,18 @@ const App = {
             });
         },
         get_conf_cb: function(jdata) {
-            this.enable = jdata.data.enable;
-            this.ver = jdata.data.ver;
-            this.update_freq = jdata.data.update_freq;
-            this.sysver = jdata.data.sysver;
-            this.devmodel = jdata.data.devmodel;
-            this.floatwnd = jdata.data.floatwnd;
-            this.floatwnd_auto = jdata.data.floatwnd_auto;
-            this.mode = jdata.data.mode;
-            this.lang = jdata.data.lang;
+            for (var k in jdata.data) {
+                this[k] = jdata.data[k];
+            }
             if (this.lang && this.lang != get_local_lang()) {
                 i18n.locale = this.lang;
                 set_local_val("conf", "lang", this.lang);
                 this.reload_locale();
             }
-            this.charge_below = jdata.data.charge_below;
-            this.charge_above = jdata.data.charge_above;
-            this.enable_temp = jdata.data.enable_temp;
-            this.charge_temp_above = jdata.data.charge_temp_above;
-            this.charge_temp_below = jdata.data.charge_temp_below;
-            this.acc_charge = jdata.data.acc_charge;
-            this.acc_charge_airmode = jdata.data.acc_charge_airmode;
-            this.acc_charge_wifi = jdata.data.acc_charge_wifi;
-            this.acc_charge_blue = jdata.data.acc_charge_blue;
-            this.acc_charge_bright = jdata.data.acc_charge_bright;
-            this.acc_charge_lpm = jdata.data.acc_charge_lpm;
-            this.action = jdata.data.action;
-            this.adv_prefer_smart = jdata.data.adv_prefer_smart;
-            this.adv_predictive_inhibit_charge = jdata.data.adv_predictive_inhibit_charge;
-            this.adv_disable_inflow = jdata.data.adv_disable_inflow;
-            this.use_smart = jdata.data.use_smart;
-            this.sys_boot = jdata.data.sys_boot;
-            this.serv_boot = jdata.data.serv_boot;
             if (this.timer == null) {
                 this.get_bat_info();
                 this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
+                setInterval(this.get_conf, this.update_freq * 1000);
             }
         },
         get_conf: function() {

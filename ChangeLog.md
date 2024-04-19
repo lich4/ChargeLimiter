@@ -1,12 +1,23 @@
 未来计划:
 * 开机自动启动后台
-* 支持设置省电效率(Powercuff)
 * iOS12悬浮窗
 
 todos:
 * Start daemon on system reboot
 * Change power efficiency(Powercuff)
 * Floating window on iOS12
+
+1.6版本更新日志:
+* 增加温度模拟(即Powercuff)及峰值性能状态管理功能
+* 增加限流功能以兼容某些控流能力差的电池,避免充电温度过高
+* 增加5分钟图,增加时移功能,增加显示充电状态
+* 优化界面
+
+1.6 ChangeLog:
+* Amperage limit mode added for batteries with poor capability of amperage management during charging, to limit high temperature.
+* Thermal simulation(namely Powercuff) and peak power performance management available.
+* 5Minute chart added, charging status and time shifting avaiable.
+* Optimize App UI
 
 1.5版本更新日志:
 * 支持禁流模式以兼容少数不支持停充的电池
