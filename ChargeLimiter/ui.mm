@@ -151,7 +151,7 @@ static AppDelegate* _app = nil;
                     if ((mask & kIOHIDDigitizerEventPosition) != 0) { // touch_move
                         dispatch_async(dispatch_get_main_queue(), ^{
                             int f_x = MAX(x - FLOAT_WIDTH/2, 0);
-                            int f_y = MAX(y - FLOAT_HEIGHT/2, 0);
+                            int f_y = MAX(y - FLOAT_HEIGHT/2, 50); // 防止刘海屏上拉残缺
                             f_x = MIN(f_x, scrSize.width - FLOAT_WIDTH);
                             f_y = MIN(f_y, scrSize.height - FLOAT_HEIGHT);
                             CGRect rt = _app.webview.frame;

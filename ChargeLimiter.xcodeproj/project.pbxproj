@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		181BA3A12B91BAB400CC07A6 /* md-trollstore-appex in Resources */ = {isa = PBXBuildFile; fileRef = 181BA3A02B91BAB400CC07A6 /* md-trollstore-appex */; };
 		182AAAF52B91661B006BBE9A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		182AAAF62B916632006BBE9A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		1839C1D12B8C250C00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
@@ -28,6 +27,10 @@
 		184EA9B12B7A373300D0981D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
 		184EA9B22B7A373300D0981D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		1860F2C42B5809510094AAC8 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
+		18658A7B2BCBD93600207EF3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */; };
+		18658A822BCF771800207EF3 /* ui.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18658A812BCF771800207EF3 /* ui.mm */; };
+		18658A8F2BD2716000207EF3 /* ui.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18658A812BCF771800207EF3 /* ui.mm */; };
+		18658A902BD2716600207EF3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */; };
 		1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
 		1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
 		1870F6042B85A96100B3660F /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
@@ -70,6 +73,11 @@
 		18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChargeLimiter.entitlements; sourceTree = "<group>"; };
 		184EA9B72B7A373300D0981D /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		184FE8032B70BE8100525080 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		18658A812BCF771800207EF3 /* ui.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ui.mm; sourceTree = "<group>"; };
+		18658A832BCF772D00207EF3 /* ui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
+		18658A842BCF7A0200207EF3 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		1867403A2BB6AC1E00BB3382 /* ChangeLog.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ChangeLog.md; sourceTree = "<group>"; };
 		1867D8832B91A1D40006A073 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = GraphicsServices.tbd; sourceTree = "<group>"; };
 		1870F6192B85A96100B3660F /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -112,6 +120,7 @@
 				18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
 				184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */,
+				18658A902BD2716600207EF3 /* libsqlite3.tbd in Frameworks */,
 				184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -144,6 +153,7 @@
 				182AAAF52B91661B006BBE9A /* UserNotifications.framework in Frameworks */,
 				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
+				18658A7B2BCBD93600207EF3 /* libsqlite3.tbd in Frameworks */,
 				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
 				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
 			);
@@ -156,6 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				18B757232B57FDB2008A67D1 /* Readme.md */,
+				1867403A2BB6AC1E00BB3382 /* ChangeLog.md */,
 				1839C1D72B8C655900FCFDEB /* Readme2.md */,
 				18497C5D2B541D6100A6C5E3 /* md-trollstore */,
 				181BA3A02B91BAB400CC07A6 /* md-trollstore-appex */,
@@ -187,12 +198,15 @@
 				1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */,
 				1878863C2B51976B00E48B28 /* Assets.xcassets */,
 				187886412B51976B00E48B28 /* Info.plist */,
-				187886422B51976B00E48B28 /* main.mm */,
 				18C50C632B6CE41800793FA9 /* IOKit.tbd */,
 				18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */,
 				1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */,
+				187886422B51976B00E48B28 /* main.mm */,
 				18C50C652B6D2D5D00793FA9 /* utils.mm */,
 				18C50C672B6D2D6E00793FA9 /* utils.h */,
+				18658A812BCF771800207EF3 /* ui.mm */,
+				18658A832BCF772D00207EF3 /* ui.h */,
+				18658A842BCF7A0200207EF3 /* common.h */,
 			);
 			path = ChargeLimiter;
 			sourceTree = "<group>";
@@ -200,6 +214,7 @@
 		187886492B5199D800E48B28 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */,
 				18257CBC2B88652600DC5F70 /* CoreGraphics.framework */,
 				1899585D2B81A77800C93B46 /* MessageUI.framework */,
 				184FE8032B70BE8100525080 /* UserNotifications.framework */,
@@ -340,7 +355,6 @@
 			files = (
 				18EEB6F82B7BCAA100DCC561 /* splash.png in Resources */,
 				1860F2C42B5809510094AAC8 /* www in Resources */,
-				181BA3A12B91BAB400CC07A6 /* md-trollstore-appex in Resources */,
 				1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */,
 				187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */,
 				1878863B2B51976A00E48B28 /* Main.storyboard in Resources */,
@@ -412,6 +426,7 @@
 			files = (
 				184EA9A42B7A373300D0981D /* main.mm in Sources */,
 				184EA9A52B7A373300D0981D /* utils.mm in Sources */,
+				18658A8F2BD2716000207EF3 /* ui.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,6 +445,7 @@
 			files = (
 				187886432B51976B00E48B28 /* main.mm in Sources */,
 				18C50C662B6D2D5D00793FA9 /* utils.mm in Sources */,
+				18658A822BCF771800207EF3 /* ui.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -461,8 +477,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YZGT4R4484;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/theos/vendor/include,
@@ -478,7 +494,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.6;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -487,9 +503,10 @@
 				OTHER_CFLAGS = "-DTHEOS_PACKAGE_INSTALL_PREFIX=\"/var/jb\"";
 				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
 				PRODUCT_NAME = ChargeLimiter;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = rootless;
-				TROLLSTORE_DEVICE_IP = 192.168.0.3;
+				TROLLSTORE_DEVICE_IP = 192.168.0.112;
 				VALID_ARCHS = arm64;
 			};
 			name = Debug;
@@ -500,8 +517,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YZGT4R4484;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/theos/vendor/include,
@@ -517,7 +534,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.6;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -526,9 +543,10 @@
 				OTHER_CFLAGS = "-DTHEOS_PACKAGE_INSTALL_PREFIX=\"/var/jb\"";
 				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
 				PRODUCT_NAME = ChargeLimiter;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = rootless;
-				TROLLSTORE_DEVICE_IP = 192.168.0.3;
+				TROLLSTORE_DEVICE_IP = 192.168.0.112;
 				VALID_ARCHS = arm64;
 			};
 			name = Release;
@@ -539,8 +557,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YZGT4R4484;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/theos/vendor/include,
@@ -556,7 +574,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.6;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -565,9 +583,10 @@
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
 				PRODUCT_NAME = ChargeLimiter;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = roothide;
-				TROLLSTORE_DEVICE_IP = 192.168.1.7;
+				TROLLSTORE_DEVICE_IP = 192.168.0.35;
 				VALID_ARCHS = arm64;
 			};
 			name = Debug;
@@ -578,8 +597,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YZGT4R4484;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/theos/vendor/include,
@@ -595,7 +614,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.6;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -604,9 +623,10 @@
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
 				PRODUCT_NAME = ChargeLimiter;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				THEOS_PACKAGE_SCHEME = roothide;
-				TROLLSTORE_DEVICE_IP = 192.168.1.7;
+				TROLLSTORE_DEVICE_IP = 192.168.0.35;
 				VALID_ARCHS = arm64;
 			};
 			name = Release;
@@ -744,8 +764,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YZGT4R4484;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/theos/vendor/include,
@@ -761,7 +781,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.6;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -769,8 +789,9 @@
 				MonkeyDevTheosPath = /opt/theos;
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.11;
+				TROLLSTORE_DEVICE_IP = 192.168.0.254;
 			};
 			name = Debug;
 		};
@@ -780,8 +801,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YZGT4R4484;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/theos/vendor/include,
@@ -797,7 +818,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.6;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -805,8 +826,9 @@
 				MonkeyDevTheosPath = /opt/theos;
 				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.11;
+				TROLLSTORE_DEVICE_IP = 192.168.0.254;
 			};
 			name = Release;
 		};
