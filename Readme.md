@@ -58,7 +58,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 品牌反馈(欢迎汇报数据给我):
 * 反馈不支持停充的电池: 马拉松1例.
-* 反馈不支持智能停充的电池(开启智能电池会掉健康度): 品胜1例.
+* 反馈不支持SmartBattery的电池(开启SmartBattery会掉健康度): 品胜1例.
 
 ## 使用前必看
 
@@ -243,6 +243,11 @@ Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
 * Special entitlements is used in CL, so it is impossible to be installed as common ipa files.
 
+How to cool down the battery in summer?
+* Lower power usage of iDevice hardware with "Powercuff" capability in CL, it will reduce the charging wattage in the same time. 
+* Use a charger of lower Watt to charge.
+* Use a heat dissipation or sth.
+
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
@@ -290,7 +295,7 @@ Enable or disable CL globally. CL will become an readonly observer if disabled, 
 triggers precedence from high to low: 
 * Start charging(Extremely low capacity) 
 * Stop charging(Capacity > Temperature)
-* Start charging((Capacity > Temperature > Plug in)
+* Start charging(Capacity > Temperature > Plug in)
 
 ### Update frequency
 
@@ -301,7 +306,7 @@ triggers precedence from high to low:
 
 * Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80/10/35. Long-time-overcharged/Out of power/High temperature will do harm to the battery.
 * Please set temperature threshhold according to "History-Hourly Data".
-* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% mostly, a little users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%.
+* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% in most situations, a little users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%.
 
 ### Action
 
@@ -313,7 +318,7 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 * Auto inhibit inflow, DisableInflow mode is for batteries doesn't support ChargeInhibit mode, iDevice will start to consume power of battery after stopping charging if enabled.
 * Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage.
 * Peak Power, control peak power performance under low temperature or low capacity, Do not change it unless you know what you are doing.
-* Auto limit inflow, apply thermal simulation against high temperature and health dropping of the batteries losing control of Amperage. You can find the fitful level in this way: Start charging when current capacity below 30%(the lower capacity, the higher amperage), try to select "Advanced-Thermal simulate" level(from "Norminal" to "Heavy", the higher level, the lower amperage), a few seconds later,  the amperage will change in a few minutes. When you catch the acceptable amperage value, set the level to "Advanced-Auto limit inflow-Thermal simulation". In this case, the thermal simulate level will be set to level specified in "Advanced-Auto limit inflow-Thermal simulation" automatically when CL start charging, and will be set to default level specified in "Advanced-Thermal simulate" when CL stop charging.
+* Auto limit inflow, apply thermal simulation against high temperature and health dropping of the batteries losing control of Amperage. You can find the fitful level in this way: Start charging when current capacity below 30%(the lower capacity, the higher amperage), try to select "Advanced-Thermal simulate" level(from "Norminal" to "Heavy", the higher level, the lower amperage), the amperage will change in a few seconds. When you catch the acceptable amperage value, set the level to "Advanced-Auto limit inflow-Thermal simulation". In this case, the thermal simulate level will be set to level specified in "Advanced-Auto limit inflow-Thermal simulation" automatically when CL start charging, and will be set to default level specified in "Advanced-Thermal simulate" when CL stop charging.
 
 ### Battery Information
 
