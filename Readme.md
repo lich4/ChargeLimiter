@@ -119,7 +119,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 * SmartBattery和智能停充,绝大多数用户使用默认配置即可,非正版电池如果使用默认配置导致健康度异常下降,可以自定义以最大程度减缓健康度下降速度.
 * 自动禁流,用于兼容不支持停充的电池.开启禁流后等同于消耗电池电量,此时电池损耗和正常使用一致.
-* 高温模拟,Powercuff,温度越高,硬件(充电器/CPU/背光/无线通信)耗电越少,手机越卡顿,充电电流电压也越低.
+* 高温模拟,Powercuff,温度越高,硬件(充电器/CPU/背光/无线通信)耗电越少,手机越卡顿,充电电流电压也越低.注意系统本身会根据实际情况调节该项,如果要强制指定模式请打开锁定开关.越狱环境下如果存在功能冲突的tweak则CL不生效.
 * 峰值性能,用于控制低温和电量不足时的峰值性能,不建议修改.
 * 自动限流,用于自身流控不好的电池,电流过大会导致电池温度过高,健康度下降.选择合适的高温模拟等级: 可在电量小于30%时充电,电量越低时充电电流越高,手动设置"高级-高温模拟-设置"(等级从"正常"到"重度",等级越高电流越小),每次设置后几秒内可以观察到电流变化,达到合适的电流值时,将该等级设置到"高级-自动限流-高温模拟"中.自动限流在充电时自动设置为指定高温模拟等级(高级-自动限流-高温模拟),停充时自动恢复到默认等级(高级-高温模拟-设置).
 
@@ -154,33 +154,118 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 ### HTTP接口(可配合快捷指令)
 
-* POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}
-* * enable 全局开关 
-* * charge_below 电量最小值 
-* * charge_above 电量最大值 
-* * enable_temp 温控开关
-* * charge_temp_above 温度最大值
-* * charge_temp_below 温度最小值
-* * acc_charge 加速充电开关
-* * acc_charge_airmode 飞行模式
-* * acc_charge_blue 蓝牙
-* * acc_charge_bright 亮度
-* * acc_charge_lpm LPM
-* POST http://localhost:1230 {"api":"set_conf","key":"enable","val":true} => {"status":0}
-* POST http://localhost:1230 {"api":"get_bat_info"} => {"status":0,"data":{"IsCharging":false,...}}
-* * InstantAmperage 电流
-* * Voltage 电压
-* * AppleRawCurrentCapacity 原始电量
-* * CurrentCapacity 系统电量
-* * CycleCount 循环次数
-* * DesignCapacity 设计容量
-* * NominalChargeCapacity 实际容量
-* * ExternalChargeCapable 电源已连接
-* * IsCharging 正在充电
-* * Temperature 温度
-* * UpdateTime 内核数据缓存时间
-* POST http://localhost:1230 {"api":"set_charge_status","flag":true} => {"status":0}
-* POST http://localhost:1230 {"api":"set_inflow_status","flag":true} => {"status":0}
+* 例子:
+
+```bash
+curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-type:application/json"
+=> {"status":0,"data":true}
+```
+
+* 全局参数
+
+|键                                            |类型         |描述                                                                                        |
+|----------------------------------|-----------|---------------------------------------------------------------------|
+|enable                                     |布尔         |关闭后CL将处于观察者模式,只读取电池信息,不进行任何操作|
+|floatwnd                                  |布尔         |开启悬浮窗                                                                              |
+|floatwnd_auto                         |布尔         |悬浮窗自动隐藏                                                                       |
+|mode                                       |字符串     |模式,charge_on_plug为插电即充,edge_trigger为边缘触发     |
+|charge_below                         |整型         |电量最小值                                                                              |
+|charge_above                         |整型         |电量最大值                                                                              |
+|enable_temp                           |布尔         |温控开关                                                                                 |
+|charge_temp_above               |整型         |温度最小值                                                                              |
+|charge_temp_below               |整型         |温度最大值                                                                              |
+|acc_charge                             |布尔         |加速充电开关                                                                          |
+|acc_charge_airmode              |布尔         |飞行模式                                                                                 |
+|acc_charge_wifi                      |布尔         |WiFi                                                                                        |
+|acc_charge_blue                    |布尔         |蓝牙                                                                                        |
+|acc_charge_bright                  |布尔         |亮度                                                                                       |
+|acc_charge_lpm                     |布尔         |低电量模式                                                                             |
+|action                                     |字符串      |触发行为,noti为系统通知                                                       |
+|adv_prefer_smart                   |布尔         |开启SmartBattery                                                                  |
+|adv_predictive_inhibit_charge|布尔         |开启智能停充                                                                        |
+|adv_disable_inflow                 |布尔         |开启禁流                                                                               |
+|adv_limit_inflow                     |布尔         |开启限流                                                                                |
+|adv_limit_inflow_mode          |字符串      |限流模拟高温等级,off/nominal/light/moderate/heavy           |
+|adv_def_thermal_mode         |字符串      |默认模拟高温等级,off/nominal/light/moderate/heavy           |
+|adv_thermal_mode_lock        |布尔         |模拟高温等级锁定                                                                  |
+|thermal_simulate_mode         |字符串     |实际温度模拟等级(只读)                                                         |
+|ppm_simulate_mode             |字符串      |(实际)峰值性能等级                                                               |
+|use_smart                              |布尔         |是否支持SmartBattery(只读)                                                 |
+
+* 获取配置get_conf
+
+|请求         |类型         |描述                                     |
+|------------|-----------|--------------------------------|
+|api            |字符串    |get_conf                               |
+|key            |字符串    |全局参数,若不指定则返回所有配置|
+|响应         |                |                                            |
+|status       |整型        |0:成功                                  |
+|data         |                |数据                                     |
+
+* 更改配置set_conf
+
+|请求         |类型         |描述                                     |
+|------------|-----------|--------------------------------|
+|api            |字符串    |set_conf                               |
+|key            |字符串    |全局参数                              |
+|val            |               |值                                         |
+|响应         |                |                                            |
+|status       |整型        |0:成功                                  |
+|data         |                |数据                                     |
+
+* 获取电池数据get_bat_info
+
+|请求         |类型         |描述                                     |
+|------------|-----------|--------------------------------|
+|api            |字符串    |命令                                      |
+|响应         |                |                                            |
+|status       |整型        |0:成功                                  |
+|data         |                |数据                                     |
+
+|键                                        |类型        |描述                                     |
+|-------------------------------|-----------|--------------------------------|
+|Amperage                           |整型        |电流(mA)                              |
+|AppleRawCurrentCapacity |整型        |原始电量(mAh)                     |
+|BatteryInstalled                   |布尔        |电池已安装(mV)                   |
+|BootVoltage                        |整型        |启动电压(mV)                       |
+|CurrentCapacity                 |整型        |电量(%)                                |
+|CycleCount                        |整型        |循环数                                  |
+|DesignCapacity                  |整型        |设计容量(mAh)                     |
+|ExternalChargeCapable     |布尔        |电源可充电                           |
+|ExternalConnected            |布尔        |电源已连接                           |
+|InstantAmperage                |整型        |瞬时电流(mA)                       |
+|IsCharging                          |布尔        |正在充电                              |
+|NominalChargeCapacity    |整型        |实际容量(mAh)                     |
+|Serial                                  |字符串     |序列号                                 |
+|Temperature                       |整型        |温度(℃/100)                        |
+|UpdateTime                       |整型        |更新时间                              |
+|AdapterDetails.Voltage      |整型        |电压(mV)                              |
+|AdapterDetails.Current      |整型        |电源电流(mA)                      |
+|AdapterDetails.Description|整型        |电源描述                             |
+|AdapterDetails.IsWireless  |整型        |是否无线(需结合电源描述)  |
+|AdapterDetails.Manufacturer|整型     |电源厂商                             |
+|AdapterDetails.Name         |整型        |电源名称                             |
+|AdapterDetails.Voltage      |整型        |电源电压(mV)                      |
+|AdapterDetails.Watts         |整型        |电源功率(W)                        |
+
+* 设置停充set_charge_status
+
+|请求         |类型         |描述                                    |
+|------------|-----------|-------------------------------|
+|api            |字符串    |set_charge_status               |
+|flag          |布尔         |启用                                     |
+|响应         |                |                                            |
+|status       |整型        |0:成功                                  |
+
+* 设置禁流set_inflow_status
+
+|请求         |类型         |描述                                    |
+|------------|-----------|-------------------------------|
+|api            |字符串    |set_inflow_status                |
+|flag          |布尔         |启用                                     |
+|响应         |                |                                            |
+|status       |整型        |0:成功                                  |
+
 
 下载地址:(https://github.com/lich4/ChargeLimiter/releases)    
 交流QQ群:754802907    
@@ -316,7 +401,7 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 
 * For "SmartBattery" and "Predictive charging inhibit", default configuration is for most users. Recombination them to find the best configuration for yourself.
 * Auto inhibit inflow, DisableInflow mode is for batteries doesn't support ChargeInhibit mode, iDevice will start to consume power of battery after stopping charging if enabled.
-* Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage.
+* Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage. iOS system itself will update the staus according to actual situation, if you want to force specified value, please enable "Lock". CL will be invalid if confict with other tweak with similar functionality under Jailbreak environment.
 * Peak Power, control peak power performance under low temperature or low capacity, Do not change it unless you know what you are doing.
 * Auto limit inflow, apply thermal simulation against high temperature and health dropping of the batteries losing control of Amperage. You can find the fitful level in this way: Start charging when current capacity below 30%(the lower capacity, the higher amperage), try to select "Advanced-Thermal simulate" level(from "Norminal" to "Heavy", the higher level, the lower amperage), the amperage will change in a few seconds. When you catch the acceptable amperage value, set the level to "Advanced-Auto limit inflow-Thermal simulation". In this case, the thermal simulate level will be set to level specified in "Advanced-Auto limit inflow-Thermal simulation" automatically when CL start charging, and will be set to default level specified in "Advanced-Thermal simulate" when CL stop charging.
 
@@ -336,6 +421,7 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 * Monthly data, show battery health for each month.
 
 ### For Shortcuts.app
+
 New Shortcut - Add Action - Web - Safari - Open URLs    
 * cl:///                         (open CL)
 * cl:///exit                   (open CL, exit CL, launch daemon only)
@@ -347,11 +433,118 @@ New Shortcut - Add Action - Web - Safari - Open URLs
 Integrated shortcut(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
 
 ### HTTP Interface
-* POST http://localhost:1230 {"api":"get_conf","key":"enable"} => {"status":0,"data":true}
-* POST http://localhost:1230 {"api":"set_conf","key":"enable","val":true} => {"status":0}
-* POST http://localhost:1230 {"api":"get_bat_info"} => {"status":0,"data":{"IsCharging":false,...}}
-* POST http://localhost:1230 {"api":"set_charge_status","flag":true} => {"status":0}
-* POST http://localhost:1230 {"api":"set_inflow_status","flag":true} => {"status":0}
+
+* Example
+
+```bash
+curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-type:application/json"
+=> {"status":0,"data":true}
+```
+
+* Global configuration fields
+
+|key                                         |type         |description                                                                               |
+|----------------------------------|-----------|---------------------------------------------------------------------|
+|enable                                     |boolean         |CL will become an readonly observer if disabled, and shows battery information only|
+|floatwnd                                  |boolean         |Floating window                                                                      |
+|floatwnd_auto                         |boolean         |Floating window auto hide                                                      |
+|mode                                       |string     |Mode,"charge_on_plug" or "edge_trigger"                             |
+|charge_below                         |integer         |Capacity threshhold                                                                |
+|charge_above                         |integer         |Capacity threshhold                                                               |
+|enable_temp                           |boolean         |Temperature control                                                               |
+|charge_temp_above               |integer         |Temperature threshhold                                                         |
+|charge_temp_below               |integer         |Temperature threshhold                                                         |
+|acc_charge                             |boolean         |Speedup charging                                                                 |
+|acc_charge_airmode              |boolean         |Airplane mode                                                                       |
+|acc_charge_wifi                      |boolean         |WiFi                                                                                       |
+|acc_charge_blue                    |boolean         |Bluetooth                                                                               |
+|acc_charge_bright                  |boolean         |Brightness                                                                             |
+|acc_charge_lpm                     |boolean         |LPM                                                                                       |
+|action                                     |string      |Action on trigger, "noti" to use system notification              |
+|adv_prefer_smart                   |boolean         |Use SmartBattery                                                                  |
+|adv_predictive_inhibit_charge|boolean         |Use predictive inhibit charge                                                |
+|adv_disable_inflow                 |boolean         |Auto inhibit inflow                                                                 |
+|adv_limit_inflow                     |boolean         |Auto limit inflow                                                                     |
+|adv_limit_inflow_mode          |string      |Auto limit inflow with thermal simulation level,off/nominal/light/moderate/heavy|
+|adv_def_thermal_mode         |string      |Default thermal simulation level,off/nominal/light/moderate/heavy|
+|adv_thermal_mode_lock        |boolean         |Lock thermal simulation level                                               |
+|thermal_simulate_mode         |string     |Actual  thermal simulation level(readonly)                            |
+|ppm_simulate_mode             |string      |Actual Peak power performance level                                 |
+|use_smart                              |boolean         |SmartBattery available(readonly)                                          |
+
+* get_conf
+
+|request     |type        |description                           |
+|------------|-----------|--------------------------------|
+|api            |string      |get_conf                               |
+|key            |string     |return all conf if unspecified|
+|response  |                |                                            |
+|status       |integer    |0:success                            |
+|data         |                |data                                     |
+
+* set_conf
+
+|request     |type        |description                           |
+|------------|-----------|--------------------------------|
+|api            |string    |set_conf                               |
+|key            |string    |Global configuration fields  |
+|val            |               |data                                     |
+|response         |                |                                            |
+|status       |integer        |0:success                        |
+|data         |                |data                                   |
+
+* 获取电池数据get_bat_info
+
+|request     |type        |description                           |
+|------------|-----------|--------------------------------|
+|api            |string    |命令                                      |
+|response         |                |                                            |
+|status       |integer        |0:成功                                  |
+|data         |                |数据                                     |
+
+|key                                     |type         |description                           |
+|-------------------------------|-----------|--------------------------------|
+|Amperage                           |integer        |(mA)                                 |
+|AppleRawCurrentCapacity |integer        |(mAh)                               |
+|BatteryInstalled                   |boolean        |(mV)                               |
+|BootVoltage                        |integer        |(mV)                                 |
+|CurrentCapacity                 |integer        |(%)                                   |
+|CycleCount                        |integer        |                                         |
+|DesignCapacity                  |integer        |(mAh)                               |
+|ExternalChargeCapable     |boolean        |                                      |
+|ExternalConnected            |boolean        |                                      |
+|InstantAmperage                |integer        |(mA)                                |
+|IsCharging                          |boolean        |                                      |
+|NominalChargeCapacity    |integer        |(mAh)                              |
+|Serial                                  |string          |                                        |
+|Temperature                       |integer        |(℃/100)                          |
+|UpdateTime                       |integer        |                                        |
+|AdapterDetails.Voltage      |integer        |(mV)                                |
+|AdapterDetails.Current      |integer        |(mA)                               |
+|AdapterDetails.Description|integer        |                                      |
+|AdapterDetails.IsWireless  |integer        |                                      |
+|AdapterDetails.Manufacturer|integer     |                                     |
+|AdapterDetails.Name         |integer        |                                     |
+|AdapterDetails.Voltage      |integer        |(mV)                               |
+|AdapterDetails.Watts         |integer        |(W)                                 |
+
+* set_charge_status
+
+|request         |type         |description                                    |
+|------------|-----------|-------------------------------|
+|api            |string    |set_charge_status               |
+|flag          |boolean         |enable                                     |
+|response         |                |                                            |
+|status       |integer        |0:success                                  |
+
+* set_inflow_status
+
+|request         |type         |description                                    |
+|------------|-----------|-------------------------------|
+|api            |string    |set_inflow_status                |
+|flag          |boolean         |enable                                     |
+|response         |                |                                            |
+|status       |integer        |0:success                                  |
 
 If you have better ideas, please join the project and push your code   
 Download URL:(https://github.com/lich4/ChargeLimiter/releases)    

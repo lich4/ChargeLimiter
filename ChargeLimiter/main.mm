@@ -188,7 +188,8 @@ static int setChargeStatus(BOOL flag) {
 static int setBatteryStatus(BOOL flag) {
     int ret = setChargeStatus(flag);
     NSNumber* adv_limit_inflow = getlocalKV(@"adv_limit_inflow");
-    if (adv_limit_inflow.boolValue) {
+    NSNumber* adv_thermal_mode_lock = getlocalKV(@"adv_thermal_mode_lock");
+    if (!adv_thermal_mode_lock.boolValue && adv_limit_inflow.boolValue) {
         if (flag) {
             NSString* mode = getlocalKV(@"adv_limit_inflow_mode");
             setThermalSimulationMode(mode);
@@ -436,6 +437,14 @@ static void updateStatistics() {
     updateDBData("month", ts / 2592000, info_d);
 }
 
+static void onBatteryEventEnd() {
+    NSNumber* adv_thermal_mode_lock = getlocalKV(@"adv_thermal_mode_lock");
+    if (adv_thermal_mode_lock.boolValue) {
+        NSString* mode = getlocalKV(@"adv_def_thermal_mode");
+        setThermalSimulationMode(mode);
+    }
+}
+
 static void onBatteryEvent(io_service_t serv) {
     @autoreleasepool {
         NSDictionary* old_bat_info = bat_info;
@@ -460,99 +469,103 @@ static void onBatteryEvent(io_service_t serv) {
         NSNumber* temperature_ = bat_info[@"Temperature"];
         float temperature = temperature_.intValue / 100.0;
         // 优先级: 电量极低 > 停充(电量>温度) > 充电(电量>温度) > 插电
-        if (capacity.intValue <= 5) { // 电量极低,优先级=1
-            // 防止误用或意外造成无法充电
-            if (is_adaptor_connected && !is_charging.boolValue) {
-                NSFileLog(@"start charging for extremely low capacity");
-                setInflowStatus(YES);
-                setBatteryStatus(YES);
-                performAcccharge(YES);
-            }
-            return;
-        }
-        if (capacity.intValue >= charge_above.intValue) { // 停充-电量高,优先级=2
-            if (is_charging.boolValue) {
-                NSFileLog(@"stop charging for high capacity");
-                setBatteryStatus(NO);
-                performAction(@"stop_charge");
-                performAcccharge(NO);
-            }
-            if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
-                NSFileLog(@"disable inflow for high capacity");
-                setInflowStatus(NO);
-            }
-            return;
-        }
-        if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) { // 停充-温度高,优先级=3
-            if (is_charging.boolValue) {
-                NSFileLog(@"stop charging for high temperature");
-                setBatteryStatus(NO);
-                performAction(@"stop_charge");
-                performAcccharge(NO);
-            }
-            if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
-                NSFileLog(@"disable inflow for high temperature");
-                setInflowStatus(NO);
-            }
-            return;
-        }
-        if (capacity.intValue <= charge_below.intValue) { // 充电-电量低,优先级=4
-            // 禁流模式下电量下降后恢复充电
-            if (is_adaptor_connected) {
-                if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
-                    NSFileLog(@"enable inflow for low capacity");
+        do {
+            if (capacity.intValue <= 5) { // 电量极低,优先级=1
+                // 防止误用或意外造成无法充电
+                if (is_adaptor_connected && !is_charging.boolValue) {
+                    NSFileLog(@"start charging for extremely low capacity");
                     setInflowStatus(YES);
-                }
-                if (!is_charging.boolValue) {
-                    NSFileLog(@"start charging for low capacity");
                     setBatteryStatus(YES);
-                    performAction(@"start_charge");
                     performAcccharge(YES);
                 }
+                break;
             }
-            return;
-        }
-        if ([mode isEqualToString:@"charge_on_plug"]) {
-            if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) { // 充电-温度低,优先级=5
+            if (capacity.intValue >= charge_above.intValue) { // 停充-电量高,优先级=2
+                if (is_charging.boolValue) {
+                    NSFileLog(@"stop charging for high capacity");
+                    setBatteryStatus(NO);
+                    performAction(@"stop_charge");
+                    performAcccharge(NO);
+                }
+                if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
+                    NSFileLog(@"disable inflow for high capacity");
+                    setInflowStatus(NO);
+                }
+                break;
+            }
+            if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) { // 停充-温度高,优先级=3
+                if (is_charging.boolValue) {
+                    NSFileLog(@"stop charging for high temperature");
+                    setBatteryStatus(NO);
+                    performAction(@"stop_charge");
+                    performAcccharge(NO);
+                }
+                if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
+                    NSFileLog(@"disable inflow for high temperature");
+                    setInflowStatus(NO);
+                }
+                break;
+            }
+            if (capacity.intValue <= charge_below.intValue) { // 充电-电量低,优先级=4
+                // 禁流模式下电量下降后恢复充电
                 if (is_adaptor_connected) {
                     if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
-                        NSFileLog(@"enable inflow for low temperature");
+                        NSFileLog(@"enable inflow for low capacity");
                         setInflowStatus(YES);
                     }
                     if (!is_charging.boolValue) {
-                        NSFileLog(@"start charging for low temperature");
+                        NSFileLog(@"start charging for low capacity");
                         setBatteryStatus(YES);
                         performAction(@"start_charge");
                         performAcccharge(YES);
                     }
                 }
-                return;
+                break;
             }
-            if (isAdaptorNewConnect(old_bat_info, bat_info)) { // 充电-插电,优先级=6
-                if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
-                    NSFileLog(@"enable inflow for plug in");
-                    setInflowStatus(YES);
+            if ([mode isEqualToString:@"charge_on_plug"]) {
+                if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) { // 充电-温度低,优先级=5
+                    if (is_adaptor_connected) {
+                        if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
+                            NSFileLog(@"enable inflow for low temperature");
+                            setInflowStatus(YES);
+                        }
+                        if (!is_charging.boolValue) {
+                            NSFileLog(@"start charging for low temperature");
+                            setBatteryStatus(YES);
+                            performAction(@"start_charge");
+                            performAcccharge(YES);
+                        }
+                    }
+                    break;
                 }
-                if (!is_charging.boolValue) {
-                    NSFileLog(@"start charging for plug in");
-                    setBatteryStatus(YES);
-                    performAction(@"start_charge");
-                    performAcccharge(YES);
+                if (isAdaptorNewConnect(old_bat_info, bat_info)) { // 充电-插电,优先级=6
+                    if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
+                        NSFileLog(@"enable inflow for plug in");
+                        setInflowStatus(YES);
+                    }
+                    if (!is_charging.boolValue) {
+                        NSFileLog(@"start charging for plug in");
+                        setBatteryStatus(YES);
+                        performAction(@"start_charge");
+                        performAcccharge(YES);
+                    }
+                    break;
                 }
-                return;
+            } else if ([mode isEqualToString:@"edge_trigger"]) {
+                if (isAdaptorNewConnect(old_bat_info, bat_info)) {
+                    if (!is_charging.boolValue) {
+                        NSFileLog(@"stop charging for plug in");
+                        setBatteryStatus(NO);
+                    }
+                    if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
+                        NSFileLog(@"disable inflow for plug in");
+                        setInflowStatus(NO);
+                    }
+                }
+                break;
             }
-        } else if ([mode isEqualToString:@"edge_trigger"]) {
-            if (isAdaptorNewConnect(old_bat_info, bat_info)) {
-                if (!is_charging.boolValue) {
-                    NSFileLog(@"stop charging for plug in");
-                    setBatteryStatus(NO);
-                }
-                if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
-                    NSFileLog(@"disable inflow for plug in");
-                    setInflowStatus(NO);
-                }
-            }
-        }
+        } while(false);
+        onBatteryEventEnd();
     }
 }
 
@@ -581,6 +594,7 @@ static void initConf(BOOL reset) {
         @"adv_limit_inflow": @NO,
         @"adv_limit_inflow_mode": @"moderate",
         @"adv_def_thermal_mode": @"off", // powercuff
+        @"adv_thermal_mode_lock": @NO,
         @"action": @"",
     };
     if (reset) {

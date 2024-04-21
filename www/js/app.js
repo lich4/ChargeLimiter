@@ -167,6 +167,7 @@ const i18n = new VueI18n({
             acc_charge_bright: "Minimize brightness",
             action: "Action",
             adv: "Advanced",
+            lock: "Lock",
             adv_prefer_smart: "Use SmartBattery",
             adv_predictive_inhibit_charge: "Predictive charging inhibit",
             adv_disable_inflow: "Auto inhibit inflow",
@@ -271,6 +272,7 @@ const i18n = new VueI18n({
             acc_charge_bright: "亮度最低",
             action: "行为",
             adv: "高级",
+            lock: "锁定",
             adv_prefer_smart: "使用SmartBattery",
             adv_predictive_inhibit_charge: "智能停充",
             adv_disable_inflow: "停充时自动禁流",
@@ -375,6 +377,7 @@ const i18n = new VueI18n({
             acc_charge_bright: "亮度最低",
             action: "行為",
             adv: "高級",
+            lock: "鎖定",
             adv_prefer_smart: "使用SmartBattery",
             adv_predictive_inhibit_charge: "智能停充",
             adv_disable_inflow: "停充時自動禁流",
@@ -510,6 +513,7 @@ const App = {
                 ppm: false,
             },
             show_conn_err: true,
+            conf: null,
         }
     },
     methods: {
@@ -725,6 +729,14 @@ const App = {
             });
             setTimeout(this.get_conf, 1000);
         },
+        set_thermal_mode_lock: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "adv_thermal_mode_lock",
+                val: v,
+            });
+            this.adv_thermal_mode_lock = v;
+        },
         change_ppm_mode: function(v) {
             this.ipc_send_wrapper({
                 api: "set_conf",
@@ -880,11 +892,14 @@ const App = {
         copy_to_pb: function() {
             var copy_bat_info = Object.assign({}, this.bat_info);
             delete copy_bat_info["Serial"];
-            copy_bat_info["System"] = {
-                sysver: this.sysver,
-                devmodel: this.devmodel,
-            }
-            var data = JSON.stringify(copy_bat_info, null, 2)
+            var data = JSON.stringify({
+                "Battery": copy_bat_info,
+                "System": {
+                    sysver: this.sysver,
+                    devmodel: this.devmodel,
+                },
+                "Config": this.conf,
+            }, null, 2);
             this.ipc_send_wrapper({
                 api: "set_pb",
                 val: data,
@@ -900,6 +915,7 @@ const App = {
             for (var k in jdata.data) {
                 this[k] = jdata.data[k];
             }
+            this.conf = jdata.data.
             if (this.lang && this.lang != get_local_lang()) {
                 i18n.locale = this.lang;
                 set_local_val("conf", "lang", this.lang);

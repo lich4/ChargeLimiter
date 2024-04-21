@@ -127,3 +127,129 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 * Daily data, show battery health in detail for each day.
 * Monthly data, show battery health for each month.
 
+### For Shortcuts.app
+
+New Shortcut - Add Action - Web - Safari - Open URLs    
+* cl:///                         (open CL)
+* cl:///exit                   (open CL, exit CL, launch daemon only)
+* cl:///charge              (open CL, start charging)
+* cl:///charge/exit       (open CL, start charging, exit CL)
+* cl:///nocharge         (open CL, stop charging)
+* cl:///nocharge/exit  (open CL, stop charging, exit CL)
+
+Integrated shortcut(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
+
+### HTTP Interface
+
+* Example
+
+```bash
+curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-type:application/json"
+=> {"status":0,"data":true}
+```
+
+* Global configuration fields
+
+|key                                         |type         |description                                                                               |
+|----------------------------------|-----------|---------------------------------------------------------------------|
+|enable                                     |boolean         |CL will become an readonly observer if disabled, and shows battery information only|
+|floatwnd                                  |boolean         |Floating window                                                                      |
+|floatwnd_auto                         |boolean         |Floating window auto hide                                                      |
+|mode                                       |string     |Mode,"charge_on_plug" or "edge_trigger"                             |
+|charge_below                         |integer         |Capacity threshhold                                                                |
+|charge_above                         |integer         |Capacity threshhold                                                               |
+|enable_temp                           |boolean         |Temperature control                                                               |
+|charge_temp_above               |integer         |Temperature threshhold                                                         |
+|charge_temp_below               |integer         |Temperature threshhold                                                         |
+|acc_charge                             |boolean         |Speedup charging                                                                 |
+|acc_charge_airmode              |boolean         |Airplane mode                                                                       |
+|acc_charge_wifi                      |boolean         |WiFi                                                                                       |
+|acc_charge_blue                    |boolean         |Bluetooth                                                                               |
+|acc_charge_bright                  |boolean         |Brightness                                                                             |
+|acc_charge_lpm                     |boolean         |LPM                                                                                       |
+|action                                     |string      |Action on trigger, "noti" to use system notification              |
+|adv_prefer_smart                   |boolean         |Use SmartBattery                                                                  |
+|adv_predictive_inhibit_charge|boolean         |Use predictive inhibit charge                                                |
+|adv_disable_inflow                 |boolean         |Auto inhibit inflow                                                                 |
+|adv_limit_inflow                     |boolean         |Auto limit inflow                                                                     |
+|adv_limit_inflow_mode          |string      |Auto limit inflow with thermal simulation level,off/nominal/light/moderate/heavy|
+|adv_def_thermal_mode         |string      |Default thermal simulation level,off/nominal/light/moderate/heavy|
+|adv_thermal_mode_lock        |boolean         |Lock thermal simulation level                                               |
+|thermal_simulate_mode         |string     |Actual  thermal simulation level(readonly)                            |
+|ppm_simulate_mode             |string      |Actual Peak power performance level                                 |
+|use_smart                              |boolean         |SmartBattery available(readonly)                                          |
+
+* get_conf
+
+|request     |type        |description                           |
+|------------|-----------|--------------------------------|
+|api            |string      |get_conf                               |
+|key            |string     |return all conf if unspecified|
+|response  |                |                                            |
+|status       |integer    |0:success                            |
+|data         |                |data                                     |
+
+* set_conf
+
+|request     |type        |description                           |
+|------------|-----------|--------------------------------|
+|api            |string    |set_conf                               |
+|key            |string    |Global configuration fields  |
+|val            |               |data                                     |
+|response         |                |                                            |
+|status       |integer        |0:success                        |
+|data         |                |data                                   |
+
+* 获取电池数据get_bat_info
+
+|request     |type        |description                           |
+|------------|-----------|--------------------------------|
+|api            |string    |命令                                      |
+|response         |                |                                            |
+|status       |integer        |0:成功                                  |
+|data         |                |数据                                     |
+
+|key                                     |type         |description                           |
+|-------------------------------|-----------|--------------------------------|
+|Amperage                           |integer        |(mA)                                 |
+|AppleRawCurrentCapacity |integer        |(mAh)                               |
+|BatteryInstalled                   |boolean        |(mV)                               |
+|BootVoltage                        |integer        |(mV)                                 |
+|CurrentCapacity                 |integer        |(%)                                   |
+|CycleCount                        |integer        |                                         |
+|DesignCapacity                  |integer        |(mAh)                               |
+|ExternalChargeCapable     |boolean        |                                      |
+|ExternalConnected            |boolean        |                                      |
+|InstantAmperage                |integer        |(mA)                                |
+|IsCharging                          |boolean        |                                      |
+|NominalChargeCapacity    |integer        |(mAh)                              |
+|Serial                                  |string          |                                        |
+|Temperature                       |integer        |(℃/100)                          |
+|UpdateTime                       |integer        |                                        |
+|AdapterDetails.Voltage      |integer        |(mV)                                |
+|AdapterDetails.Current      |integer        |(mA)                               |
+|AdapterDetails.Description|integer        |                                      |
+|AdapterDetails.IsWireless  |integer        |                                      |
+|AdapterDetails.Manufacturer|integer     |                                     |
+|AdapterDetails.Name         |integer        |                                     |
+|AdapterDetails.Voltage      |integer        |(mV)                               |
+|AdapterDetails.Watts         |integer        |(W)                                 |
+
+* set_charge_status
+
+|request         |type         |description                                    |
+|------------|-----------|-------------------------------|
+|api            |string    |set_charge_status               |
+|flag          |boolean         |enable                                     |
+|response         |                |                                            |
+|status       |integer        |0:success                                  |
+
+* set_inflow_status
+
+|request         |type         |description                                    |
+|------------|-----------|-------------------------------|
+|api            |string    |set_inflow_status                |
+|flag          |boolean         |enable                                     |
+|response         |                |                                            |
+|status       |integer        |0:success                                  |
+

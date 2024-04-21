@@ -16,7 +16,7 @@ todos:
 1.6 ChangeLog:
 * Amperage limit mode added for batteries with poor capability of amperage management during charging, to limit high temperature.
 * Thermal simulation(namely Powercuff) and peak power performance management available.
-* 5Minute chart added, charging status and time shifting avaiable.
+* 5Minute chart added, charging status and time shifting available.
 * Optimize App UI
 
 1.5版本更新日志:

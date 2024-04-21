@@ -411,6 +411,10 @@
                   <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
                 </el-select>
               </el-row>
+              <el-row class="pt-1">
+                <el-label class="submenu">{{$t("lock")}}</el-label>
+                <el-switch :value="adv_thermal_mode_lock" class="right" @change="set_thermal_mode_lock"></el-switch>
+              </el-row>
             </div>
             <el-divider class="my-0" direction="horizontal"></el-divider>
             <div class="py-2 col-item">
@@ -435,7 +439,8 @@
               <template v-if="adv_limit_inflow">
                 <el-row class="col-item my-1">
                   <el-label class="subsubmenu">{{$t("adv_thermal_simulate")}}</el-label>
-                  <el-select v-model="adv_limit_inflow_mode" size="mini" class="right" style="width:140px" @change="change_limit_inflow_mode">
+                  <el-select v-model="adv_limit_inflow_mode" size="mini" class="right" style="width:140px" @change="change_limit_inflow_mode"
+                    :disabled="adv_thermal_mode_lock">
                     <el-option v-for="i in cuffmods" :key="i.value" :label="i.label" :value="i.value"></el-option>
                   </el-select>
                 </el-row>
