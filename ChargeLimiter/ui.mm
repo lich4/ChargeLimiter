@@ -190,29 +190,31 @@ static AppDelegate* _app = nil;
                     NSArray* white_list = @[@"", self_bid, @"com.apple.springboard", @"com.apple.AccessibilityUIServer"];
                     static NSString* old_bid = self_bid; // 悬浮窗从CL诞生
                     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                        in_process = true;
-                        for (int i = ts; i < last_access_time + FRONTMOST_DELAY; i++) { // 每次通知增加上限时间,等待bid变化
-                            NSString* cur_bid = getFrontMostBid();
-                            if (![old_bid isEqualToString:cur_bid]) {
-                                NSNumber* floatwnd_auto = getlocalKV(@"floatwnd_auto");
-                                if (floatwnd_auto.boolValue) {
-                                    if ([white_list containsObject:cur_bid]) {
-                                        dispatch_async(dispatch_get_main_queue(), ^{
-                                            _app.webview.hidden = NO;
-                                        });
-                                    } else {
-                                        dispatch_async(dispatch_get_main_queue(), ^{
-                                            _app.webview.hidden = YES;
-                                        });
+                        @autoreleasepool {
+                            in_process = true;
+                            for (int i = ts; i < last_access_time + FRONTMOST_DELAY; i++) { // 每次通知增加上限时间,等待bid变化
+                                NSString* cur_bid = getFrontMostBid();
+                                if (![old_bid isEqualToString:cur_bid]) {
+                                    NSNumber* floatwnd_auto = getlocalKV(@"floatwnd_auto");
+                                    if (floatwnd_auto.boolValue) {
+                                        if ([white_list containsObject:cur_bid]) {
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                _app.webview.hidden = NO;
+                                            });
+                                        } else {
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                _app.webview.hidden = YES;
+                                            });
+                                        }
                                     }
+                                    old_bid = cur_bid;
+                                    break; // 已变化,满足条件退出
                                 }
                                 old_bid = cur_bid;
-                                break; // 已变化,满足条件退出
+                                [NSThread sleepForTimeInterval:1.0];
                             }
-                            old_bid = cur_bid;
-                            [NSThread sleepForTimeInterval:1.0];
+                            in_process = false;
                         }
-                        in_process = false;
                     });
                 }
             }, CFSTR("com.apple.mobile.SubstantialTransition"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);

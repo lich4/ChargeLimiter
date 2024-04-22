@@ -2,7 +2,7 @@
 
 ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice from getting overcharged, which will cause damage to the battery.     
 
-Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.ipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
+Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
 
 Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.      
 
@@ -98,7 +98,7 @@ triggers precedence from high to low:
 
 * Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80/10/35. Long-time-overcharged/Out of power/High temperature will do harm to the battery.
 * Please set temperature threshhold according to "History-Hourly Data".
-* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% in most situations, a little users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%.
+* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% in most situations, a little users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%. besides, A suddenly change of the battery health will cause this situation too.
 
 ### Action
 
@@ -108,7 +108,7 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 
 * For "SmartBattery" and "Predictive charging inhibit", default configuration is for most users. Recombination them to find the best configuration for yourself.
 * Auto inhibit inflow, DisableInflow mode is for batteries doesn't support ChargeInhibit mode, iDevice will start to consume power of battery after stopping charging if enabled.
-* Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage.
+* Thermal simulation, same as Powercuff, the higher temperature, the less power consumption of hardware(Charger/CPU/Backlight/Radio),  poorer performance, lower charging amperage and lower charging voltage. iOS system itself will update the staus according to actual situation, if you want to force specified value(not recommended), please enable "Lock". CL will be invalid if confict with other tweak with similar functionality under Jailbreak environment.
 * Peak Power, control peak power performance under low temperature or low capacity, Do not change it unless you know what you are doing.
 * Auto limit inflow, apply thermal simulation against high temperature and health dropping of the batteries losing control of Amperage. You can find the fitful level in this way: Start charging when current capacity below 30%(the lower capacity, the higher amperage), try to select "Advanced-Thermal simulate" level(from "Norminal" to "Heavy", the higher level, the lower amperage), the amperage will change in a few seconds. When you catch the acceptable amperage value, set the level to "Advanced-Auto limit inflow-Thermal simulation". In this case, the thermal simulate level will be set to level specified in "Advanced-Auto limit inflow-Thermal simulation" automatically when CL start charging, and will be set to default level specified in "Advanced-Thermal simulate" when CL stop charging.
 
@@ -200,11 +200,11 @@ curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-ty
 |status       |integer        |0:success                        |
 |data         |                |data                                   |
 
-* 获取电池数据get_bat_info
+* get_bat_info
 
 |request     |type        |description                           |
 |------------|-----------|--------------------------------|
-|api            |string    |命令                                      |
+|api            |string    |get_bat_info                          |
 |response         |                |                                            |
 |status       |integer        |0:成功                                  |
 |data         |                |数据                                     |

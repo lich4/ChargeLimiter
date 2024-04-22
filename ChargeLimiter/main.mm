@@ -866,14 +866,18 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
 @end
 
 static void start_daemon() {
-    if (g_jbtype == JBTYPE_TROLLSTORE) {
-        NSTimer* start_daemon_timer = [NSTimer timerWithTimeInterval:10 repeats:YES block:^(NSTimer* timer) {
-            if (!localPortOpen(GSERV_PORT)) {
-                spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
-            }
-        }];
-        [start_daemon_timer fire];
-        [NSRunLoop.currentRunLoop addTimer:start_daemon_timer forMode:NSDefaultRunLoopMode];
+    @autoreleasepool {
+        if (g_jbtype == JBTYPE_TROLLSTORE) {
+            NSTimer* start_daemon_timer = [NSTimer timerWithTimeInterval:10 repeats:YES block:^(NSTimer* timer) {
+                @autoreleasepool {
+                    if (!localPortOpen(GSERV_PORT)) {
+                        spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
+                    }
+                }
+            }];
+            [start_daemon_timer fire];
+            [NSRunLoop.currentRunLoop addTimer:start_daemon_timer forMode:NSDefaultRunLoopMode];
+        }
     }
 }
 

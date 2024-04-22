@@ -273,11 +273,11 @@
         </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item input_number">
-          <el-col :span="12">
+          <el-col :span="11">
             <el-row><el-label>{{$t("start_charge")}}</el-label></el-row>
             <el-row><el-label class="submenu">{{$t("CurrentCapacity")}} ≤</el-label></el-row>
           </el-col>
-          <el-col :span="12" class="mt-3">
+          <el-col :span="13" class="mt-3">
             <el-row class="right">
               <el-input-number v-model="charge_below" size="mini" :min="5" :max="80" :step="5" @change="set_charge_below"></el-input-number>
               %
@@ -285,11 +285,11 @@
           </el-col>
         </el-row>
         <el-row class="py-2 col-item input_number">
-          <el-col :span="12">
+          <el-col :span="11">
             <el-row><el-label>{{$t("stop_charge")}}</el-label></el-row>
             <el-row><el-label class="submenu">{{$t("CurrentCapacity")}} ≥</el-label></el-row>
           </el-col>
-          <el-col :span="12" class="mt-3">
+          <el-col :span="13" class="mt-3">
             <el-row class="right">
               <el-input-number v-model="charge_above" size="mini" :min="charge_below+5" :max="100" :step="5" @change="set_charge_above"></el-input-number>
               %
@@ -303,11 +303,11 @@
         </el-row>
         <template v-if="enable_temp">
           <el-row class="pb-2 col-item input_number">
-            <el-col :span="10">
+            <el-col :span="11">
               <el-row><el-label class="submenu">{{$t("stop_charge")}}</el-label></el-row>
               <el-row><el-label class="submenu">{{$t("Temperature")}} ≥</el-label></el-row>
             </el-col>
-            <el-col :span="14" class="mt-3">
+            <el-col :span="13" class="mt-3">
               <el-row class="right">
                 <el-input-number style="width:100px" v-model="charge_temp_above" size="mini" :min="20" :max="50" :step="1" @change="set_charge_temp_above"></el-input-number>
                 <el-label style="font-size:10px">{{" = "+t_c_to_f(charge_temp_above).toFixed(0)+"°F"}}</el-label>
@@ -316,11 +316,11 @@
           </el-row>
           <el-divider class="my-0" direction="horizontal"></el-divider>
           <el-row class="py-2 col-item" v-if="mode=='charge_on_plug'">
-            <el-col :span="10">
+            <el-col :span="11">
               <el-row><el-label class="submenu">{{$t("start_charge")}}</el-label></el-row>
               <el-row><el-label class="submenu">{{$t("Temperature")}} ≤</el-label></el-row>
             </el-col>
-            <el-col :span="14" class="mt-3">
+            <el-col :span="13" class="mt-3">
               <el-row class="right">
                 <el-input-number style="width:100px" v-model="charge_temp_below" size="mini" :min="10" :max="charge_temp_above-1" :step="1" @change="set_charge_temp_below"></el-input-number>
                 <el-label style="font-size:10px">{{" = "+t_c_to_f(charge_temp_below).toFixed(0)+"°F"}}</el-label>

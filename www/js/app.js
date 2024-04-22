@@ -915,7 +915,7 @@ const App = {
             for (var k in jdata.data) {
                 this[k] = jdata.data[k];
             }
-            this.conf = jdata.data.
+            this.conf = jdata.data;
             if (this.lang && this.lang != get_local_lang()) {
                 i18n.locale = this.lang;
                 set_local_val("conf", "lang", this.lang);
