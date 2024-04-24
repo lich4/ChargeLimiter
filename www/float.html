@@ -62,6 +62,10 @@
       margin-right: 4px;
     }
 
+    .plug {
+      font-size: 10px;
+    }
+
     .toggle-on {
       font-size: 12px;
       color: red
@@ -100,6 +104,7 @@
           <i class="fa fa-battery-4 icon battery" v-else></i>
           <i class="fa fa-bolt icon bolt" v-if="bat_info.IsCharging"></i>
           <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
+          <i class="fa fa-plug icon plug" v-if="bat_info.ExternalConnected"></i>
         </el-row>
         <el-row class="tip-line">
           <i class="fa fa-thermometer-0 icon thermometer" v-if="bat_info.Temperature<1000"></i>

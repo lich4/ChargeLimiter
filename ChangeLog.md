@@ -4,7 +4,6 @@
 
 todos:
 * Start daemon on system reboot
-* Change power efficiency(Powercuff)
 * Floating window on iOS12
 
 1.6版本更新日志:
