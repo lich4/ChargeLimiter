@@ -16,7 +16,7 @@ function get_y_range(data, field, ratio, positive) {
     });
     var rg = maxv - minv;
     if (rg == 0) {
-        rg = (maxv * 0.1).toFixed(0);
+        rg = Math.floor(maxv * 0.1);
     }
     var min_ = minv - lr * rg;
     if (positive && min_ < 0) {
@@ -46,7 +46,8 @@ const i18n = new VueI18n({
             Capacity: "Capacity(%)",
             NominalCapacity: "NominalCapacity(mAh)",
             Amperage: "Amperage(mA)",
-            Temperature: "Temperature(°C)",
+            Voltage: "Voltage(mV)",
+            Temperature: "Temperature",
             CycleCount: "CycleCount",
             stat_min5: "5Minute Data",
             stat_hour: "Hourly Data",
@@ -57,7 +58,8 @@ const i18n = new VueI18n({
             Capacity: "电量(%)",
             NominalCapacity: "容量(mAh)",
             Amperage: "电流(mA)",
-            Temperature: "温度(°C)",
+            Voltage: "电压(mV)",
+            Temperature: "温度",
             CycleCount: "充电次数",
             stat_min5: "5分钟数据",
             stat_hour: "小时数据",
@@ -68,7 +70,8 @@ const i18n = new VueI18n({
             Capacity: "電量(%)",
             NominalCapacity: "容量(mAh)",
             Amperage: "電流(mA)",
-            Temperature: "溫度(°C)",
+            Voltage: "電壓(mV)",
+            Temperature: "溫度",
             CycleCount: "充電次數",
             stat_min5: "5分鐘數據",
             stat_hour: "小時數據",
@@ -86,6 +89,7 @@ const App = {
             DATA_SPAN: 0,
             DATA_MOVE_SPAN: 3,
             dark: get_local_val("conf", "dark", false),
+            temp_mode: get_local_val("conf", "temp_mode", false),
             min5: [],
             min5_indx: 0,
             chart_min5: null,
@@ -188,7 +192,6 @@ const App = {
         update_chart_min5: function (opt) {
             var that = this;
             var min5 = get_x_range(this.min5, this.min5_indx, this.DATA_MOVE_SPAN, this.DATA_SPAN);
-            var amperage_range = get_y_range(min5, "InstantAmperage", [1, 1], false);
             this.min5_icon_data = min5.map(row => [row.IsCharging, row.ExternalConnected]);
             if (!this.chart_min5) {
                 this.chart_min5 = new Chart(document.getElementById("min5_chart").getContext('2d'), {
@@ -215,6 +218,16 @@ const App = {
                             backgroundColor: "#4d7ffc",
                             label: this.$t("Amperage"),
                             hidden: true,
+                        }, {
+                            yAxisID: "Voltage",
+                            type: "line",
+                            borderWidth: 2,
+                            pointRadius: 1,
+                            pointHitRadius: 20,
+                            borderColor: "#4d7f8c",
+                            backgroundColor: "#4d7f8c",
+                            label: this.$t("Voltage"),
+                            hidden: true,
                         }]
                     },
                     options: {
@@ -228,7 +241,7 @@ const App = {
                                         if (context.datasetIndex == 0) {
                                             label = label + '%';
                                         } else if (context.datasetIndex == 1) {
-                                            label = label + '°C';
+                                            label = label + that.temp_unit;
                                         } else if (context.datasetIndex == 2) {
                                             label = label + 'mA';
                                         }
@@ -252,22 +265,31 @@ const App = {
                             Temperature: {
                                 position: "left",
                                 type: "linear",
-                                min: 0,
-                                max: 60,
+                                min: that.temp_mode?30:0, // 0-32
+                                max: that.temp_mode?140:60, // 60-140
                                 ticks: {
                                     callback: function (value) {
-                                        return value > 50 ? "" : value + '°C';
+                                        var thresh = that.temp_mode?120:50;
+                                        return value>thresh?"":value + that.temp_unit;
                                     }
                                 }
                             },
                             InstantAmperage: {
                                 position: "left",
                                 type: "linear",
-                                min: amperage_range[0],
-                                max: amperage_range[1],
                                 ticks: {
                                     callback: function (value) {
                                         return value + "mA";
+                                    }
+                                },
+                                display: false,
+                            },
+                            Voltage: {
+                                position: "left",
+                                type: "linear",
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + "mV";
                                     }
                                 },
                                 display: false,
@@ -331,7 +353,7 @@ const App = {
             this.chart_min5.data.datasets[1].data = min5.map(row => {
                 return {
                     "x": ts_to_date(row.UpdateTime, "Dhm"),
-                    "y": row.Temperature / 100,
+                    "y": that.temp_mode?t_c_to_f(row.Temperature/100):row.Temperature/100,
                 }
             });
             this.chart_min5.data.datasets[2].data = min5.map(row => {
@@ -340,14 +362,17 @@ const App = {
                     "y": row.InstantAmperage,
                 }
             });
-            this.chart_min5.options.scales.InstantAmperage.min = amperage_range[0];
-            this.chart_min5.options.scales.InstantAmperage.max = amperage_range[1];
+            this.chart_min5.data.datasets[3].data = min5.map(row => {
+                return {
+                    "x": ts_to_date(row.UpdateTime, "Dhm"),
+                    "y": row.Voltage,
+                }
+            });
             this.chart_min5.update(opt);
         },
         update_chart_hour: function (opt) {
             var that = this;
             var hour = get_x_range(this.hour, this.hour_indx, this.DATA_MOVE_SPAN, this.DATA_SPAN);
-            var amperage_range = get_y_range(hour, "InstantAmperage", [1, 1], false);
             this.hour_icon_data = hour.map(row => [row.IsCharging, row.ExternalConnected]);
             if (!this.chart_hour) {
                 this.chart_hour = new Chart(document.getElementById("hour_chart").getContext('2d'), {
@@ -374,6 +399,16 @@ const App = {
                             backgroundColor: "#4d7ffc",
                             label: this.$t("Amperage"),
                             hidden: true,
+                        }, {
+                            yAxisID: "Voltage",
+                            type: "line",
+                            borderWidth: 2,
+                            pointRadius: 1,
+                            pointHitRadius: 20,
+                            borderColor: "#4d7f8c",
+                            backgroundColor: "#4d7f8c",
+                            label: this.$t("Voltage"),
+                            hidden: true,
                         }]
                     },
                     options: {
@@ -387,7 +422,7 @@ const App = {
                                         if (context.datasetIndex == 0) {
                                             label = label + '%';
                                         } else if (context.datasetIndex == 1) {
-                                            label = label + '°C';
+                                            label = label + that.temp_unit;
                                         } else if (context.datasetIndex == 2) {
                                             label = label + 'mA';
                                         }
@@ -411,22 +446,31 @@ const App = {
                             Temperature: {
                                 position: "left",
                                 type: "linear",
-                                min: 0,
-                                max: 60,
+                                min: that.temp_mode?30:0, // 0-32
+                                max: that.temp_mode?140:60, // 60-140
                                 ticks: {
                                     callback: function (value) {
-                                        return value > 50 ? "" : value + '°C';
+                                        var thresh = that.temp_mode?120:50;
+                                        return value>thresh?"":value + that.temp_unit;
                                     }
                                 }
                             },
                             InstantAmperage: {
                                 position: "left",
                                 type: "linear",
-                                min: amperage_range[0],
-                                max: amperage_range[1],
                                 ticks: {
                                     callback: function (value) {
                                         return value + "mA";
+                                    }
+                                },
+                                display: false,
+                            },
+                            Voltage: {
+                                position: "left",
+                                type: "linear",
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + "mV";
                                     }
                                 },
                                 display: false,
@@ -490,7 +534,7 @@ const App = {
             this.chart_hour.data.datasets[1].data = hour.map(row => {
                 return {
                     "x": ts_to_date(row.UpdateTime, "Dhm"),
-                    "y": row.Temperature / 100,
+                    "y": that.temp_mode?t_c_to_f(row.Temperature/100):row.Temperature/100,
                 }
             });
             this.chart_hour.data.datasets[2].data = hour.map(row => {
@@ -499,8 +543,12 @@ const App = {
                     "y": row.InstantAmperage,
                 }
             });
-            this.chart_hour.options.scales.InstantAmperage.min = amperage_range[0];
-            this.chart_hour.options.scales.InstantAmperage.max = amperage_range[1];
+            this.chart_hour.data.datasets[3].data = hour.map(row => {
+                return {
+                    "x": ts_to_date(row.UpdateTime, "Dhm"),
+                    "y": row.Voltage,
+                }
+            });
             this.chart_hour.update(opt);
         },
         update_chart_day: function (opt) {
@@ -726,6 +774,11 @@ const App = {
         this.DATA_SPAN = Math.floor(window.innerWidth / 20);
         if (this.dark) {
             this.switch_dark(true);
+        }
+        if (this.temp_mode) {
+            this.temp_unit = "°F";
+        } else {
+            this.temp_unit = "°C";
         }
         this.get_all_statistics();
         setInterval(this.get_min5_statistics, 300000); // min5

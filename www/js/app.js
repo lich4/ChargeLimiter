@@ -201,8 +201,9 @@ const i18n = new VueI18n({
             Amperage: "Amperage(mA)",
             InstantAmperage: "Instant amperage(mA)",
             CurrentCapacity: "Current capacity",
+            Capacity: "Capacity",
             HardwareCapacity: "Hardware capacity",
-            Temperature: "Temperature(°C)",
+            Temperature: "Temperature",
             CycleCount: "Cycle count",
             IsCharging: "Charging",  
             BatteryInstalled: "Battery installed",
@@ -306,8 +307,9 @@ const i18n = new VueI18n({
             Amperage: "电流(mA)",
             InstantAmperage: "瞬时电流(mA)",
             CurrentCapacity: "当前电量",
+            Capacity: "电量",
             HardwareCapacity: "硬件电量",
-            Temperature: "温度(°C)",
+            Temperature: "温度",
             CycleCount: "充电次数",
             IsCharging: "正在充电",
             BatteryInstalled: "电池已安装",
@@ -407,12 +409,12 @@ const i18n = new VueI18n({
             Current: "電流(mA)",
             Watts: "功率(W)",
             DesignCapacity: "表定容量(mAh)",
-            NominalChargeCapacity: "實際容量(mAh)",
             Amperage: "電流(mA)",
             InstantAmperage: "瞬時電流(mA)",
             CurrentCapacity: "目前電量",
+            Capacity: "電量",
             HardwareCapacity: "硬體電量",
-            Temperature: "溫度(°C)",
+            Temperature: "溫度",
             CycleCount: "充電次數",
             IsCharging: "正在充電",
             BatteryInstalled: "已安裝電池",
@@ -473,8 +475,14 @@ const App = {
             charge_below: 20,
             charge_above: 80,
             enable_temp: false,
+            temp_mode: 0,
+            temp_unit: null,
             charge_temp_above: 35,
-            charge_temp_below: 10,
+            charge_temp_below: 20,
+            temp_above_min: 20,
+            temp_above_max: 50,
+            temp_below_min: 10,
+            temp_below_max: 40,
             acc_charge: false,
             acc_charge_airmode: true,
             acc_charge_wifi: false,
@@ -512,6 +520,14 @@ const App = {
                 cuff: false,
                 ppm: false,
             },
+            show_sliders: {
+                lc: false,
+                hc: false,
+                lt: false,
+                ht: false,
+            },
+            marks_perc: range(0, 110, 10).reduce((m, o)=>{m[o] = o + "%"; return m;}, {}),
+            marks_temp: null,
             show_conn_err: true,
             conf: null,
         }
@@ -633,10 +649,17 @@ const App = {
                 api: "set_inflow_status",
                 flag: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.bat_info.ExternalConnected = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_charge_status_cb: function(jdata) {
             var status = jdata.status;
+            if (window.test) {
+                return;
+            }
             if (status == 0) {
                 if (this.bat_info.PostChargeWaitSeconds) {
                     var tmout = this.bat_info.PostChargeWaitSeconds;
@@ -664,6 +687,9 @@ const App = {
                 callback: "window.app.set_charge_status_cb",
                 flag: v,
             });
+            if (window.test) {
+                this.bat_info.IsCharging = v;
+            }
         },
         set_charge_below: function(v) {
             this.ipc_send_wrapper({
@@ -671,7 +697,11 @@ const App = {
                 key: "charge_below",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.charge_below = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_charge_above: function(v) {
             this.ipc_send_wrapper({
@@ -679,7 +709,11 @@ const App = {
                 key: "charge_above",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.charge_above = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         change_mode: function(v) {
             this.ipc_send_wrapper({
@@ -687,7 +721,11 @@ const App = {
                 key: "mode",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.mode = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         change_action: function(v) {
             this.ipc_send_wrapper({
@@ -695,7 +733,11 @@ const App = {
                 key: "action",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.action = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_use_smart: function(v) {
             this.ipc_send_wrapper({
@@ -703,7 +745,11 @@ const App = {
                 key: "adv_prefer_smart",
                 val: v,
             });
-            this.wait_daemon_alive();
+            if (window.test) {
+                this.use_smart = v;
+            } else {
+                this.wait_daemon_alive();
+            }
         },
         set_predictive_inhibit_charge: function(v) {
             this.ipc_send_wrapper({
@@ -727,7 +773,11 @@ const App = {
                 key: "adv_def_thermal_mode",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.adv_def_thermal_mode = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_thermal_mode_lock: function(v) {
             this.ipc_send_wrapper({
@@ -743,7 +793,11 @@ const App = {
                 key: "ppm_simulate_mode",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.ppm_simulate_mode = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_limit_inflow: function(v) {
             this.ipc_send_wrapper({
@@ -759,13 +813,21 @@ const App = {
                 key: "adv_limit_inflow_mode",
                 val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+                this.adv_limit_inflow_mode = v;
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         reset_conf: function() {
             this.ipc_send_wrapper({
                 api: "reset_conf",
             });
-            this.wait_daemon_alive();
+            if (window.test) {
+                this.get_conf();
+            } else {
+                this.wait_daemon_alive();
+            }
         },
         get_health: function(item) {
             return (item["NominalChargeCapacity"] / item["DesignCapacity"] * 100).toFixed(2);
@@ -807,12 +869,18 @@ const App = {
                 this.set_floatwnd(false);
             }
             clearInterval(this.timer);
-            this.timer = setInterval(this.get_bat_info, v * 1000);
+            this.timer = setInterval(() => {
+                that.get_bat_info();
+                that.get_conf();
+            }, v * 1000);
         },
         get_temp_desc: function() {
             var centigrade = this.bat_info.Temperature / 100;
-            var fahrenheit = t_c_to_f(centigrade);
-            return centigrade.toFixed(1) + "°C/" + fahrenheit.toFixed(1) + "°F";
+            if (this.temp_mode == 0) {
+                return centigrade.toFixed(1) + "°C";
+            } else if (this.temp_mode == 1) {
+                return t_c_to_f(centigrade).toFixed(1) + "°F";
+            }
         },
         set_enable_temp: function(v) {
             this.ipc_send_wrapper({
@@ -826,17 +894,23 @@ const App = {
             this.ipc_send_wrapper({
                 api: "set_conf",
                 key: "charge_temp_above",
-                val: this.charge_temp_above,
+                val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_charge_temp_below: function(v) {
             this.ipc_send_wrapper({
                 api: "set_conf",
                 key: "charge_temp_below",
-                val: this.charge_temp_below,
+                val: v,
             });
-            setTimeout(this.get_conf, 1000);
+            if (window.test) {
+            } else {
+                setTimeout(this.get_conf, 1000);
+            }
         },
         set_acc_charge: function(v) {
             this.ipc_send_wrapper({
@@ -911,7 +985,44 @@ const App = {
                 "time": 1000,
             });
         },
+        update_temp_unit: function(update_val) {
+            if (this.temp_mode == 0) { // 华氏转摄氏
+                this.temp_unit = "°C";
+                this.temp_above_max = 50;
+                this.temp_below_min = 10;
+                this.temp_above_min = 20;
+                if (update_val) {
+                    this.charge_temp_above = Math.min(Math.floor(t_f_to_c(this.charge_temp_above)), this.temp_above_max);
+                    this.charge_temp_below = Math.max(Math.floor(t_f_to_c(this.charge_temp_below)), this.temp_below_min);
+                }
+                this.temp_below_max = this.charge_temp_above - 1; // 40
+                this.marks_temp = range(0, 60, 5).reduce((m, o)=>{m[o] = o + "°C"; return m;}, {});
+            } else if (this.temp_mode == 1) { // 摄氏转华氏
+                this.temp_unit = "°F";
+                this.temp_above_max = 120; // 50-122
+                this.temp_below_min = 50; // 10-50
+                this.temp_above_min = 70; // 20-68
+                if (update_val) {
+                    this.charge_temp_above = Math.min(Math.floor(t_c_to_f(this.charge_temp_above)), this.temp_above_max);
+                    this.charge_temp_below = Math.max(Math.floor(t_c_to_f(this.charge_temp_below)), this.temp_below_min);
+                }
+                this.temp_below_max = this.charge_temp_above - 1; // 40-104
+                this.marks_temp = range(30, 140, 5).reduce((m, o)=>{m[o] = o + "°F"; return m;}, {});
+            }
+        },
+        switch_temp_unit: function() {
+            this.temp_mode = (this.temp_mode + 1) % 2;
+            set_local_val("conf", "temp_mode", this.temp_mode);
+            this.update_temp_unit(true);
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "temp_mode",
+                val: this.temp_mode,
+                vals: [this.charge_temp_below, this.charge_temp_above],
+            });
+        },
         get_conf_cb: function(jdata) {
+            var that = this;
             for (var k in jdata.data) {
                 this[k] = jdata.data[k];
             }
@@ -921,10 +1032,20 @@ const App = {
                 set_local_val("conf", "lang", this.lang);
                 this.reload_locale();
             }
+            if (this.old_temp_mode == null) {
+                this.update_temp_unit(false);
+                this.old_temp_mode = this.temp_mode;
+                set_local_val("conf", "temp_mode", this.temp_mode);
+            }
             if (this.timer == null) {
                 this.get_bat_info();
-                this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
-                setInterval(this.get_conf, this.update_freq * 1000);
+                if (window.test) {
+                } else {
+                    this.timer = setInterval(() => {
+                        that.get_bat_info();
+                        that.get_conf();
+                    }, this.update_freq * 1000);
+                }
             }
         },
         get_conf: function() {

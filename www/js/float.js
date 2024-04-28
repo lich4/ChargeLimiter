@@ -4,6 +4,7 @@ const App = {
         return {
             daemon_alive: false,
             enable: false,
+            temp_mode: false,
             ver: "?",
             update_freq: 1,
             dark: false,
@@ -14,8 +15,11 @@ const App = {
     methods: {
         get_temp_desc: function() {
             var centigrade = this.bat_info.Temperature / 100;
-            var fahrenheit = t_c_to_f(centigrade);
-            return centigrade.toFixed(0) + "°C/" + fahrenheit.toFixed(0) + "°F";
+            if (this.temp_mode) {
+                return t_c_to_f(centigrade).toFixed(1) + "°F";
+            } else {
+                return centigrade.toFixed(1) + "°C";
+            }
         },
         invset_enable: function() {
             var v = !this.enable;
@@ -43,6 +47,7 @@ const App = {
         get_conf_cb: function(jdata) {
             this.enable = jdata.data.enable;
             this.ver = jdata.data.ver;
+            this.temp_mode = jdata.data.temp_mode;
             this.update_freq = jdata.data.update_freq;
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
@@ -72,7 +77,7 @@ window.addEventListener("load", function () {
 })
 
 window.onload = () => {
-    $("html").css("width", 80);
-    $("html").css("height", 60);
+    $("html").css("width", 60);
+    $("html").css("height", 45);
 }
 

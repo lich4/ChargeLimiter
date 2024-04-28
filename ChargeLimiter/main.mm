@@ -445,6 +445,19 @@ static void onBatteryEventEnd() {
     }
 }
 
+static float getTempAsC(NSString* key) {
+    NSNumber* temp_mode = getlocalKV(@"temp_mode");
+    NSNumber* temp = getlocalKV(key);
+    float temp_c = temp.intValue / 100.0;
+    if (temp_mode.intValue == 0) { // °C
+        return temp_c;
+    } else if (temp_mode.intValue == 1) { // °F
+        float temp_f = (temp_c - 32) / 1.8;
+        return temp_f;
+    }
+    return 0;
+}
+
 static void onBatteryEvent(io_service_t serv) {
     @autoreleasepool {
         NSDictionary* old_bat_info = bat_info;
@@ -459,14 +472,14 @@ static void onBatteryEvent(io_service_t serv) {
         NSNumber* charge_below = getlocalKV(@"charge_below");
         NSNumber* charge_above = getlocalKV(@"charge_above");
         NSNumber* enable_temp = getlocalKV(@"enable_temp");
-        NSNumber* charge_temp_above = getlocalKV(@"charge_temp_above");
-        NSNumber* charge_temp_below = getlocalKV(@"charge_temp_below");
         NSNumber* capacity = bat_info[@"CurrentCapacity"];
         NSNumber* is_charging = bat_info[@"IsCharging"];
         NSNumber* is_inflow_enabled = bat_info[@"ExternalConnected"];
         BOOL is_adaptor_connected = isAdaptorConnect(bat_info);
         NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
         NSNumber* temperature_ = bat_info[@"Temperature"];
+        float charge_temp_above = getTempAsC(@"charge_temp_above");
+        float charge_temp_below = getTempAsC(@"charge_temp_below");
         float temperature = temperature_.intValue / 100.0;
         // 优先级: 电量极低 > 停充(电量>温度) > 充电(电量>温度) > 插电
         do {
@@ -493,7 +506,7 @@ static void onBatteryEvent(io_service_t serv) {
                 }
                 break;
             }
-            if (enable_temp.boolValue && temperature >= charge_temp_above.intValue) { // 停充-温度高,优先级=3
+            if (enable_temp.boolValue && temperature >= charge_temp_above) { // 停充-温度高,优先级=3
                 if (is_charging.boolValue) {
                     NSFileLog(@"stop charging for high temperature");
                     setBatteryStatus(NO);
@@ -523,7 +536,7 @@ static void onBatteryEvent(io_service_t serv) {
                 break;
             }
             if ([mode isEqualToString:@"charge_on_plug"]) {
-                if (enable_temp.boolValue && temperature <= charge_temp_below.intValue) { // 充电-温度低,优先级=5
+                if (enable_temp.boolValue && temperature <= charge_temp_below) { // 充电-温度低,优先级=5
                     if (is_adaptor_connected) {
                         if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
                             NSFileLog(@"enable inflow for low temperature");
@@ -579,6 +592,7 @@ static void initConf(BOOL reset) {
         @"charge_below": @20,
         @"charge_above": @80,
         @"enable_temp": @NO,
+        @"temp_mode": @0,
         @"charge_temp_above": @35,
         @"charge_temp_below": @10,
         @"acc_charge": @NO,
@@ -715,6 +729,14 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
             });
         } else if ([key isEqualToString:@"adv_def_thermal_mode"]) {
             setThermalSimulationMode(val);
+        } else if ([key isEqualToString:@"temp_mode"]) {
+            NSLog(@"%@ aa1", log_prefix);
+            NSArray* vals = nsreq[@"vals"];
+            if (vals != nil && vals.count >= 2) {
+                NSLog(@"%@ aa1 %@ %@", log_prefix, vals[0], vals[1]);
+                setlocalKV(@"charge_temp_below", vals[0]);
+                setlocalKV(@"charge_temp_above", vals[1]);
+            }
         }
         return @{
             @"status": @0,

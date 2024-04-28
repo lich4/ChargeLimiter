@@ -37,6 +37,7 @@ CL支持第三方电池吗?
 为什么手机用一会不充电了?(小白经常遇到的问题)
 * CL并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电.
 * CL的设计思路就是减少充电次数,因此不会连着usb就充电,充电/停充都有触发条件,请仔细查看本页说明.
+* 电池由于老化严重健康度低,刚启动系统时可以使用CL,一段时间后CL再也无法控制充电/停充.此种情况无法使用CL.
 
 CL可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架.
@@ -50,9 +51,10 @@ CL可以不依赖越狱或巨魔类工具吗?
 ## 测试电池兼容性
 
 &emsp;&emsp;在使用CL前需要测试电池兼容性,如果不支持请放弃使用
-* 1.测试电池是否支持停充.关闭CL全局开关,在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=5mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).
+* 1.测试电池是否支持停充.关闭CL全局开关,关闭"高级"中所有选项,在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=5mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 2.测试电池是否支持智能停充.开启"高级-智能停充",其余同1.
-* 3,测试电池是否支持禁流.关闭CL全局开关,在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=5mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
+* 3.测试电池是否支持禁流.关闭CL全局开关,在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=5mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
+* 有的电池因为老化而健康度过低,会出现刚重启系统时可以使用上述方式停充但过一段时间就再也无法停充,这种电池也无法被CL所兼容.
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请自行调整高级菜单中的选项或卸载CL.
 
@@ -323,6 +325,7 @@ Will the battery health percentage increase after using CL for a period of time?
 Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
 * CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
+* There are a few cases of battery with low health cause this problem. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 
 Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
@@ -335,12 +338,11 @@ How to cool down the battery in summer?
 
 ## Compatibility
 
-关闭全局开关
-
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
-* 1.Check compatibility of ChargeInhibit. Disable CL by toggling the "Enable" button first, then disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* 1.Check compatibility of ChargeInhibit. Disable CL by toggling the "Enable" button first, and disable all options in "Advanced", then disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
 * 3.Check compatibility of DisableInflow. Disable CL by toggling the "Enable" button first, then disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
+* There are a few cases of battery with low health prevent CL from working well. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
 

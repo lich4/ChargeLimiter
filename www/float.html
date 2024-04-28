@@ -43,8 +43,9 @@
       margin-bottom: 0;
     }
 
-    .tip-line {
-      height: 12px;
+    .el-row, i, span {
+      top: -5px;
+      height: 12px !important;
     }
 
     .thermometer {
@@ -75,12 +76,14 @@
       font-size: 12px;
     }
 
-    .spinner {
+    .ban {
+      font-size: 12;
       margin-top: 5px;
+      margin-left: 10px;
     }
 
     #app {
-      padding-left: 10px;
+      padding-left: 5px;
       background-color:white;
       border-radius: 15px;
       opacity: 0.5;
@@ -89,14 +92,14 @@
 </head>
 <body>
   <div id="app" @click="invset_enable">
-    <div id="main_page" v-if="daemon_alive">
-      <template v-if="bat_info">
-        <el-row class="tip-line">
+    <div id="main_page">
+      <div v-if="daemon_alive&&bat_info">
+        <el-row>
           <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
           <i class="fa fa-toggle-off icon toggle-off" v-else></i>
           <span class="text">{{"CL v"+ver}}</span>
         </el-row>
-        <el-row class="tip-line">
+        <el-row>
           <i class="fa fa-battery-0 icon battery" v-if="bat_info.CurrentCapacity<5"></i>
           <i class="fa fa-battery-1 icon battery" v-else-if="bat_info.CurrentCapacity<35"></i>
           <i class="fa fa-battery-2 icon battery" v-else-if="bat_info.CurrentCapacity<65"></i>
@@ -106,7 +109,7 @@
           <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
           <i class="fa fa-plug icon plug" v-if="bat_info.ExternalConnected"></i>
         </el-row>
-        <el-row class="tip-line">
+        <el-row>
           <i class="fa fa-thermometer-0 icon thermometer" v-if="bat_info.Temperature<1000"></i>
           <i class="fa fa-thermometer-1 icon thermometer" v-else-if="bat_info.Temperature<2000"></i>
           <i class="fa fa-thermometer-2 icon thermometer" v-else-if="bat_info.Temperature<3500"></i>
@@ -114,10 +117,10 @@
           <i class="fa fa-thermometer-4 icon thermometer" v-else></i>
           <span class="text">{{get_temp_desc()}}</span>
         </el-row>
-      </template>
-    </div>
-    <div v-else>
-      <i class="fa fa-spinner fa-pulse fa-3x spinner"></i>
+      </div>
+      <div v-else>
+        <i class="fa fa-ban fa-2x ban"></i>
+      </div>
     </div>
   </div>
 </body>

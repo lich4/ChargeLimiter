@@ -102,6 +102,9 @@ function t_c_to_f(v) {
     return 32 + 1.8 * v;
 }
 
+function t_f_to_c(v) {
+    return (v - 32) / 1.8;
+}
 
 function ipc_send(req, net_status_cb) {
     if (!window.test) {
