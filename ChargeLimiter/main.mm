@@ -448,7 +448,7 @@ static void onBatteryEventEnd() {
 static float getTempAsC(NSString* key) {
     NSNumber* temp_mode = getlocalKV(@"temp_mode");
     NSNumber* temp = getlocalKV(key);
-    float temp_c = temp.intValue / 100.0;
+    float temp_c = temp.floatValue;
     if (temp_mode.intValue == 0) { // °C
         return temp_c;
     } else if (temp_mode.intValue == 1) { // °F

@@ -1022,6 +1022,9 @@ const App = {
             });
         },
         get_conf_cb: function(jdata) {
+            if (this.show_sliders['lc'] || this.show_sliders['hc'] || this.show_sliders['lt'] || this.show_sliders['ht']) {
+                return; // 正在编辑
+            }
             var that = this;
             for (var k in jdata.data) {
                 this[k] = jdata.data[k];
