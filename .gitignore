@@ -1,6 +1,8 @@
 .vscode
 Packages
 ChargeLimiter/Package/Applications
+ChargeLimiter/Package_rootless/Applications
+ChargeLimiter/Package_rootless_arm64
 ChargeLimiter_rootless/Package/Applications
 ChargeLimiter_rootless/Package_tmp
 ChargeLimiter_roothide

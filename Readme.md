@@ -37,7 +37,7 @@ CL支持第三方电池吗?
 为什么手机用一会不充电了?(小白经常遇到的问题)
 * CL并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电.
 * CL的设计思路就是减少充电次数,因此不会连着usb就充电,充电/停充都有触发条件,请仔细查看本页说明.
-* 电池由于老化严重健康度低,刚启动系统时可以使用CL,一段时间后CL再也无法控制充电/停充.此种情况无法使用CL.
+* 电池由于老化严重健康度低,刚启动系统时可以使用CL,一段时间后CL再也无法控制充电/停充.此种情况无法使用CL. 已有三例健康度在80%的反馈出现该问题. 
 
 CL可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架.
@@ -47,6 +47,12 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 使用CL的Powercuff功能减少硬件用电量,充电状态下会同时降低充电功率
 * 充电状态下,使用低功率充电头充电
 * 购买手机散热器
+
+遇到问题时如何自行诊断?
+* 可以参照5分钟图和日志(/var/root/aldente.log)。例如：发现5分钟图存在1小时以上的数据缺失，就可能是掉后台了。
+
+如何找到耗电应用?
+* 可以借助观察5分钟图或者Helium的实时电流数据，来检测开启某项系统功能或运行某App会增加多少电流。
 
 ## 测试电池兼容性
 
@@ -62,10 +68,25 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 反馈不支持停充的电池: 马拉松1例.
 * 反馈不支持SmartBattery的电池(开启SmartBattery会掉健康度): 品胜1例.
 
+## 品牌新电池激活
+
+&emsp;&emsp;电池保养官方文档: <https://www.apple.com.cn/batteries/maximizing-performance/>。电池激活是指电池刚出厂后需要采取正确方式，排除虚电并激发电池中全部的锂离子活性。
+
+* 诺希: 不管开始有多少电量 ，使用到手机关机，然后进行充电，充满之后再充半小时！循环5~8天（如已充电没关系，下次再重复以上步骤即可）建议使用小电流充电器（即5V1A充电器）进行激活，因为慢充可以确保把电池容量充满，所以效果更佳。快充中间损耗的容量会较大，对激活效果有一定影响
+* Dseven: 用到10%左右再开始充电，不要用到关机，充到100再多充1-2小时，如此循环充电使用5-7次之后，就会完全激发电池里面的电量
+* 德赛: 新电池先把电量耗完再去充满电，第二次用到10%左右再去充满电，循环5-10个周期
+* 欣旺达: 前5次20%左右开始充，充满多冲半小时到一小时，以后随意
+* ART: 新电池用到20%充电，然后充满
+* ZASZ: 勿将电池用到自动关机，前5次充电电量低于15%时开始充电，充满后再充1小时。5次循环后电池待机时间达到正常状态
+* 品胜: 新电池都带一些虚电，用到10%开始充电，不要用到关机，一次性充到100%，再多充1小时拔掉充电器，循环充电使用3-5次后会完全激发电池里面的电量，平时用最好充满，不要边充边玩
+* 长和胜: 新电池大部分是虚电，循环6-10次才会耐用。电量10%以上就要充电，不要低于10%或自动关机才充电，这样可以防止虚电电量过低导致的无法开机
+* 中正: 前3-5次充电称为调整期，应充8小时以上，保证充分激活锂离子的活性。锂离子电池没有记忆效应，但有很强的惰性，应给予充分激活；充电前建议慢充充电，减少快充方式，无论慢充还是快充都不要超过12小时，否则电池很可能会因为长时间的供电产生巨大的电子流而烧坏电芯；有很多用户在充电时还把手机开着，在充电过程中，电池一面因为手机的使用而向外放电，又因电池的充电而向内供电，很可能使电压紊乱导致手机电路板发热，如果有来电时会产生回流电流，对手机内部的零件造成损坏；电池的寿命取决于反复充放电次数，锂电池大约可以充放电500次左右，之后电池的性能会大大减弱，应尽量避免把电池内余电全部放完再充电，否则随着充电次数的增加电池性能会慢慢减弱
+* 曲赛德(超容): 新电池里面是虚电，因为静置的时间久锂电子不活跃，首次使用电池用到10%左右就要充电，充电时间满6小时，连续循环一周，就可以充分激活锂电子的活性，不建议边充边玩，不建议用到没电。
+
 ## 使用前必看
 
 * iPhone8+存在120秒设定充电状态延迟. iPad可能也存在.
-* 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者CL查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定
+* 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者CL查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定。
 * 对于TrollStore环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/...),将导致CL失效.
 * CL的设计思路就是减少充电次数,因此不会连着usb就自发充电,也不会无故自动恢复充电,充电/停充都有触发条件,请仔细查看本页说明.
 * 系统自带电池优化会导致CL失效,CL会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).不推荐在过新的设备上使用,因为iPhone15起自带电池优化已经很完善.
@@ -270,7 +291,7 @@ curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-ty
 
 
 下载地址:(https://github.com/lich4/ChargeLimiter/releases)    
-交流QQ群:754802907    
+交流QQ群:669869453    
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn0.png)
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/screenshots/screenshots_cn1.png)
@@ -286,6 +307,16 @@ curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-ty
 * 使用XCode调试App, https://github.com/lich4/debugserver_azj
 * 调试WebUI, https://github.com/lich4/inspectorplus
 * TrollStore快速安装, https://github.com/lich4/TrollStoreRemoteHelper
+
+&emsp;&emsp;增加新语言: 修改`www/lang.json` `www/help_en.md`并提交到github或我这.
+
+## 感谢
+
+* Elfulanopr提供的图标
+* Olivertzeng提供的繁体中文
+* Nawaf提供的阿拉伯语
+* InnovatorPrime提供的夜间模式
+* Cast提供的快捷指令
 
 ## Introduction
 
@@ -336,6 +367,12 @@ How to cool down the battery in summer?
 * Use a charger of lower Watt to charge.
 * Use a heat dissipation or sth.
 
+How can I debug CL myself when sth. goes wrong?
+* View the data in 5min chart and the log(/var/root/aldente.log) to verify the history data of charge/discharge.
+
+How to find out power killer App with CL?
+*  Open the App or enable some system feature, wait some time, and view the data in 5min chart or Amperage in Helium App to find out the killer.
+
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
@@ -345,6 +382,10 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * There are a few cases of battery with low health prevent CL from working well. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
+
+## Battery activation
+
+Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
 ## Notice
 
@@ -566,14 +607,18 @@ https://t.me/chargelimiter
 
 ### Compile
 
-&emsp;&emsp;XCode+MonkeyDev or Theos
+XCode+MonkeyDev or Theos
 * Debug App with XCode, see https://github.com/lich4/debugserver_azj
 * Debug WebUI, see https://github.com/lich4/inspectorplus
 * Install on TrollStore, see https://github.com/lich4/TrollStoreRemoteHelper
 
+Add new language: modify `www/lang.json` `www/help_en.md` and submit to github or to me.
+
 ## Special Thanks
 
-* icon by elfulanopr
-* zh_TW by olivertzeng
-* dark mode by InnovatorPrime 
+* Icon from Elfulanopr
+* Traditional Chinese language from Olivertzeng
+* Arab language from Nawaf
+* Dark mode from InnovatorPrime 
+* Shortcut from Cast
 

@@ -42,7 +42,7 @@ function get_local_lang() {
     return lang;
 }
 
-function range (start, stop, step) {
+function range(start, stop, step) {
     return Array.from({ length: (stop - start) / step}, (_, i) => start + (i * step));
 }
 

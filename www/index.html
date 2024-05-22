@@ -252,12 +252,17 @@
           </el-row>
         </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
-        <el-row class="py-2 col-item">
-          <el-label>{{$t("lang")}}</el-label>
-          <el-select v-model="i18n.locale" size="mini" class="right" style="width:140px" @change="change_lang">
-            <el-option v-for="i in Object.keys(i18n.messages)" :key="i" :label="i18n.messages[i].label" :value="i"></el-option>
-          </el-select>
-        </el-row>
+        <div class="py-2">
+          <el-row class="col-item">
+            <el-label>{{$t("lang")}}</el-label><i class="fa fa-language pl-2" @click="show_tips['lang']=!show_tips['lang'];"></i>
+            <el-select v-model="i18n.locale" size="mini" class="right" style="width:140px" @change="change_lang">
+              <el-option v-for="i in Object.keys(i18n.messages)" :key="i" :label="i18n.messages[i].label" :value="i"></el-option>
+            </el-select>
+          </el-row>
+          <el-row class="subtitle" v-if="show_tips['lang']">
+            <el-label>Add new language: modify "www/lang.json" "www/help_en.md" and submit to github or to me.</el-label>
+          </el-row>
+        </div>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <div class="py-2 col-item">
           <el-row>
@@ -673,7 +678,7 @@
         </el-row>
         <el-row class="subtitle">
           <el-label>Github</el-label>
-          <a href="https://github.com/lich4" class="right noclick">https://github.com/lich4</a>
+          <a href="https://github.com/lich4/ChargeLimiter" class="right noclick">https://github.com/lich4/ChargeLimiter</a>
         </el-row>
         <el-row class="subtitle">
           <el-label>Reddit</el-label>
@@ -681,7 +686,7 @@
         </el-row>
         <el-row class="subtitle">
           <el-label>QQ群</el-label>
-          <el-label class="right">754802907</el-label>
+          <el-label class="right">669869453</el-label>
         </el-row>
         <el-row class="subtitle">
           <el-label>Telegram</el-label>

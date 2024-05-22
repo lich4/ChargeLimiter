@@ -39,46 +39,20 @@ function get_x_range(data, indx, movrg, rg) {
     return data.slice(r0, r1);
 }
 
+var lang_data = null;
+$.ajax({
+    url : "lang.json",
+    type : "get",
+    async: false,
+    dataType: "json",
+    success: function(res) {
+        lang_data = res;
+    }
+});
+
 const i18n = new VueI18n({
     locale: get_local_lang(),
-    messages: {
-        en: { // html
-            Capacity: "Capacity(%)",
-            NominalCapacity: "NominalCapacity(mAh)",
-            Amperage: "Amperage(mA)",
-            Voltage: "Voltage(mV)",
-            Temperature: "Temperature",
-            CycleCount: "CycleCount",
-            stat_min5: "5Minute Data",
-            stat_hour: "Hourly Data",
-            stat_day: "Daily Data",
-            stat_month: "Monthly Data",
-        },
-        zh_CN: { // html
-            Capacity: "电量(%)",
-            NominalCapacity: "容量(mAh)",
-            Amperage: "电流(mA)",
-            Voltage: "电压(mV)",
-            Temperature: "温度",
-            CycleCount: "充电次数",
-            stat_min5: "5分钟数据",
-            stat_hour: "小时数据",
-            stat_day: "天数据",
-            stat_month: "月数据",
-        },
-        zh_TW: { // html
-            Capacity: "電量(%)",
-            NominalCapacity: "容量(mAh)",
-            Amperage: "電流(mA)",
-            Voltage: "電壓(mV)",
-            Temperature: "溫度",
-            CycleCount: "充電次數",
-            stat_min5: "5分鐘數據",
-            stat_hour: "小時數據",
-            stat_day: "天數據",
-            stat_month: "月數據",
-        }
-    },
+    messages: lang_data,
 })
 
 const App = {
@@ -201,13 +175,13 @@ const App = {
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#34c759",
-                            label: this.$t("Capacity"),
+                            label: this.$t("capacity"),
                         }, {
                             yAxisID: "Temperature",
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#f8801b",
-                            label: this.$t("Temperature"),
+                            label: this.$t("temperature"),
                         }, {
                             yAxisID: "InstantAmperage",
                             type: "line",
@@ -216,7 +190,7 @@ const App = {
                             pointHitRadius: 20,
                             borderColor: "#4d7ffc",
                             backgroundColor: "#4d7ffc",
-                            label: this.$t("Amperage"),
+                            label: this.$t("amperage"),
                             hidden: true,
                         }, {
                             yAxisID: "Voltage",
@@ -226,7 +200,7 @@ const App = {
                             pointHitRadius: 20,
                             borderColor: "#4d7f8c",
                             backgroundColor: "#4d7f8c",
-                            label: this.$t("Voltage"),
+                            label: this.$t("voltage"),
                             hidden: true,
                         }]
                     },
@@ -382,13 +356,13 @@ const App = {
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#34c759",
-                            label: this.$t("Capacity"),
+                            label: this.$t("capacity"),
                         }, {
                             yAxisID: "Temperature",
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#f8801b",
-                            label: this.$t("Temperature"),
+                            label: this.$t("temperature"),
                         }, {
                             yAxisID: "InstantAmperage",
                             type: "line",
@@ -397,7 +371,7 @@ const App = {
                             pointHitRadius: 20,
                             borderColor: "#4d7ffc",
                             backgroundColor: "#4d7ffc",
-                            label: this.$t("Amperage"),
+                            label: this.$t("amperage"),
                             hidden: true,
                         }, {
                             yAxisID: "Voltage",
@@ -407,7 +381,7 @@ const App = {
                             pointHitRadius: 20,
                             borderColor: "#4d7f8c",
                             backgroundColor: "#4d7f8c",
-                            label: this.$t("Voltage"),
+                            label: this.$t("voltage"),
                             hidden: true,
                         }]
                     },
@@ -564,13 +538,13 @@ const App = {
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#34c759",
-                            label: this.$t("NominalCapacity"),
+                            label: this.$t("nominalCapacity"),
                         }, {
                             yAxisID: "CycleCount",
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#cacaca",
-                            label: this.$t("CycleCount"),
+                            label: this.$t("cycleCount"),
                         }]
                     },
                     options: {
@@ -669,13 +643,13 @@ const App = {
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#34c759",
-                            label: this.$t("NominalCapacity"),
+                            label: this.$t("nominalCapacity"),
                         }, {
                             yAxisID: "CycleCount",
                             barPercentage: 1,
                             categoryPercentage: 0.9,
                             backgroundColor: "#cacaca",
-                            label: this.$t("CycleCount"),
+                            label: this.$t("cycleCount"),
                         }]
                     },
                     options: {

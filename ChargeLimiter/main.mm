@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <GCDWebServers/GCDWebServers.h>
 #import <UserNotifications/UserNotifications.h>
+
 #include "ui.h"
 #include "utils.h"
 #include <sqlite3.h>
@@ -267,21 +268,14 @@ static void performAcccharge(BOOL flag) {
     }
 }
 
-static NSDictionary* messages = @{
-    @"en": @{
-        @"start_charge": @"Start charging",
-        @"stop_charge": @"Stop charging",
-    },
-    @"zh_CN": @{
-        @"start_charge": @"开始充电",
-        @"stop_charge": @"停止充电",
-    },
-    @"zh_TW": @{
-        @"start_charge": @"開始充電",
-        @"stop_charge": @"停止充電",
-    }
-};
 static NSString* getMsgForLang(NSString* msgid, NSString* lang) {
+    static NSDictionary* messages = nil;
+    if (messages == nil) {
+        NSString* bundlePath = [getAppEXEPath() stringByDeletingLastPathComponent];
+        NSString* langPath = [bundlePath stringByAppendingString:@"/www/lang.json"];
+        NSData* data = [NSData dataWithContentsOfFile:langPath];
+        messages = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    }
     if (messages[lang] == nil) {
         lang = @"en";
     }
@@ -903,6 +897,7 @@ static void start_daemon() {
     }
 }
 
+
 int main(int argc, char** argv) {
     @autoreleasepool {
         g_jbtype = getJBType();
@@ -942,10 +937,14 @@ int main(int argc, char** argv) {
             } else if (0 == strcmp(argv[1], "reset")) { // 越狱下卸载前重置
                 resetBatteryStatus();
                 return 0;
-            } else if (0 == strcmp(argv[1], "get_bat_info")) {
+            } else if (0 == strcmp(argv[1], "watch_bat_info")) {
                 BOOL slim = argc == 3;
-                getBatInfo(&bat_info, slim);
-                NSLog(@"%@", bat_info);
+                while (true) {
+                    getBatInfo(&bat_info, slim);
+                    NSLog(@"%@", bat_info);
+                    [NSThread sleepForTimeInterval:1.0];
+                    spawn(@[@"clear"], nil, nil, nil, 0, nil);
+                }
             }
         }
         return -1;

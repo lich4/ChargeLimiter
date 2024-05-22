@@ -147,7 +147,7 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     }
     int status = -200;
     int spawnError = posix_spawnp(task_pid_ptr, [file UTF8String], &action, &attr, (char* const*)argsC, environ);
-    NSLog(@"%@ posix_spawn %@ ret=%d -> %d", log_prefix, args.firstObject, spawnError, *task_pid_ptr);
+    NSLog2(@"%@ posix_spawn %@ ret=%d -> %d", log_prefix, args.firstObject, spawnError, *task_pid_ptr);
     posix_spawnattr_destroy(&attr);
     posix_spawn_file_actions_destroy(&action);
     for (NSUInteger i = 0; i < argCount; i++) {
@@ -155,7 +155,7 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     }
     free(argsC);
     if(spawnError != 0) {
-        NSLog(@"%@ posix_spawn error %d\n", log_prefix, spawnError);
+        NSLog2(@"%@ posix_spawn error %d\n", log_prefix, spawnError);
         return spawnError;
     }
     if ((flag & SPAWN_FLAG_NOWAIT) != 0) {
@@ -189,7 +189,7 @@ int spawn(NSArray* args, NSString** stdOut, NSString** stdErr, pid_t* pidPtr, in
     }
     do {
         if (waitpid(task_pid, &status, 0) != -1) {
-            NSLog(@"%@ Child status %d", log_prefix, WEXITSTATUS(status));
+            NSLog2(@"%@ Child status %d", log_prefix, WEXITSTATUS(status));
         } else {
             perror("waitpid");
             _isRunning = NO;

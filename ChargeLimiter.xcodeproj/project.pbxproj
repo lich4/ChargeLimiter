@@ -91,6 +91,7 @@
 		187886522B519A5B00E48B28 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 		187886532B519B1600E48B28 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		187BEA1F2B6A5F6100BD5C8F /* Package */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Package; sourceTree = "<group>"; };
+		18826C072BFCF00A00F7D88D /* Package_rootless */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Package_rootless; sourceTree = "<group>"; };
 		1899585D2B81A77800C93B46 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		18B757232B57FDB2008A67D1 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		18C50C632B6CE41800793FA9 /* IOKit.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = IOKit.tbd; sourceTree = "<group>"; };
@@ -100,7 +101,6 @@
 		18C50C792B6DFD6000793FA9 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = BackBoardServices.tbd; sourceTree = "<group>"; };
-		18D0C4312B807280006A7AB7 /* Package */ = {isa = PBXFileReference; lastKnownFileType = text; name = Package; path = ChargeLimiter_rootless/Package; sourceTree = SOURCE_ROOT; };
 		18D455212B91A5BD0032EDE7 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		18D455232B91A5BD0032EDE7 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		18EEB6F72B7BCAA100DCC561 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
@@ -192,7 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				187BEA1F2B6A5F6100BD5C8F /* Package */,
-				18D0C4312B807280006A7AB7 /* Package */,
+				18826C072BFCF00A00F7D88D /* Package_rootless */,
 				18497C5E2B541D8000A6C5E3 /* ChargeLimiter.entitlements */,
 				187886392B51976A00E48B28 /* Main.storyboard */,
 				1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */,
@@ -202,10 +202,10 @@
 				18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */,
 				1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */,
 				187886422B51976B00E48B28 /* main.mm */,
-				18C50C652B6D2D5D00793FA9 /* utils.mm */,
 				18C50C672B6D2D6E00793FA9 /* utils.h */,
 				18658A812BCF771800207EF3 /* ui.mm */,
 				18658A832BCF772D00207EF3 /* ui.h */,
+				18C50C652B6D2D5D00793FA9 /* utils.mm */,
 				18658A842BCF7A0200207EF3 /* common.h */,
 			);
 			path = ChargeLimiter;
@@ -791,7 +791,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.254;
+				TROLLSTORE_DEVICE_IP = 192.168.0.156;
 			};
 			name = Debug;
 		};
@@ -828,7 +828,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.254;
+				TROLLSTORE_DEVICE_IP = 192.168.0.156;
 			};
 			name = Release;
 		};

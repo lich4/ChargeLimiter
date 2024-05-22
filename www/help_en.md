@@ -8,6 +8,12 @@ Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Pa
 
 This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.    
 
+## Known issues
+
+* Due to the lack of devices to test with, CL may not supported on iOS<=11, and v1.4.1+ may not fully supported on iOS17+.
+* Floating window is not supported on iOS<=12.
+* For deb version, some tweaks will cause CL to stuck at SplashScreen, it's not a bug of CL itself. these tweaks, injected into com.apple.UIKit, can be found in /Library/MobileSubstrate/DynamicLibraries(rootful), and /var/jb/Library/MobileSubstrate/DynamicLibraries(rootless).
+
 ## FAQ
 
 Why should I use CL?
@@ -41,6 +47,12 @@ How to cool down the battery in summer?
 * Use a charger of lower Watt to charge.
 * Use a heat dissipation or sth.
 
+How can I debug CL myself when sth. goes wrong?
+* View the data in 5min chart and the log(/var/root/aldente.log) to verify the history data of charge/discharge.
+
+How to find out power killer App with CL?
+*  Open the App or enable some system feature, wait some time, and view the data in 5min chart or Amperage in Helium App to find out the killer.
+
 ## Compatibility
 
 Please test battery compatibility before using CL, stop and uninstall CL if unsupported
@@ -50,6 +62,10 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * There are a few cases of battery with low health prevent CL from working well. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
+
+## Battery activation
+
+Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
 ## Notice
 
@@ -140,118 +156,4 @@ New Shortcut - Add Action - Web - Safari - Open URLs
 * cl:///nocharge/exit  (open CL, stop charging, exit CL)
 
 Integrated shortcut(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
-
-### HTTP Interface
-
-* Example
-
-```bash
-curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-type:application/json"
-=> {"status":0,"data":true}
-```
-
-* Global configuration fields
-
-|key                                         |type         |description                                                                               |
-|----------------------------------|-----------|---------------------------------------------------------------------|
-|enable                                     |boolean         |CL will become an readonly observer if disabled, and shows battery information only|
-|floatwnd                                  |boolean         |Floating window                                                                      |
-|floatwnd_auto                         |boolean         |Floating window auto hide                                                      |
-|mode                                       |string     |Mode,"charge_on_plug" or "edge_trigger"                             |
-|charge_below                         |integer         |Capacity threshhold                                                                |
-|charge_above                         |integer         |Capacity threshhold                                                               |
-|enable_temp                           |boolean         |Temperature control                                                               |
-|charge_temp_above               |integer         |Temperature threshhold                                                         |
-|charge_temp_below               |integer         |Temperature threshhold                                                         |
-|acc_charge                             |boolean         |Speedup charging                                                                 |
-|acc_charge_airmode              |boolean         |Airplane mode                                                                       |
-|acc_charge_wifi                      |boolean         |WiFi                                                                                       |
-|acc_charge_blue                    |boolean         |Bluetooth                                                                               |
-|acc_charge_bright                  |boolean         |Brightness                                                                             |
-|acc_charge_lpm                     |boolean         |LPM                                                                                       |
-|action                                     |string      |Action on trigger, "noti" to use system notification              |
-|adv_prefer_smart                   |boolean         |Use SmartBattery                                                                  |
-|adv_predictive_inhibit_charge|boolean         |Use predictive inhibit charge                                                |
-|adv_disable_inflow                 |boolean         |Auto inhibit inflow                                                                 |
-|adv_limit_inflow                     |boolean         |Auto limit inflow                                                                     |
-|adv_limit_inflow_mode          |string      |Auto limit inflow with thermal simulation level,off/nominal/light/moderate/heavy|
-|adv_def_thermal_mode         |string      |Default thermal simulation level,off/nominal/light/moderate/heavy|
-|adv_thermal_mode_lock        |boolean         |Lock thermal simulation level                                               |
-|thermal_simulate_mode         |string     |Actual  thermal simulation level(readonly)                            |
-|ppm_simulate_mode             |string      |Actual Peak power performance level                                 |
-|use_smart                              |boolean         |SmartBattery available(readonly)                                          |
-
-* get_conf
-
-|request     |type        |description                           |
-|------------|-----------|--------------------------------|
-|api            |string      |get_conf                               |
-|key            |string     |return all conf if unspecified|
-|response  |                |                                            |
-|status       |integer    |0:success                            |
-|data         |                |data                                     |
-
-* set_conf
-
-|request     |type        |description                           |
-|------------|-----------|--------------------------------|
-|api            |string    |set_conf                               |
-|key            |string    |Global configuration fields  |
-|val            |               |data                                     |
-|response         |                |                                            |
-|status       |integer        |0:success                        |
-|data         |                |data                                   |
-
-* get_bat_info
-
-|request     |type        |description                           |
-|------------|-----------|--------------------------------|
-|api            |string    |get_bat_info                         |
-|response         |                |                                            |
-|status       |integer        |0:成功                                  |
-|data         |                |数据                                     |
-
-|key                                     |type         |description                           |
-|-------------------------------|-----------|--------------------------------|
-|Amperage                           |integer        |(mA)                                 |
-|AppleRawCurrentCapacity |integer        |(mAh)                               |
-|BatteryInstalled                   |boolean        |(mV)                               |
-|BootVoltage                        |integer        |(mV)                                 |
-|CurrentCapacity                 |integer        |(%)                                   |
-|CycleCount                        |integer        |                                         |
-|DesignCapacity                  |integer        |(mAh)                               |
-|ExternalChargeCapable     |boolean        |                                      |
-|ExternalConnected            |boolean        |                                      |
-|InstantAmperage                |integer        |(mA)                                |
-|IsCharging                          |boolean        |                                      |
-|NominalChargeCapacity    |integer        |(mAh)                              |
-|Serial                                  |string          |                                        |
-|Temperature                       |integer        |(℃/100)                          |
-|UpdateTime                       |integer        |                                        |
-|AdapterDetails.Voltage      |integer        |(mV)                                |
-|AdapterDetails.Current      |integer        |(mA)                               |
-|AdapterDetails.Description|integer        |                                      |
-|AdapterDetails.IsWireless  |integer        |                                      |
-|AdapterDetails.Manufacturer|integer     |                                     |
-|AdapterDetails.Name         |integer        |                                     |
-|AdapterDetails.Voltage      |integer        |(mV)                               |
-|AdapterDetails.Watts         |integer        |(W)                                 |
-
-* set_charge_status
-
-|request         |type         |description                                    |
-|------------|-----------|-------------------------------|
-|api            |string    |set_charge_status               |
-|flag          |boolean         |enable                                     |
-|response         |                |                                            |
-|status       |integer        |0:success                                  |
-
-* set_inflow_status
-
-|request         |type         |description                                    |
-|------------|-----------|-------------------------------|
-|api            |string    |set_inflow_status                |
-|flag          |boolean         |enable                                     |
-|response         |                |                                            |
-|status       |integer        |0:success                                  |
 

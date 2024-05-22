@@ -2,7 +2,7 @@
 #define UI_H
 
 #include "common.h"
-#import <IOKit/IOKit.h>
+#import <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDService.h>
 
 extern "C" {
