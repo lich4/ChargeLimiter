@@ -74,30 +74,30 @@ const model_dic = {
     "iPad5,4": "iPad Air 2nd",
     "iPad6,3": "iPad Pro 9.7",
     "iPad6,4": "iPad Pro 9.7",
-    "iPad6,7": "iPad Pro 12.9 1st",
-    "iPad6,8": "iPad Pro 12.9 1st",
+    "iPad6,7": "iPad Pro 12.9' 1st",
+    "iPad6,8": "iPad Pro 12.9' 1st",
     "iPad6,11": "iPad 5th",
     "iPad6,12": "iPad 5th",
-    "iPad7,1": "iPad Pro 12.9 2nd",
-    "iPad7,2": "iPad Pro 12.9 2nd",
-    "iPad7,3": "iPad Pro 10.5",
-    "iPad7,4": "iPad Pro 10.5",
+    "iPad7,1": "iPad Pro 12.9' 2nd",
+    "iPad7,2": "iPad Pro 12.9' 2nd",
+    "iPad7,3": "iPad Pro 10.5'",
+    "iPad7,4": "iPad Pro 10.5'",
     "iPad7,5": "iPad 6th",
     "iPad7,6": "iPad 6th",
     "iPad7,11": "iPad 7th",
     "iPad7,12": "iPad 7th",
-    "iPad8,1": "iPad Pro 11 1st",
-    "iPad8,2": "iPad Pro 11 1st",
-    "iPad8,3": "iPad Pro 11 1st",
-    "iPad8,4": "iPad Pro 11 1st",
-    "iPad8,5": "iPad Pro 12.9 3rd",
-    "iPad8,6": "iPad Pro 12.9 3rd",
-    "iPad8,7": "iPad Pro 12.9 3rd",
-    "iPad8,8": "iPad Pro 12.9 3rd",
-    "iPad8,9": "iPad Pro 11 2nd",
-    "iPad8,10": "iPad Pro 11 2nd",
-    "iPad8,11": "iPad Pro 12.9 4th",
-    "iPad8,12": "iPad Pro 12.9 4th",
+    "iPad8,1": "iPad Pro 11' 1st",
+    "iPad8,2": "iPad Pro 11' 1st",
+    "iPad8,3": "iPad Pro 11' 1st",
+    "iPad8,4": "iPad Pro 11' 1st",
+    "iPad8,5": "iPad Pro 12.9' 3rd",
+    "iPad8,6": "iPad Pro 12.9' 3rd",
+    "iPad8,7": "iPad Pro 12.9' 3rd",
+    "iPad8,8": "iPad Pro 12.9' 3rd",
+    "iPad8,9": "iPad Pro 11' 2nd",
+    "iPad8,10": "iPad Pro 11' 2nd",
+    "iPad8,11": "iPad Pro 12.9' 4th",
+    "iPad8,12": "iPad Pro 12.9' 4th",
     "iPad11,1": "iPad mini 5th",
     "iPad11,2": "iPad mini 5th",
     "iPad11,3": "iPad Air 3rd",
@@ -108,24 +108,28 @@ const model_dic = {
     "iPad12,2": "iPad 9th",
     "iPad13,1": "iPad Air 4th",
     "iPad13,2": "iPad Air 4th",
-    "iPad13,4": "iPad Pro 11 3rd",
-    "iPad13,5": "iPad Pro 11 3rd",
-    "iPad13,6": "iPad Pro 11 3rd",
-    "iPad13,7": "iPad Pro 11 3rd",
-    "iPad13,8": "iPad Pro 12.9 5th",
-    "iPad13,9": "iPad Pro 12.9 5th",
-    "iPad13,10": "iPad Pro 12.9 5th",
-    "iPad13,11": "iPad Pro 12.9 5th",
+    "iPad13,4": "iPad Pro 11' 3rd",
+    "iPad13,5": "iPad Pro 11' 3rd",
+    "iPad13,6": "iPad Pro 11' 3rd",
+    "iPad13,7": "iPad Pro 11' 3rd",
+    "iPad13,8": "iPad Pro 12.9' 5th",
+    "iPad13,9": "iPad Pro 12.9' 5th",
+    "iPad13,10": "iPad Pro 12.9' 5th",
+    "iPad13,11": "iPad Pro 12.9' 5th",
     "iPad13,16": "iPad Air 5th",
     "iPad13,17": "iPad Air 5th",
     "iPad13,18": "iPad 10th",
     "iPad13,19": "iPad 10th",
     "iPad14,1": "iPad mini 6th",
     "iPad14,2": "iPad mini 6th",
-    "iPad14,3": "iPad Pro 11 4th",
-    "iPad14,4": "iPad Pro 11 4th",
-    "iPad14,5": "iPad Pro 12.9 6th",
-    "iPad14,6": "iPad Pro 12.9 6th",
+    "iPad14,3": "iPad Pro 11' 4th",
+    "iPad14,4": "iPad Pro 11' 4th",
+    "iPad14,5": "iPad Pro 12.9' 6th",
+    "iPad14,6": "iPad Pro 12.9' 6th",
+    "iPad14,8": "iPad Air 11' 6th",
+    "iPad14,9": "iPad Air 11' 6th",
+    "iPad14,10": "iPad Air 13' 6th",
+    "iPad14,11": "iPad Air 13' 6th",
 };
 
 var lang_data = null;
@@ -237,7 +241,7 @@ const App = {
                     that.errc += 1;
                     var max_hint = (that.update_freq <= 1) ? 10 : 1;
                     if (that.errc > max_hint) {
-                        that.msg_list.push({ // 避免切窗口wu
+                        that.msg_list.push({ // 避免切窗口错误
                             "id": get_id(), 
                             "title": that.$t("conn_daemon_error"), 
                             "type": "error",
@@ -317,12 +321,28 @@ const App = {
             });
         },
         set_enable: function(v) {
-            this.ipc_send_wrapper({
-                api: "set_conf",
-                key: "enable",
-                val: v,
-            });
-            this.enable = v;
+            if (this.get_health(this.bat_info) < 81) {
+                this.$confirm(this.$t("health_warn"), this.$t("warn"), {
+                    confirmButtonText: this.$t("ok"),
+                    cancelButtonText: this.$t("cancel"),
+                    type: "warning"
+                }).then(() => {
+                    this.ipc_send_wrapper({
+                        api: "set_conf",
+                        key: "enable",
+                        val: v,
+                    });
+                    this.enable = v;
+                }).catch(() => {       
+                });
+            } else {
+                this.ipc_send_wrapper({
+                    api: "set_conf",
+                    key: "enable",
+                    val: v,
+                });
+                this.enable = v;
+            }
         },
         set_floatwnd: function(v) {
             this.ipc_send_wrapper({

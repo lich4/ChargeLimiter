@@ -6,6 +6,14 @@ todos:
 * Start daemon on system reboot
 * Floating window on iOS12
 
+1.6.1版本更新日志:
+* 对有线充电宝休眠功能做兼容
+* 增加阿拉伯语
+
+1.6.1 ChangeLog:
+* Compatible with the sleep mode of wired power banks
+* Arabic language added
+
 1.6版本更新日志:
 * 增加温度模拟(即Powercuff)及峰值性能状态管理功能
 * 增加限流功能以兼容某些控流能力差的电池,避免充电温度过高

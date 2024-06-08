@@ -36,7 +36,7 @@ Will the battery health percentage increase after using CL for a period of time?
 Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
 * CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
-* There are a few cases of battery with low health cause this problem. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
+* There are a few cases of battery with low health cause this problem. In this case, CL can control charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 
 Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
@@ -59,7 +59,7 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * 1.Check compatibility of ChargeInhibit. Disable CL by toggling the "Enable" button first, and disable all options in "Advanced", then disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
 * 3.Check compatibility of DisableInflow. Disable CL by toggling the "Enable" button first, then disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
-* There are a few cases of battery with low health prevent CL from working well. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
+* There are a few cases of battery with low health prevent CL from working well. In this case, CL can control charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
 

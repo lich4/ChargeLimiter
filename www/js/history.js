@@ -229,10 +229,10 @@ const App = {
                                 position: "right",
                                 type: "linear",
                                 min: 0,
-                                max: 120,
+                                max: 100,
                                 ticks: {
                                     callback: function (value) {
-                                        return value > 100 ? "" : value + '%';
+                                        return value + '%';
                                     }
                                 }
                             },
@@ -243,8 +243,7 @@ const App = {
                                 max: that.temp_mode?140:60, // 60-140
                                 ticks: {
                                     callback: function (value) {
-                                        var thresh = that.temp_mode?120:50;
-                                        return value>thresh?"":value + that.temp_unit;
+                                        return value + that.temp_unit;
                                     }
                                 }
                             },
@@ -410,10 +409,10 @@ const App = {
                                 position: "right",
                                 type: "linear",
                                 min: 0,
-                                max: 120,
+                                max: 100,
                                 ticks: {
                                     callback: function (value) {
-                                        return value > 100 ? "" : value + '%';
+                                        return value + '%';
                                     }
                                 }
                             },
@@ -424,8 +423,7 @@ const App = {
                                 max: that.temp_mode?140:60, // 60-140
                                 ticks: {
                                     callback: function (value) {
-                                        var thresh = that.temp_mode?120:50;
-                                        return value>thresh?"":value + that.temp_unit;
+                                        return value + that.temp_unit;
                                     }
                                 }
                             },
@@ -528,8 +526,8 @@ const App = {
         update_chart_day: function (opt) {
             var that = this;
             var day = get_x_range(this.day, this.day_indx, this.DATA_MOVE_SPAN, this.DATA_SPAN);
-            var capacity_range = get_y_range(day, "NominalChargeCapacity", [1, 1]);
-            var cycle_range = get_y_range(day, "CycleCount", [1, 1]);
+            var capacity_range = get_y_range(this.day, "NominalChargeCapacity", [1, 1]);
+            var cycle_range = get_y_range(this.day, "CycleCount", [1, 1]);
             if (!this.chart_day) {
                 this.chart_day = new Chart(document.getElementById("day_chart").getContext('2d'), {
                     type: "bar",
@@ -633,8 +631,8 @@ const App = {
         update_chart_month: function (opt) {
             var that = this;
             var month = get_x_range(this.month, this.month_indx, this.DATA_MOVE_SPAN, this.DATA_SPAN);
-            var capacity_range = get_y_range(month, "NominalChargeCapacity", [1, 1]);
-            var cycle_range = get_y_range(month, "CycleCount", [1, 1]);
+            var capacity_range = get_y_range(this.month, "NominalChargeCapacity", [1, 1]);
+            var cycle_range = get_y_range(this.month, "CycleCount", [1, 1]);
             if (!this.chart_month) {
                 this.chart_month = new Chart(document.getElementById("month_chart").getContext('2d'), {
                     type: "bar",

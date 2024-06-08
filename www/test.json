@@ -32,7 +32,7 @@
     "get_conf": {
         "status": 0,
         "data": {
-            "enable": true,
+            "enable": false,
             "ver": "1.6",
             "update_freq": 1,
             "dark": true,

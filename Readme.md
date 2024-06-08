@@ -3,8 +3,9 @@
 ## 介绍
 
 &emsp;&emsp;ChargeLimiter(CL)是针对iOS开发的AlDente替代工具,适用于长时间过充情况下保护电池健康度.  
-&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/TrollStore(???.tipa),目前支持iOS12-16.6.(注意: TrollStore环境下安装新版之前请先卸载旧版)   
+&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/巨魔(???.tipa),目前支持iOS12-16.6.(注意: 巨魔环境下安装新版之前请先卸载旧版)   
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
+&emsp;&emsp;v1.4.1功能可以满足大多数用户需求，v1.5兼容不支持停充的电池，v1.6兼容充电电流过大的电池
 &emsp;&emsp;CL是开放式项目,如果有兴趣参与或者对CL有建议的的欢迎参提交代码.CL纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.CL承诺永久免费且无广告,但因为使用CL导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用CL即为默认同意本条款.     
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/banner.jpg)
@@ -38,6 +39,7 @@ CL支持第三方电池吗?
 * CL并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电.
 * CL的设计思路就是减少充电次数,因此不会连着usb就充电,充电/停充都有触发条件,请仔细查看本页说明.
 * 电池由于老化严重健康度低,刚启动系统时可以使用CL,一段时间后CL再也无法控制充电/停充.此种情况无法使用CL. 已有三例健康度在80%的反馈出现该问题. 
+* 电池由于过热导致CL无法生效.
 
 CL可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架.
@@ -83,15 +85,27 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 中正: 前3-5次充电称为调整期，应充8小时以上，保证充分激活锂离子的活性。锂离子电池没有记忆效应，但有很强的惰性，应给予充分激活；充电前建议慢充充电，减少快充方式，无论慢充还是快充都不要超过12小时，否则电池很可能会因为长时间的供电产生巨大的电子流而烧坏电芯；有很多用户在充电时还把手机开着，在充电过程中，电池一面因为手机的使用而向外放电，又因电池的充电而向内供电，很可能使电压紊乱导致手机电路板发热，如果有来电时会产生回流电流，对手机内部的零件造成损坏；电池的寿命取决于反复充放电次数，锂电池大约可以充放电500次左右，之后电池的性能会大大减弱，应尽量避免把电池内余电全部放完再充电，否则随着充电次数的增加电池性能会慢慢减弱
 * 曲赛德(超容): 新电池里面是虚电，因为静置的时间久锂电子不活跃，首次使用电池用到10%左右就要充电，充电时间满6小时，连续循环一周，就可以充分激活锂电子的活性，不建议边充边玩，不建议用到没电。
 
+## 充电宝兼容性
+
+&emsp;&emsp;CL可以和充电宝配合使用，停充模式下充电宝优先为手机供电，充电宝电量耗尽后再由手机电池供电，对长途旅行的用户更为有意义，充电宝的容量性价比也远高于手机电池。注意：
+* 无线充电时，如果充电功率不够有可能消耗电池电量，所以如果手机自身耗电较大就不适合这种充电方式
+* 大部分有线充电宝支持"休眠模式"，在电流低于某个阈值一段时间后，会自动关闭自身电源。这种模式下使用CL，充电宝可能在手机锁屏后关闭电源造成无CL无法正常工作
+* 大部分有线充电宝支持"小电流模式"，双击或长按电源键后进入小电流模式，这种模式在低电流时不会自动关闭电源，这种模式下CL在手机锁屏后也可以正常工作。注意有的充电宝几小时后会自动退出小电流模式
+
 ## 使用前必看
 
 * iPhone8+存在120秒设定充电状态延迟. iPad可能也存在.
 * 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者CL查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定。
-* 对于TrollStore环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/...),将导致CL失效.
+* 对于巨魔环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/...),将导致CL失效.
 * CL的设计思路就是减少充电次数,因此不会连着usb就自发充电,也不会无故自动恢复充电,充电/停充都有触发条件,请仔细查看本页说明.
 * 系统自带电池优化会导致CL失效,CL会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).不推荐在过新的设备上使用,因为iPhone15起自带电池优化已经很完善.
 
 ## 使用说明
+
+### 名词解释
+* 停充: 禁止电流流入电池, 此时电池不充电也不放电, 电源直接为设备硬件供电. 用户应优先使用此模式
+* 禁流: 禁止电流流入设备, 此时电池处于放电状态, 电池为设备硬件供电. 电池若不支持停充, 则应使用此模式
+* 限流: 通过模拟高温的方式限制充电电流. 电池在充电时如果电流过大导致异常发热, 则应选择此模式
 
 ### 启用
 
@@ -324,7 +338,9 @@ ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice 
 
 Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
 
-Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.      
+Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.   
+
+v1.4.1 is for most users; v1.5 is for batteries not support ChargeInhibit; v1.6 is for batteries with too large amperage during charging.    
 
 This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.    
 
@@ -356,7 +372,7 @@ Will the battery health percentage increase after using CL for a period of time?
 Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
 * CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
-* There are a few cases of battery with low health cause this problem. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
+* There are a few cases of battery with low health cause this problem. In this case, CL can control charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 
 Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
@@ -379,13 +395,20 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 * 1.Check compatibility of ChargeInhibit. Disable CL by toggling the "Enable" button first, and disable all options in "Advanced", then disable charging by toggling the "Charging" button, any change within 120 seconds means ChargeInhibit is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
 * 2.Check compatibility of PredictiveChargingInhibit. Enable it from "Advanced-Predictive charging inhibit", then follow steps in '1'.
 * 3.Check compatibility of DisableInflow. Disable CL by toggling the "Enable" button first, then disable inflow by toggling the "External connected" button when it is enabled, any change within 120 seconds means DisableInflow is supported, unless the InstantAmperage keep above 5mA after being disabled.(InstantAmperage may be invalid for a few kinds of batteries, in this case take a look at capacity increasement)
-* There are a few cases of battery with low health prevent CL from working well. In this case, CL can contorl charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
+* There are a few cases of battery with low health prevent CL from working well. In this case, CL can control charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
 * The battery will never be supported by CL if neither ChargeInhibit nor DisableInflow is supported.
 * If the health of battery keep dropping abnormally while using CL, please adjust the configuration in Advanced menu, or just uninstall CL.
 
 ## Battery activation
 
 Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
+
+## Compatibility with battery banks
+
+CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power when the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
+* If the wattage is insufficient in wireless charging, then battery may supply power simultaneously.  If the phone itself consumes a lot of power than the charger can supply, then it is not suitable to use a wireless charger.
+* Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power after the phone is locked, and CL will work properly in this case.
+* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode, even after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
 
 ## Notice
 
@@ -396,6 +419,12 @@ Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 * CL is not compatible with "Optimized Battery Charging" of Settings.app. sCL will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
 
 ## Instruction
+
+### Terms
+
+* ChargeInhibit: Prohibit the current from flowing into battery. In this mode the battery will neither charge nor discharge, and the power source will power the hardware of iDevice directly. This mode should be should be preferred.
+* DisableInflow: Prohibit the current from flowing into iDevice. In this mode the battery will discharge, and power the hardware of iDevice. This mode should be used only when ChargeInhibit is unsupported by the battery.
+* LimitInflow: Limit the current and prevent iDevice from getting overheat. This mode should be used only when the battery clouldn't take control of the current.
 
 ### "Enable" button
 

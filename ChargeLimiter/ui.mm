@@ -187,7 +187,7 @@ static AppDelegate* _app = nil;
                         return;
                     }
                     NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
-                    NSArray* white_list = @[@"", self_bid, @"com.apple.springboard", @"com.apple.AccessibilityUIServer"];
+                    NSArray* white_list = @[@"", self_bid, @"com.apple.springboard", @"com.apple.AccessibilityUIServer", @"com.apple.CarPlayApp"];
                     static NSString* old_bid = self_bid; // 悬浮窗从CL诞生
                     dispatch_async(dispatch_get_global_queue(0, 0), ^{
                         @autoreleasepool {
@@ -198,10 +198,12 @@ static AppDelegate* _app = nil;
                                     NSNumber* floatwnd_auto = getlocalKV(@"floatwnd_auto");
                                     if (floatwnd_auto.boolValue) {
                                         if ([white_list containsObject:cur_bid]) {
+                                            NSFileLog(@"floatwnd unhide for %@", cur_bid);
                                             dispatch_async(dispatch_get_main_queue(), ^{
                                                 _app.webview.hidden = NO;
                                             });
                                         } else {
+                                            NSFileLog(@"floatwnd hide for %@", cur_bid);
                                             dispatch_async(dispatch_get_main_queue(), ^{
                                                 _app.webview.hidden = YES;
                                             });

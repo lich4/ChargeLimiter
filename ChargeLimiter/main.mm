@@ -7,9 +7,8 @@
 #include <sqlite3.h>
 
 NSString* log_prefix = @(PRODUCT "Logger");
-int log_level = 1; // 0:normal 1:detail // todo
 static NSDictionary* bat_info = nil;
-static BOOL g_enable = YES;
+static BOOL g_enable = NO;
 static BOOL g_enable_floatwnd = NO;
 static BOOL g_use_smart = NO;
 static int g_jbtype = -1;
@@ -389,7 +388,7 @@ static NSArray* getDBData(const char* tbl, int n, int last_id) {
         }
         NSMutableArray* result = [NSMutableArray array];
         char sql[256];
-        sprintf(sql, "select data from %s where id > %d order by id asc limit %d", tbl, last_id, n);
+        sprintf(sql, "select data from %s where id > %d order by id desc limit %d", tbl, last_id, n);
         sqlite3_stmt* stmt = NULL;
         sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
         while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -401,8 +400,9 @@ static NSArray* getDBData(const char* tbl, int n, int last_id) {
             }
             [result addObject:jobj];
         }
+        NSArray* result_ = [[result reverseObjectEnumerator] allObjects]; // order by id desc
         sqlite3_finalize(stmt);
-        return result;
+        return result_;
     }
 }
 
@@ -480,7 +480,7 @@ static void onBatteryEvent(io_service_t serv) {
             if (capacity.intValue <= 5) { // 电量极低,优先级=1
                 // 防止误用或意外造成无法充电
                 if (is_adaptor_connected && !is_charging.boolValue) {
-                    NSFileLog(@"start charging for extremely low capacity");
+                    NSFileLog(@"start charging for extremely low capacity %@", capacity);
                     setInflowStatus(YES);
                     setBatteryStatus(YES);
                     performAcccharge(YES);
@@ -489,26 +489,26 @@ static void onBatteryEvent(io_service_t serv) {
             }
             if (capacity.intValue >= charge_above.intValue) { // 停充-电量高,优先级=2
                 if (is_charging.boolValue) {
-                    NSFileLog(@"stop charging for high capacity");
+                    NSFileLog(@"stop charging for high capacity %@ >= %@", capacity, charge_above);
                     setBatteryStatus(NO);
                     performAction(@"stop_charge");
                     performAcccharge(NO);
                 }
                 if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
-                    NSFileLog(@"disable inflow for high capacity");
+                    NSFileLog(@"disable inflow for high capacity %@ >= %@", capacity, charge_above);
                     setInflowStatus(NO);
                 }
                 break;
             }
             if (enable_temp.boolValue && temperature >= charge_temp_above) { // 停充-温度高,优先级=3
                 if (is_charging.boolValue) {
-                    NSFileLog(@"stop charging for high temperature");
+                    NSFileLog(@"stop charging for high temperature %lf >= %lf", temperature, charge_temp_above);
                     setBatteryStatus(NO);
                     performAction(@"stop_charge");
                     performAcccharge(NO);
                 }
                 if (adv_disable_inflow.boolValue && is_inflow_enabled.boolValue) {
-                    NSFileLog(@"disable inflow for high temperature");
+                    NSFileLog(@"disable inflow for high temperature %lf >= %lf", temperature, charge_temp_above);
                     setInflowStatus(NO);
                 }
                 break;
@@ -517,11 +517,11 @@ static void onBatteryEvent(io_service_t serv) {
                 // 禁流模式下电量下降后恢复充电
                 if (is_adaptor_connected) {
                     if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
-                        NSFileLog(@"enable inflow for low capacity");
+                        NSFileLog(@"enable inflow for low capacity %@ <= %@", capacity, charge_below);
                         setInflowStatus(YES);
                     }
                     if (!is_charging.boolValue) {
-                        NSFileLog(@"start charging for low capacity");
+                        NSFileLog(@"start charging for low capacity %@ <= %@", capacity, charge_below);
                         setBatteryStatus(YES);
                         performAction(@"start_charge");
                         performAcccharge(YES);
@@ -533,11 +533,11 @@ static void onBatteryEvent(io_service_t serv) {
                 if (enable_temp.boolValue && temperature <= charge_temp_below) { // 充电-温度低,优先级=5
                     if (is_adaptor_connected) {
                         if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
-                            NSFileLog(@"enable inflow for low temperature");
+                            NSFileLog(@"enable inflow for low temperature %lf < %lf", temperature, charge_temp_below);
                             setInflowStatus(YES);
                         }
                         if (!is_charging.boolValue) {
-                            NSFileLog(@"start charging for low temperature");
+                            NSFileLog(@"start charging for low temperature %lf < %lf", temperature, charge_temp_below);
                             setBatteryStatus(YES);
                             performAction(@"start_charge");
                             performAcccharge(YES);
@@ -632,7 +632,7 @@ static void initConf(BOOL reset) {
     } else {
         NSMutableDictionary* def_mdic = def_dic.mutableCopy;
         [def_mdic addEntriesFromDictionary:@{
-            @"enable": @YES,
+            @"enable": @NO,
             @"mode": @"charge_on_plug",
             @"update_freq": @1,
             @"lang": @"en",
@@ -724,10 +724,8 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
         } else if ([key isEqualToString:@"adv_def_thermal_mode"]) {
             setThermalSimulationMode(val);
         } else if ([key isEqualToString:@"temp_mode"]) {
-            NSLog(@"%@ aa1", log_prefix);
             NSArray* vals = nsreq[@"vals"];
             if (vals != nil && vals.count >= 2) {
-                NSLog(@"%@ aa1 %@ %@", log_prefix, vals[0], vals[1]);
                 setlocalKV(@"charge_temp_below", vals[0]);
                 setlocalKV(@"charge_temp_above", vals[1]);
             }
@@ -897,7 +895,6 @@ static void start_daemon() {
     }
 }
 
-
 int main(int argc, char** argv) {
     @autoreleasepool {
         g_jbtype = getJBType();
@@ -921,6 +918,13 @@ int main(int argc, char** argv) {
                     uninitDB();
                     [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
                 });
+                dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                    while (true) {
+                        [NSThread sleepForTimeInterval:10.0];
+                        //tap_home();
+                    }
+                });
+                NSFileLog(@"CLv%@ start", NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"]);
                 [NSRunLoop.mainRunLoop run];
                 NSFileLog(@"daemon unexpected");
                 return 0;
