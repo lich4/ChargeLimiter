@@ -3,9 +3,9 @@
 ## 介绍
 
 &emsp;&emsp;ChargeLimiter(CL)是针对iOS开发的AlDente替代工具,适用于长时间过充情况下保护电池健康度.  
-&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/巨魔(???.tipa),目前支持iOS12-16.6.(注意: 巨魔环境下安装新版之前请先卸载旧版)   
+&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/巨魔(???.tipa),目前支持iOS12-16.6.(注意: 巨魔环境下安装新版之前请先卸载旧版)
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
-&emsp;&emsp;v1.4.1功能可以满足大多数用户需求，v1.5兼容不支持停充的电池，v1.6兼容充电电流过大的电池
+&emsp;&emsp;v1.4.1功能可以满足大多数用户需求，v1.5兼容不支持停充的电池，v1.6兼容充电电流过大的电池    
 &emsp;&emsp;CL是开放式项目,如果有兴趣参与或者对CL有建议的的欢迎参提交代码.CL纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.CL承诺永久免费且无广告,但因为使用CL导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用CL即为默认同意本条款.     
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/banner.jpg)
@@ -66,10 +66,6 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请自行调整高级菜单中的选项或卸载CL.
 
-品牌反馈(欢迎汇报数据给我):
-* 反馈不支持停充的电池: 马拉松1例.
-* 反馈不支持SmartBattery的电池(开启SmartBattery会掉健康度): 品胜1例.
-
 ## 品牌新电池激活
 
 &emsp;&emsp;电池保养官方文档: <https://www.apple.com.cn/batteries/maximizing-performance/>。电池激活是指电池刚出厂后需要采取正确方式，排除虚电并激发电池中全部的锂离子活性。
@@ -82,6 +78,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 * ZASZ: 勿将电池用到自动关机，前5次充电电量低于15%时开始充电，充满后再充1小时。5次循环后电池待机时间达到正常状态
 * 品胜: 新电池都带一些虚电，用到10%开始充电，不要用到关机，一次性充到100%，再多充1小时拔掉充电器，循环充电使用3-5次后会完全激发电池里面的电量，平时用最好充满，不要边充边玩
 * 长和胜: 新电池大部分是虚电，循环6-10次才会耐用。电量10%以上就要充电，不要低于10%或自动关机才充电，这样可以防止虚电电量过低导致的无法开机
+* 飞毛腿: 建议把原始电量用到10%以下之后再充满100%，然后用到10%以下后又充满100%，如此循环5~10次（大约一周），这样电池才被彻底激活哦(=^_^=)另外，新电池的原始电量不是真实电量的，新电芯还有一大片区域没开始存电呢，原始电量50%只是一小部分区域的50%，不是整个电芯的50%哦，所以新电池的原始电量用得快是正常的
 * 中正: 前3-5次充电称为调整期，应充8小时以上，保证充分激活锂离子的活性。锂离子电池没有记忆效应，但有很强的惰性，应给予充分激活；充电前建议慢充充电，减少快充方式，无论慢充还是快充都不要超过12小时，否则电池很可能会因为长时间的供电产生巨大的电子流而烧坏电芯；有很多用户在充电时还把手机开着，在充电过程中，电池一面因为手机的使用而向外放电，又因电池的充电而向内供电，很可能使电压紊乱导致手机电路板发热，如果有来电时会产生回流电流，对手机内部的零件造成损坏；电池的寿命取决于反复充放电次数，锂电池大约可以充放电500次左右，之后电池的性能会大大减弱，应尽量避免把电池内余电全部放完再充电，否则随着充电次数的增加电池性能会慢慢减弱
 * 曲赛德(超容): 新电池里面是虚电，因为静置的时间久锂电子不活跃，首次使用电池用到10%左右就要充电，充电时间满6小时，连续循环一周，就可以充分激活锂电子的活性，不建议边充边玩，不建议用到没电。
 
@@ -98,7 +95,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者CL查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定。
 * 对于巨魔环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/...),将导致CL失效.
 * CL的设计思路就是减少充电次数,因此不会连着usb就自发充电,也不会无故自动恢复充电,充电/停充都有触发条件,请仔细查看本页说明.
-* 系统自带电池优化会导致CL失效,CL会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).不推荐在过新的设备上使用,因为iPhone15起自带电池优化已经很完善.
+* 系统自带电池优化会导致CL失效,CL会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).
 
 ## 使用说明
 
@@ -147,6 +144,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此CL阈值默认设定为20/80/10/35,长期过充/电量耗尽/高温对电池会产生不良影响.    
 * 温度阈值的设定,可根据"历史统计-小时数据"的温度数据设置合适的阈值.   
 * 设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,差异值与120秒延迟有关,与充电速度有关,也与电池质量有关.停充后如果存在微弱电流可能造成差值;另外健康度的突然变化也会影响电量.
+* 电量上限阈值的设定,如果是短期停充,此上限可以根据自己需要设置;如果是iPad长年连电停充,则此上限可以设置为最佳停充电量,最佳停充电确定方法如下:将电量充满,关闭所有耗电App和功能然后静置,让电量自然降低,等待一天后此电量就是最佳停充电量.
 
 ### 行为
 
@@ -158,12 +156,16 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 自动禁流,用于兼容不支持停充的电池.开启禁流后等同于消耗电池电量,此时电池损耗和正常使用一致.
 * 高温模拟,Powercuff,温度越高,硬件(充电器/CPU/GPU/背光/WiFi/无线/扬声器等)耗电越少,手机越卡顿,充电电流电压也越低.注意系统本身会根据实际情况调节该项,如果要强制指定模式(不建议)请打开锁定开关.越狱环境下如果存在功能冲突的tweak则CL不生效.
 * 峰值性能,用于控制低温和电量不足时的峰值性能,不建议修改.
-* 自动限流,用于自身流控不好的电池,电流过大会导致电池温度过高,健康度下降.选择合适的高温模拟等级: 可在电量小于30%时充电,电量越低时充电电流越高,手动设置"高级-高温模拟-设置"(等级从"正常"到"重度",等级越高电流越小),每次设置后几秒内可以观察到电流变化,达到合适的电流值时,将该等级设置到"高级-自动限流-高温模拟"中.自动限流在充电时自动设置为指定高温模拟等级(高级-自动限流-高温模拟),停充时自动恢复到默认等级(高级-高温模拟-设置).注意: 有些品牌电池可能无法控流,以实测为准.
+* 自动限流,用于自身流控不好的电池,电流过大会导致电池温度过高,健康度下降.选择合适的高温模拟等级: 可在电量小于30%时充电,电量越低时充电电流越高,手动设置"高级-高温模拟-设置"(等级从"正常"到"重度",等级越高电流越小),每次设置后几秒内可以观察到电流变化,达到合适的电流值时,将该等级设置到"高级-自动限流-高温模拟"中.自动限流在充电时自动设置为指定高温模拟等级(高级-自动限流-高温模拟),停充时自动恢复到默认等级(高级-高温模拟-设置).
+
+注意: 
+* 有些电池可能无法使用高温模拟,以实测为准.
+* 由于系统机制,高温模拟无法在锁屏状态下生效
 
 ### 电池信息
 
-* 健康度与爱思助手保持一致,若健康度超过100%则说明新电池相比该代手机发行时的原始电池容量有升级.CL健康度是根据最大实际容量计算的.
-* 硬件电量若超过100%(或超过显示电量)可能是未校准或质量问题导致.
+* 健康度,与爱思助手保持一致,CL健康度是根据最大实际容量计算的.通常新电池健康度都会超过100%,而系统设置显示的健康度不会超过100%,但设置里只显示100%,所以健康度100%到99%的过程较长.注意健康度在长期停充的状态下可能有突然大幅度下降和统计不准确的情况,此时禁用CL并正常充电几次即可恢复.
+* 硬件电量,一般情况下和系统电量接近,如果差值过大则可能是未校准或质量问题导致.硬件电量比系统电量更准确,硬件电量可能会大于100%也可能为负值,硬件电量大于100%时为过充此时系统电量为100%,为负时为电池亏电,此时系统电量为0%.
 * 电流以"瞬时电流"为准,电池电流为正说明从充电器流入电池,电池电流为负说明电池为设备供电.使用CL且停充状态下电池电流一般为0,此时电流流经电池为设备供电,电池起到闭合电路作用(可以理解为导线),此时对电池的损耗应小于仅使用电池为设备供电.禁流状态下电池电流一般为负.
 
 ### 历史统计
@@ -405,7 +407,7 @@ Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
 ## Compatibility with battery banks
 
-CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power when the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
+CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power after the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
 * If the wattage is insufficient in wireless charging, then battery may supply power simultaneously.  If the phone itself consumes a lot of power than the charger can supply, then it is not suitable to use a wireless charger.
 * Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power after the phone is locked, and CL will work properly in this case.
 * Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode, even after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
@@ -481,8 +483,8 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 
 ### Battery Information
 
-* Health, calculated with NominalChargeCapacity, with value higher than 100% indicates the battery must have been replaced before, and with more capacity than battery shipped with this model first released.
-* Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
+* Health of battery is calculated with NominalChargeCapacity. In general the health of a new battery is higher than 100%, even though it shows always 100% in system status bar. Please be aware of that the health maybe drop largely suddenly due to long term ChargeInhibit, in this case use should disable CL temporarily and have the battery fully charged several times to recover the health.
+* Hardware capacity is close to the system capacity and is more accurate in most cases, too much difference maybe show the battery is not calibrated or of poor quality. Hardware capacity chould be higher than 100%(100% in system status bar) if overcharged, and could be negative(0 in system status bar) if undercharged, 
 * InstantAmperage with positive value means the current flow into battery from the power source, negative means the current flow into iDevice from battery without any power source. InstantAmperage should be 0mA normally in ChargeInhibit mode, in this case the current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (*In fact, keep connecting to any power source and stop charging, the health may never drop*). InstantAmperage should be negative in DisableInflow mode.
 
 ### History

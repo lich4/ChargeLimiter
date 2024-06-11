@@ -4,9 +4,11 @@ ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice 
 
 Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
 
-Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.      
+Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.   
 
-This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.    
+v1.4.1 is for most users; v1.5 is for batteries not support ChargeInhibit; v1.6 is for batteries with too large amperage during charging.    
+
+This project is opensourced, any better ideas, submit code directly; any suggestions, submit to issue region. This software will be opensourced, free, without ads forever. Author is not responsible for any impact on iOS system or hardware caused by this software.   
 
 ## Known issues
 
@@ -67,6 +69,13 @@ Please test battery compatibility before using CL, stop and uninstall CL if unsu
 
 Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
+## Compatibility with battery banks
+
+CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power after the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
+* If the wattage is insufficient in wireless charging, then battery may supply power simultaneously.  If the phone itself consumes a lot of power than the charger can supply, then it is not suitable to use a wireless charger.
+* Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power after the phone is locked, and CL will work properly in this case.
+* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode, even after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
+
 ## Notice
 
 * For iPhone8+(equal or higher than), there is 120-seconds delay after setting the charging status , maybe the same for iPad.
@@ -76,6 +85,12 @@ Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 * CL is not compatible with "Optimized Battery Charging" of Settings.app. sCL will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
 
 ## Instruction
+
+### Terms
+
+* ChargeInhibit: Prohibit the current from flowing into battery. In this mode the battery will neither charge nor discharge, and the power source will power the hardware of iDevice directly. This mode should be should be preferred.
+* DisableInflow: Prohibit the current from flowing into iDevice. In this mode the battery will discharge, and power the hardware of iDevice. This mode should be used only when ChargeInhibit is unsupported by the battery.
+* LimitInflow: Limit the current and prevent iDevice from getting overheat. This mode should be used only when the battery clouldn't take control of the current.
 
 ### "Enable" button
 
@@ -132,8 +147,8 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 
 ### Battery Information
 
-* Health, calculated with NominalChargeCapacity, with value higher than 100% indicates the battery must have been replaced before, and with more capacity than battery shipped with this model first released.
-* Hardware capacity with value higher than 100%, maybe indicate the battery is not calibrated or has been changed.
+* Health of battery is calculated with NominalChargeCapacity. In general the health of a new battery is higher than 100%, even though it shows always 100% in system status bar. Please be aware of that the health maybe drop largely suddenly due to long term ChargeInhibit, in this case use should disable CL temporarily and have the battery fully charged several times to recover the health.
+* Hardware capacity is close to the system capacity and is more accurate in most cases, too much difference maybe show the battery is not calibrated or of poor quality. Hardware capacity chould be higher than 100%(100% in system status bar) if overcharged, and could be negative(0 in system status bar) if undercharged, 
 * InstantAmperage with positive value means the current flow into battery from the power source, negative means the current flow into iDevice from battery without any power source. InstantAmperage should be 0mA normally in ChargeInhibit mode, in this case the current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (*In fact, keep connecting to any power source and stop charging, the health may never drop*). InstantAmperage should be negative in DisableInflow mode.
 
 ### History

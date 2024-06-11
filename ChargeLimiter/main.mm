@@ -918,12 +918,6 @@ int main(int argc, char** argv) {
                     uninitDB();
                     [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
                 });
-                dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                    while (true) {
-                        [NSThread sleepForTimeInterval:10.0];
-                        //tap_home();
-                    }
-                });
                 NSFileLog(@"CLv%@ start", NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"]);
                 [NSRunLoop.mainRunLoop run];
                 NSFileLog(@"daemon unexpected");

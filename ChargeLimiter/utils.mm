@@ -510,37 +510,49 @@ static NSArray* getAllAppProcs() {
     return result;
 }
 
-NSString* getFrontMostBid() {
+NSArray* getFrontMostBid() {
     if (false) { // for iOS<=13 || 注入SpringBoard || 二进制在系统分区
         static mach_port_t (*SBSSpringBoardServerPort_)() = (__typeof(SBSSpringBoardServerPort_))dlsym(RTLD_DEFAULT, "SBSSpringBoardServerPort");
         static void (*SBFrontmostApplicationDisplayIdentifier_)(mach_port_t port, char *result) = (__typeof(SBFrontmostApplicationDisplayIdentifier_))dlsym(RTLD_DEFAULT, "SBFrontmostApplicationDisplayIdentifier");
         static mach_port_t sb_port = SBSSpringBoardServerPort_();
         char buf[PATH_MAX];
         memset(buf, 0, sizeof(buf));
-        NSString* bid = @"";
         SBFrontmostApplicationDisplayIdentifier_(sb_port, buf);
+        NSMutableArray* allFrontMostBid = [NSMutableArray array];
         if (buf[0] < 'A' || buf[0] > 'z') { // 缓冲区有乱码
-            bid = @"";
         } else {
-            bid = @(buf);
+            [allFrontMostBid addObject:@(buf)];
         }
-        return bid;
+        return allFrontMostBid;
     }
     NSArray* allAppPids = getAllAppProcs();
     BKSApplicationStateMonitor* monitor = [objc_getClass("BKSApplicationStateMonitor") new];
+    NSMutableArray* allFrontMostBid = [NSMutableArray new]; // 最前App不止一个
     for (NSNumber* pid in allAppPids) {
         NSDictionary* appInfo = [monitor applicationInfoForPID:pid.intValue];
         if (appInfo != nil) {
             NSNumber* isFrontMost = appInfo[@"BKSApplicationStateAppIsFrontmost"];
             if (isFrontMost.boolValue) {
-                if (appInfo[@"SBApplicationStateDisplayIDKey"] != nil) {
-                    return appInfo[@"SBApplicationStateDisplayIDKey"];
+                NSString* bid = appInfo[@"SBApplicationStateDisplayIDKey"];
+                // 以下bid会被认为是frontmost:
+                //  com.apple.springboard                   always
+                //  com.apple.AccessibilityUIServer
+                //  com.apple.CarPlayApp
+                //  com.apple.CarPlaySplashScreen
+                //  com.apple.CarPlayTemplateUIHost
+                //  com.apple.ScreenshotServicesService??
+                if (bid != nil && ![bid isEqualToString:@"com.apple.springboard"] && ![bid hasPrefix:@"com.apple.Accessibility"] && ![bid hasPrefix:@"com.apple.CarPlay"]) {
+                    [allFrontMostBid addObject:bid];
                 }
-                return @"";
             }
         }
     }
-    return @"";
+    if (allFrontMostBid.count > 0) {
+        if (allFrontMostBid.count > 1) {
+            NSFileLog(@"floatwnd unexpected frontmost bid %@", allFrontMostBid);
+        }
+    }
+    return allFrontMostBid;
 }
 
 

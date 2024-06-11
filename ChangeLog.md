@@ -7,11 +7,11 @@ todos:
 * Floating window on iOS12
 
 1.6.1版本更新日志:
-* 对有线充电宝休眠功能做兼容
+* 增加对有线充电宝的支持
 * 增加阿拉伯语
 
 1.6.1 ChangeLog:
-* Compatible with the sleep mode of wired power banks
+* Support wired power banks
 * Arabic language added
 
 1.6版本更新日志:

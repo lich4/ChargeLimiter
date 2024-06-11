@@ -187,13 +187,21 @@ static AppDelegate* _app = nil;
                         return;
                     }
                     NSString* self_bid = NSBundle.mainBundle.bundleIdentifier;
-                    NSArray* white_list = @[@"", self_bid, @"com.apple.springboard", @"com.apple.AccessibilityUIServer", @"com.apple.CarPlayApp"];
+                    NSArray* white_list = @[@"", self_bid]; // 作为前台桌面的进程
                     static NSString* old_bid = self_bid; // 悬浮窗从CL诞生
                     dispatch_async(dispatch_get_global_queue(0, 0), ^{
                         @autoreleasepool {
                             in_process = true;
                             for (int i = ts; i < last_access_time + FRONTMOST_DELAY; i++) { // 每次通知增加上限时间,等待bid变化
-                                NSString* cur_bid = getFrontMostBid();
+                                NSArray* cur_bid_list = getFrontMostBid();
+                                NSString* cur_bid = @"";
+                                if (cur_bid_list.count > 0) {
+                                    if ([cur_bid_list containsObject:self_bid]) {
+                                        cur_bid = self_bid;
+                                    } else {
+                                        cur_bid = cur_bid_list.firstObject;
+                                    }
+                                }
                                 if (![old_bid isEqualToString:cur_bid]) {
                                     NSNumber* floatwnd_auto = getlocalKV(@"floatwnd_auto");
                                     if (floatwnd_auto.boolValue) {

@@ -29,7 +29,7 @@ int set_mem_limit(int pid, int mb);
 BOOL localPortOpen(int port);
 NSString* getAppEXEPath();
 NSArray* getUnusedFds();
-NSString* getFrontMostBid();
+NSArray* getFrontMostBid();
 
 #define STR(X) #X
 
