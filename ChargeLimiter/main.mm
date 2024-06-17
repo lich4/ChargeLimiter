@@ -147,21 +147,26 @@ static int setInflowStatus(BOOL flag) {
     return 0;
 }
 
-static BOOL isAdaptorConnect(NSDictionary* info) { // 是否连接电源
+static BOOL isAdaptorConnect(NSDictionary* info, NSNumber* disableInflow) { // 是否连接电源
     // 某些充电器ExternalConnected为false,而禁流时ExternalConnected/ExternalChargeCapable均为false
-    NSDictionary* AdapterDetails = info[@"AdapterDetails"];
-    if (AdapterDetails == nil) {
-        return NO;
+    if (disableInflow.boolValue) { // 禁流模式下只能通过电源信息判断, 某些时候系统会缓存该信息导致不准确
+        NSDictionary* AdapterDetails = info[@"AdapterDetails"];
+        if (AdapterDetails == nil) {
+            return NO;
+        }
+        NSString* PSDesc = AdapterDetails[@"Description"];
+        if (PSDesc == nil || [PSDesc isEqualToString:@"batt"]) {
+            return NO;
+        }
+        return YES;
+    } else {
+        NSNumber* ExternalChargeCapable = info[@"ExternalChargeCapable"];
+        return ExternalChargeCapable.boolValue;
     }
-    NSString* PSDesc = AdapterDetails[@"Description"];
-    if (PSDesc == nil || [PSDesc isEqualToString:@"batt"]) {
-        return NO;
-    }
-    return YES;
 }
 
-static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info) {
-    return !isAdaptorConnect(oldInfo) && isAdaptorConnect(info);
+static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info, NSNumber* disableInflow) {
+    return !isAdaptorConnect(oldInfo, disableInflow) && isAdaptorConnect(info, disableInflow);
 }
 
 static int setChargeStatus(BOOL flag) {
@@ -469,8 +474,8 @@ static void onBatteryEvent(io_service_t serv) {
         NSNumber* capacity = bat_info[@"CurrentCapacity"];
         NSNumber* is_charging = bat_info[@"IsCharging"];
         NSNumber* is_inflow_enabled = bat_info[@"ExternalConnected"];
-        BOOL is_adaptor_connected = isAdaptorConnect(bat_info);
         NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
+        BOOL is_adaptor_connected = isAdaptorConnect(bat_info, adv_disable_inflow);
         NSNumber* temperature_ = bat_info[@"Temperature"];
         float charge_temp_above = getTempAsC(@"charge_temp_above");
         float charge_temp_below = getTempAsC(@"charge_temp_below");
@@ -545,7 +550,7 @@ static void onBatteryEvent(io_service_t serv) {
                     }
                     break;
                 }
-                if (isAdaptorNewConnect(old_bat_info, bat_info)) { // 充电-插电,优先级=6
+                if (isAdaptorNewConnect(old_bat_info, bat_info, adv_disable_inflow)) { // 充电-插电,优先级=6
                     if (adv_disable_inflow.boolValue && !is_inflow_enabled.boolValue) {
                         NSFileLog(@"enable inflow for plug in");
                         setInflowStatus(YES);
@@ -559,7 +564,7 @@ static void onBatteryEvent(io_service_t serv) {
                     break;
                 }
             } else if ([mode isEqualToString:@"edge_trigger"]) {
-                if (isAdaptorNewConnect(old_bat_info, bat_info)) {
+                if (isAdaptorNewConnect(old_bat_info, bat_info, adv_disable_inflow)) {
                     if (!is_charging.boolValue) {
                         NSFileLog(@"stop charging for plug in");
                         setBatteryStatus(NO);

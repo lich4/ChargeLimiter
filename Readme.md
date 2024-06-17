@@ -3,7 +3,7 @@
 ## 介绍
 
 &emsp;&emsp;ChargeLimiter(CL)是针对iOS开发的AlDente替代工具,适用于长时间过充情况下保护电池健康度.  
-&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/巨魔(???.tipa),目前支持iOS12-16.6.(注意: 巨魔环境下安装新版之前请先卸载旧版)
+&emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/巨魔(???.tipa),目前支持iOS12-17.0(注意: 巨魔环境下安装新版之前请先卸载旧版)
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
 &emsp;&emsp;v1.4.1功能可以满足大多数用户需求，v1.5兼容不支持停充的电池，v1.6兼容充电电流过大的电池    
 &emsp;&emsp;CL是开放式项目,如果有兴趣参与或者对CL有建议的的欢迎参提交代码.CL纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.CL承诺永久免费且无广告,但因为使用CL导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用CL即为默认同意本条款.     
@@ -12,7 +12,7 @@
 
 ## 已知BUG
 
-* 由于缺少开发环境和设备, CL可能不兼容iOS<=11.x, v1.4.1起无法完全兼容iOS17+.
+* 由于缺少开发环境和设备, CL可能不兼容iOS<=11.x.
 * 悬浮窗暂不支持iOS<=12.x.
 * DEB版本CL可能会由于某些tweak导致启动卡屏,这并非CL本身的bug,这些tweak注入到com.apple.UIKit,可以在此目录寻找:/Library/MobileSubstrate/DynamicLibraries(有根),或/var/jb/Library/MobileSubstrate/DynamicLibraries(无根).
 
@@ -86,7 +86,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 &emsp;&emsp;CL可以和充电宝配合使用，停充模式下充电宝优先为手机供电，充电宝电量耗尽后再由手机电池供电，对长途旅行的用户更为有意义，充电宝的容量性价比也远高于手机电池。注意：
 * 无线充电时，如果充电功率不够有可能消耗电池电量，所以如果手机自身耗电较大就不适合这种充电方式
-* 大部分有线充电宝支持"休眠模式"，在电流低于某个阈值一段时间后，会自动关闭自身电源。这种模式下使用CL，充电宝可能在手机锁屏后关闭电源造成无CL无法正常工作
+* 大部分有线充电宝支持"休眠模式"，在电流低于某个阈值一段时间后，会自动关闭自身电源。这种模式下使用CL，充电宝可能在手机锁屏后由于电流过小导致充电宝自动关闭电源, 造成无CL无法正常工作
 * 大部分有线充电宝支持"小电流模式"，双击或长按电源键后进入小电流模式，这种模式在低电流时不会自动关闭电源，这种模式下CL在手机锁屏后也可以正常工作。注意有的充电宝几小时后会自动退出小电流模式
 
 ## 使用前必看
@@ -338,7 +338,7 @@ curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-ty
 
 ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice from getting overcharged, which will cause damage to the battery.     
 
-Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
+Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-17.0(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
 
 Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.   
 
@@ -348,7 +348,7 @@ This project is opensourced, any better ideas, submit code directly; any suggest
 
 ## Known issues
 
-* Due to the lack of devices to test with, CL may not supported on iOS<=11, and v1.4.1+ may not fully supported on iOS17+.
+* Due to the lack of devices to test with, CL may not supported on iOS<=11.
 * Floating window is not supported on iOS<=12.
 * For deb version, some tweaks will cause CL to stuck at SplashScreen, it's not a bug of CL itself. these tweaks, injected into com.apple.UIKit, can be found in /Library/MobileSubstrate/DynamicLibraries(rootful), and /var/jb/Library/MobileSubstrate/DynamicLibraries(rootless).
 
@@ -409,8 +409,8 @@ Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
 CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power after the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
 * If the wattage is insufficient in wireless charging, then battery may supply power simultaneously.  If the phone itself consumes a lot of power than the charger can supply, then it is not suitable to use a wireless charger.
-* Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power after the phone is locked, and CL will work properly in this case.
-* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode, even after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
+* Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power due to low amperage after the phone is locked, and CL will not able to re-charge any more due to power source disconnection in this case.
+* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
 
 ## Notice
 
@@ -484,7 +484,7 @@ Action on trigger start/stop charging. Please reset it after reinstalling/updati
 ### Battery Information
 
 * Health of battery is calculated with NominalChargeCapacity. In general the health of a new battery is higher than 100%, even though it shows always 100% in system status bar. Please be aware of that the health maybe drop largely suddenly due to long term ChargeInhibit, in this case use should disable CL temporarily and have the battery fully charged several times to recover the health.
-* Hardware capacity is close to the system capacity and is more accurate in most cases, too much difference maybe show the battery is not calibrated or of poor quality. Hardware capacity chould be higher than 100%(100% in system status bar) if overcharged, and could be negative(0 in system status bar) if undercharged, 
+* Hardware capacity is close to the system capacity and is more accurate in most cases, too much difference may indicate the battery is not calibrated or of poor quality. Hardware capacity chould be higher than 100%(100% in system status bar) if overcharged, and could be negative(0 in system status bar) if undercharged, 
 * InstantAmperage with positive value means the current flow into battery from the power source, negative means the current flow into iDevice from battery without any power source. InstantAmperage should be 0mA normally in ChargeInhibit mode, in this case the current will flow through battery and feed iDevice, it will cause less damage to battery than use battery to supply power directly. (*In fact, keep connecting to any power source and stop charging, the health may never drop*). InstantAmperage should be negative in DisableInflow mode.
 
 ### History

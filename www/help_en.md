@@ -2,7 +2,7 @@
 
 ChargeLimiter(CL) is inspired by MacOS version AlDente, used to prevent iDevice from getting overcharged, which will cause damage to the battery.     
 
-Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-16.6.(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
+Support Rootful Jailbreak(???-arm.deb)/Rootless Jailbreak(???-arm64.deb)/TrollStore(???.tipa). Currently support iOS12-17.0(Notice: For TrollStore, Please uninstall older version CL before installing a newer one)       
 
 Tested on iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.   
 
@@ -12,7 +12,7 @@ This project is opensourced, any better ideas, submit code directly; any suggest
 
 ## Known issues
 
-* Due to the lack of devices to test with, CL may not supported on iOS<=11, and v1.4.1+ may not fully supported on iOS17+.
+* Due to the lack of devices to test with, CL may not supported on iOS<=11.
 * Floating window is not supported on iOS<=12.
 * For deb version, some tweaks will cause CL to stuck at SplashScreen, it's not a bug of CL itself. these tweaks, injected into com.apple.UIKit, can be found in /Library/MobileSubstrate/DynamicLibraries(rootful), and /var/jb/Library/MobileSubstrate/DynamicLibraries(rootless).
 
@@ -73,8 +73,8 @@ Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
 CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power after the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
 * If the wattage is insufficient in wireless charging, then battery may supply power simultaneously.  If the phone itself consumes a lot of power than the charger can supply, then it is not suitable to use a wireless charger.
-* Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power after the phone is locked, and CL will work properly in this case.
-* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode, even after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
+* Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power due to low amperage after the phone is locked, and CL will not able to re-charge any more due to power source disconnection in this case.
+* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
 
 ## Notice
 

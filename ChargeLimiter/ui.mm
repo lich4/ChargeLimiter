@@ -244,13 +244,19 @@ static AppDelegate* _app = nil;
 - (void)webViewDidFinishLoad:(UIWebView*)webview {
     [_mainWnd addSubview:webview];
     [_mainWnd bringSubviewToFront:webview];
-    [self speedUpWebView: webview];
-    if (isDarkMode()) {
-        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
+    static BOOL isFirstLoad = YES;
+    if (isFirstLoad) {
+        [webview stringByEvaluatingJavaScriptFromString:@"window.location.reload()"];
+        isFirstLoad = NO;
     } else {
-        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(false)"];
+        [self speedUpWebView: webview];
+        if (isDarkMode()) {
+            [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
+        } else {
+            [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(false)"];
+        }
+        [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
     }
-    [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
 }
 - (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
     NSString* surl = webview.request.URL.absoluteString;

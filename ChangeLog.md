@@ -9,6 +9,7 @@ todos:
 1.6.1版本更新日志:
 * 增加对有线充电宝的支持
 * 增加阿拉伯语
+* 支持17.0界面
 
 1.6.1 ChangeLog:
 * Support wired power banks
