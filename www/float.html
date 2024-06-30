@@ -55,7 +55,16 @@
     }
 
     .battery {
-      color:green
+      color:#34c759
+    }
+
+    .health {
+      color: #4d7ffc
+    }
+
+    .amperge {
+      margin-right: 6px;
+      color: #4d7ffc
     }
 
     .bolt {
@@ -91,8 +100,8 @@
   </style>
 </head>
 <body>
-  <div id="app" @click="invset_enable">
-    <div id="main_page">
+  <div id="app" >
+    <div id="main_page" @click="invset_enable">
       <div v-if="daemon_alive&&bat_info">
         <el-row>
           <i class="fa fa-toggle-on icon toggle-on" v-if="enable"></i>
@@ -109,13 +118,17 @@
           <span class="text">{{bat_info.CurrentCapacity+'%'}}</span>
           <i class="fa fa-plug icon plug" v-if="bat_info.ExternalConnected"></i>
         </el-row>
-        <el-row>
+        <el-row v-if="phase==0">
           <i class="fa fa-thermometer-0 icon thermometer" v-if="bat_info.Temperature<1000"></i>
           <i class="fa fa-thermometer-1 icon thermometer" v-else-if="bat_info.Temperature<2000"></i>
           <i class="fa fa-thermometer-2 icon thermometer" v-else-if="bat_info.Temperature<3500"></i>
           <i class="fa fa-thermometer-3 icon thermometer" v-else-if="bat_info.Temperature<4500"></i>
           <i class="fa fa-thermometer-4 icon thermometer" v-else></i>
           <span class="text">{{get_temp_desc()}}</span>
+        </el-row>
+        <el-row v-else-if="phase==1">
+          <i class="fa fa-bolt icon amperge" v-if="bat_info.IsCharging"></i>
+          <span class="text">{{bat_info.InstantAmperage + "mAh"}}</span>
         </el-row>
       </div>
       <div v-else>

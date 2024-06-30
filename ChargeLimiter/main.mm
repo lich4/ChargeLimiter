@@ -169,6 +169,10 @@ static BOOL isAdaptorNewConnect(NSDictionary* oldInfo, NSDictionary* info, NSNum
     return !isAdaptorConnect(oldInfo, disableInflow) && isAdaptorConnect(info, disableInflow);
 }
 
+static BOOL isAdaptorNewDisconnect(NSDictionary* oldInfo, NSDictionary* info, NSNumber* disableInflow) {
+    return isAdaptorConnect(oldInfo, disableInflow) && !isAdaptorConnect(info, disableInflow);
+}
+
 static int setChargeStatus(BOOL flag) {
     NSNumber* adv_predictive_inhibit_charge = getlocalKV(@"adv_predictive_inhibit_charge");
     io_service_t serv = getIOPMPSServ();
@@ -480,6 +484,11 @@ static void onBatteryEvent(io_service_t serv) {
         float charge_temp_above = getTempAsC(@"charge_temp_above");
         float charge_temp_below = getTempAsC(@"charge_temp_below");
         float temperature = temperature_.intValue / 100.0;
+        if (isAdaptorNewConnect(old_bat_info, bat_info, adv_disable_inflow)) {
+            NSFileLog(@"detect plug in");
+        } else if (isAdaptorNewDisconnect(old_bat_info, bat_info, adv_disable_inflow)) {
+            NSFileLog(@"detect unplug");
+        }
         // 优先级: 电量极低 > 停充(电量>温度) > 充电(电量>温度) > 插电
         do {
             if (capacity.intValue <= 5) { // 电量极低,优先级=1

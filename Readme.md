@@ -35,15 +35,22 @@ CL支持第三方电池吗?
 * 个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
 * 停充状态下一直连电源的情况下(非禁流),正常情况下电池电流为0,健康度永久不掉.
 
-为什么手机用一会不充电了?(小白经常遇到的问题)
+为什么手机无法停充或恢复充电?(小白经常遇到的问题)
 * CL并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电.
 * CL的设计思路就是减少充电次数,因此不会连着usb就充电,充电/停充都有触发条件,请仔细查看本页说明.
-* 电池由于老化严重健康度低,刚启动系统时可以使用CL,一段时间后CL再也无法控制充电/停充.此种情况无法使用CL. 已有三例健康度在80%的反馈出现该问题. 
-* 电池由于过热导致CL无法生效.
+* 电池由于健康度低,刚启动系统时可以使用CL,一段时间后CL再也无法控制充电/停充.此种情况无法使用CL. 请注意大部分低健康度的电池仍然可以正常使用CL. 
+* 电池由于过热导致硬件停充功能失效,导致CL无法生效. 而电池冷却后硬件停充功能会恢复. 请注意大部分处于高温的的电池仍然可以正常使用CL. 
+* 新电池未激活则有几率导致硬件停充失效.常见品牌激活方法见本页
+* 如果是iPad,如果确定充电状态正常但电量不增加,且电源显示为pd charger,可以尝试重新插拔或更换质量较好的充电线和充电头,直到电源处显示usb brick
 
-CL可以不依赖越狱或巨魔类工具吗?
+我的电池&小板硬件是否支持CL停充?
+* 唯一测试方式就是在关闭全局开关的情况下手动控制(开或关)"正在充电"按钮,若120秒内不变(关或开),就是电池或小板存在问题而非软件BUG,以下将硬件无法支持简称"失控"
+* 从近几个月反馈来看少数电池/小板可能因为包括但不限于以下几种原因导致失控: 温度升高(温度高时失控,温度恢复时又可控)/健康度低(一直失控,或系统开机后一段时间内可控,之后失控)/电池未激活(新买电池未做激活导致有概率失控)
+* 以上失控问题由于是硬件层面有问题, 如果是因为不明原因或健康度低导致的失控, 不推荐使用CL及类似工具, 可以尝试更换电池/小板解决; 电池未激活的,确定电池品牌(非软件中显示)并从官方客服获取正确激活方法激活即可;如果因为温度失控的想办法控温即可.
+
+CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 * CL需要用到私有API所以无法上架.
-* CL需要用到特殊签名因此无法以常规IPA方式来安装.
+* CL需要用到特殊签名因此无法以常规IPA方式来安装, 也无法用自签方式使用.
 
 夏天怎样降低电池温度?
 * 使用CL的Powercuff功能减少硬件用电量,充电状态下会同时降低充电功率
@@ -62,13 +69,13 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 1.测试电池是否支持停充.关闭CL全局开关,关闭"高级"中所有选项,在“正在充电”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持停充,但如果停充后有较大持续电池电流(>=5mA)则无法支持停充(有些电池返回电池电流值有误,此时以实际电量变化为准).
 * 2.测试电池是否支持智能停充.开启"高级-智能停充",其余同1.
 * 3.测试电池是否支持禁流.关闭CL全局开关,在“电源已连接”按钮开启的状态下,手动关闭之,若120秒内按钮有反应则电池支持禁流,但如果禁流后有较大持续电流(>=5mA)则无法支持禁流(有些电池返回电池电流值有误,此时以实际电量变化为准).
-* 有的电池因为老化而健康度过低,会出现刚重启系统时可以使用上述方式停充但过一段时间就再也无法停充,这种电池也无法被CL所兼容.
+* 注意: 有的电池因为老化而健康度过低,会出现刚重启系统时可以使用上述方式停充但过一段时间就再也无法停充,这种电池也无法被CL所兼容;有的电池在温度过高时因为硬件原因无法停充,温度正常后又能正常停充. 
 * 若电池既不支持停充也不支持禁流则永远不被CL支持.
 * 如果使用CL过程中,健康度以不正常的方式下降,请自行调整高级菜单中的选项或卸载CL.
 
 ## 品牌新电池激活
 
-&emsp;&emsp;电池保养官方文档: <https://www.apple.com.cn/batteries/maximizing-performance/>。电池激活是指电池刚出厂后需要采取正确方式，排除虚电并激发电池中全部的锂离子活性。
+&emsp;&emsp;电池保养官方文档: <https://www.apple.com.cn/batteries/maximizing-performance/>。电池激活是指电池刚出厂后需要采取正确方式，排除虚电并激发电池中全部的锂离子活性。建议咨询电池卖家或电池厂商获取正确激活方式，否则可能导致CL无法正常工作，常见品牌已整理在此
 
 * 诺希: 不管开始有多少电量 ，使用到手机关机，然后进行充电，充满之后再充半小时！循环5~8天（如已充电没关系，下次再重复以上步骤即可）建议使用小电流充电器（即5V1A充电器）进行激活，因为慢充可以确保把电池容量充满，所以效果更佳。快充中间损耗的容量会较大，对激活效果有一定影响
 * Dseven: 用到10%左右再开始充电，不要用到关机，充到100再多充1-2小时，如此循环充电使用5-7次之后，就会完全激发电池里面的电量
@@ -96,10 +103,12 @@ CL可以不依赖越狱或巨魔类工具吗?
 * 对于巨魔环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/...),将导致CL失效.
 * CL的设计思路就是减少充电次数,因此不会连着usb就自发充电,也不会无故自动恢复充电,充电/停充都有触发条件,请仔细查看本页说明.
 * 系统自带电池优化会导致CL失效,CL会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).
+* 停充过久会导致小板统计有误和其他奇奇怪怪的问题, 建议一个月至少满充满放一次
 
 ## 使用说明
 
 ### 名词解释
+
 * 停充: 禁止电流流入电池, 此时电池不充电也不放电, 电源直接为设备硬件供电. 用户应优先使用此模式
 * 禁流: 禁止电流流入设备, 此时电池处于放电状态, 电池为设备硬件供电. 电池若不支持停充, 则应使用此模式
 * 限流: 通过模拟高温的方式限制充电电流. 电池在充电时如果电流过大导致异常发热, 则应选择此模式
@@ -143,7 +152,7 @@ CL可以不依赖越狱或巨魔类工具吗?
 
 * 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此CL阈值默认设定为20/80/10/35,长期过充/电量耗尽/高温对电池会产生不良影响.    
 * 温度阈值的设定,可根据"历史统计-小时数据"的温度数据设置合适的阈值.   
-* 设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,差异值与120秒延迟有关,与充电速度有关,也与电池质量有关.停充后如果存在微弱电流可能造成差值;另外健康度的突然变化也会影响电量.
+* 设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,差异值与120秒延迟有关,与充电速度有关,也与电池质量有关.停充后如果存在微弱电流可能造成差值;另外健康度的突然变化也会影响电量;新电池未激活直接使用CL也会导致停充后有较大电流.
 * 电量上限阈值的设定,如果是短期停充,此上限可以根据自己需要设置;如果是iPad长年连电停充,则此上限可以设置为最佳停充电量,最佳停充电确定方法如下:将电量充满,关闭所有耗电App和功能然后静置,让电量自然降低,等待一天后此电量就是最佳停充电量.
 
 ### 行为
@@ -368,13 +377,16 @@ Does CL support 3rd party battery?
 Will the battery health percentage increase after using CL for a period of time?
 * I don't think it's possible, especially for a software, but there are indeed some users have their battery health increased after using CL for a month.
 * CL will slow down dropping speed of battery health for most users.
-* Health percentage may fluctuate in certain range. There are indeed little users keep dropping health after using CL, please stop using CL in this case.
+* Health percentage may fluctuate in certain range. There are indeed few users keep dropping health after using CL, please stop using CL in this case.
 * Keep connecting to a power source and enable ChargeInhibit(without DisableInflow) as long as possible, the normal amperage should be 0mA, and the health of battery will never drop.
 
-Why does my iPhone won't charge any more after using for a while(Most questions from freshman)?
+Why does my iDevice unable to charge or discharge(Most questions from freshman)?
 * CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
-* There are a few cases of battery with low health cause this problem. In this case, CL can control charge/discharge normally after a system reboot, but will fail to control after tens of minutes. CL is unavailable for this kind of battery.
+* A battery with low health may cause the failure of ChargeInhibit/DisableInflow. In this case, ChargeInhibit/DisableInflow works fine after a system reboot, but would fail after tens of minutes. CL is unavailable for this kind of battery. Please notice there are only a few cases about the failure among all the batteries with low health.
+* An overheated battery may cause the failure of ChargeInhibit. In this case, it will resume as normal as the battery get colder. Please notice there are only a few cases about the failure among all the batteries overheated.
+* A new battery without activation may cause the amperage far higher than 5mA, which will break a perfect ChargeInhibit.
+* For iPad, if the battery is charging normally without increasing capacity, and with the description of power source shown as "pd charger", then try to replug the cable or change the cable and charger with better ones, until it shown as "usb brick"
 
 Is it possible to install CL without Jailbreak or TrollStore(-like) environment?
 * Private api is used in CL, so it is impossible to be published to Appstore.
@@ -419,6 +431,7 @@ CL can be used with a power bank. iDevice will be powered by the power bank in t
 * For TrollStore, if the daemon(of CL) get killed in any condition(such as system-reboot/userspace-reboot/...), CL will become invalid for not being able to restart daemon itself automatically.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, it will only start/stop charging under certain conditions as show behind.
 * CL is not compatible with "Optimized Battery Charging" of Settings.app. sCL will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
+* If the iDevice stay in ChargeInhibit mode for too long time, the hardware statistics may be incorrect. It's recommend to charge/discharge the battery once a month at least.
 
 ## Instruction
 
@@ -467,7 +480,7 @@ triggers precedence from high to low:
 
 * Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80/10/35. Long-time-overcharged/Out of power/High temperature will do harm to the battery.
 * Please set temperature threshhold according to "History-Hourly Data".
-* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% in most situations, a little users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%. besides, A suddenly change of the battery health will cause this situation too.
+* The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% in most situations, a few users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%. besides, A suddenly change of the battery health may cause this situation; A new battery without activation may cause this situation.
 
 ### Action
 

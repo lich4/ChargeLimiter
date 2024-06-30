@@ -10,6 +10,8 @@ const App = {
             dark: false,
             timer: null,
             bat_info: null,
+            phase: 0,
+            phase_num: 2,
         }
     },
     methods: {
@@ -52,6 +54,10 @@ const App = {
             this.get_bat_info();
             this.timer = setInterval(this.get_bat_info, this.update_freq * 1000);
         },
+        get_health: function(item) {
+            console.log(item)
+            return (item["NominalChargeCapacity"] / item["DesignCapacity"] * 100).toFixed(2);
+        },
         get_conf: function() {
             ipc_send({
                 api: "get_conf",
@@ -68,7 +74,11 @@ const App = {
         },
     },
     mounted: function () {  
+        var that = this;
         this.get_conf();
+        setInterval(() => {
+            that.phase = (that.phase + 1) % that.phase_num;
+        }, 10000);
     }
 };
 
