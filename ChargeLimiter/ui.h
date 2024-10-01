@@ -2,8 +2,8 @@
 #define UI_H
 
 #include "common.h"
-#import <IOKit/IOKitLib.h>
-#include <IOKit/hid/IOHIDService.h>
+
+#import <JavaScriptCore/JavaScriptCore.h>
 
 extern "C" {
 void BKSDisplayServicesStart();

@@ -27,7 +27,7 @@ int platformize_me();
 int32_t get_mem_limit(int pid);
 int set_mem_limit(int pid, int mb);
 BOOL localPortOpen(int port);
-NSString* getAppEXEPath();
+NSString* getSelfExePath();
 NSArray* getUnusedFds();
 NSArray* getFrontMostBid();
 
@@ -47,7 +47,6 @@ enum {
 };
 int getJBType();
 void NSFileLog(NSString* fmt, ...);
-BOOL isDarkMode();
 NSString* getAppVer();
 NSString* getSysVer();
 NSOperatingSystemVersion getSysVerInt();
@@ -66,6 +65,7 @@ BOOL isLocEnable();
 void setLocEnable(BOOL flag);
 float getBrightness();
 void setBrightness(float val);
+BOOL isAutoBrightEnable();
 void setAutoBrightEnable(BOOL flag);
 
 NSDictionary* getThermalData();
@@ -75,6 +75,14 @@ NSString* getThermalSimulationMode();
 void setThermalSimulationMode(NSString* mode);
 NSString* getPPMSimulationMode();
 void setPPMSimulationMode(NSString* mode);
+BOOL isSmartChargeEnable(); // 系统自带电池优化
+void setSmartChargeEnable(BOOL flag);
+
+/* ---------------- App ---------------- */
+id getlocalKV(NSString* key);
+void setlocalKV(NSString* key, id val);
+NSDictionary* getAllKV();
+/* ---------------- App ---------------- */
 
 #endif // UTILS_H
 

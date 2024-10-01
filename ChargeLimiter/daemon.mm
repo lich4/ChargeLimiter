@@ -1,24 +1,98 @@
+#include <sqlite3.h>
 #import <Foundation/Foundation.h>
 #import <GCDWebServers/GCDWebServers.h>
 #import <UserNotifications/UserNotifications.h>
 
-#include "ui.h"
 #include "utils.h"
-#include <sqlite3.h>
 
-NSString* log_prefix = @(PRODUCT "Logger");
+
+#define kHIDPage_PowerDevice                    0x84
+#define kHIDUsage_PD_PeripheralDevice           0x06
+#define kHIDPage_BatterySystem                  0x85
+#define kHIDUsage_BS_PrimaryBattery             0x2e
+#define kHIDPage_AppleVendor                    0xFF00
+#define kHIDUsage_AppleVendor_AccessoryBattery  0x14
+
+#define S_OK        0
+#define S_FALSE     1
+
+#define kIOMessageServiceIsTerminated           0xE0000010
+#define kIOPMMessageBatteryStatusHasChanged     0xE0024100
+
+typedef SInt32      HRESULT;
+typedef UInt32      ULONG;
+typedef void*       LPVOID;
+typedef CFUUIDBytes REFIID;
+
+typedef void (*IOUPSEventCallbackFunction)(void* target, IOReturn result, void* refcon, void* sender, CFDictionaryRef event);
+
+struct IOUPSPlugInInterface {
+    void*       _reserved;
+    HRESULT     (*QueryInterface)(void* thisPointer, REFIID iid, LPVOID* ppv); // IUNKNOWN_C_GUTS
+    ULONG       (*AddRef)(void* thisPointer); // IUNKNOWN_C_GUTS
+    ULONG       (*Release)(void* thisPointer); // IUNKNOWN_C_GUTS
+    IOReturn    (*getProperties)(void* thisPointer, CFDictionaryRef* properties);
+    IOReturn    (*getCapabilities)(void* thisPointer, CFSetRef* capabilities);
+    IOReturn    (*getEvent)(void* thisPointer, CFDictionaryRef* event);
+    IOReturn    (*setEventCallback)(void* thisPointer, IOUPSEventCallbackFunction callback, void* target, void* refcon);
+    IOReturn    (*sendCommand)(void* thisPointer, CFDictionaryRef command);
+};
+
+struct IOUPSPlugInInterface_v140 {
+    void*       _reserved;
+    HRESULT     (*QueryInterface)(void* thisPointer, REFIID iid, LPVOID* ppv); // IUNKNOWN_C_GUTS
+    ULONG       (*AddRef)(void* thisPointer); // IUNKNOWN_C_GUTS
+    ULONG       (*Release)(void* thisPointer); // IUNKNOWN_C_GUTS
+    IOReturn    (*getProperties)(void* thisPointer, CFDictionaryRef* properties);
+    IOReturn    (*getCapabilities)(void* thisPointer, CFSetRef* capabilities);
+    IOReturn    (*getEvent)(void* thisPointer, CFDictionaryRef* event);
+    IOReturn    (*setEventCallback)(void* thisPointer, IOUPSEventCallbackFunction callback, void* target, void* refcon);
+    IOReturn    (*sendCommand)(void* thisPointer, CFDictionaryRef command);
+    IOReturn    (*createAsyncEventSource)(void* thisPointer, CFTypeRef* source);
+};
+
+struct IOCFPlugInInterface {
+    void*       _reserved;
+    HRESULT     (*QueryInterface)(void* thisPointer, REFIID iid, LPVOID* ppv); // IUNKNOWN_C_GUTS
+    ULONG       (*AddRef)(void* thisPointer); // IUNKNOWN_C_GUTS
+    ULONG       (*Release)(void* thisPointer); // IUNKNOWN_C_GUTS
+    UInt16      version;
+    UInt16      revision;
+    IOReturn    (*Probe)(void* thisPointer, CFDictionaryRef propertyTable, io_service_t service, SInt32* order);
+    IOReturn    (*Start)(void* thisPointer, CFDictionaryRef propertyTable, io_service_t service);
+    IOReturn    (*Stop)(void* thisPointer);
+};
+
+extern "C" {
+kern_return_t IOCreatePlugInInterfaceForService(io_service_t service, CFUUIDRef pluginType, CFUUIDRef interfaceType, IOCFPlugInInterface*** theInterface, SInt32* theScore);
+}
+
+@interface UPSDataSlim: NSObject
+@property IOUPSPlugInInterface_v140**   interface;
+@property io_object_t                   noti;
+@property CFRunLoopSourceRef            source;
+@property CFRunLoopTimerRef             timer;
+@property(retain) NSMutableDictionary*  props;
+- (instancetype)init;
+- (void)initDB;
+- (void)updateProps:(NSDictionary*)props isEvent:(BOOL)event;
+@end
+
+
 static NSDictionary* bat_info = nil;
 static BOOL g_enable = NO;
 static BOOL g_enable_floatwnd = NO;
 static BOOL g_use_smart = NO;
 static int g_jbtype = -1;
 static int g_serv_boot = 0;
-int g_wind_type = 0; // 1: HUD
+
+static IONotificationPortRef gNotifyPort = NULL;
+static io_object_t iopmpsNoti = IO_OBJECT_NULL;
+static UPSDataSlim* gUPSPS = nil;
 
 NSDictionary* handleReq(NSDictionary* nsreq);
-static void start_daemon();
 
-@interface Service: NSObject<UNUserNotificationCenterDelegate> 
+@interface Service: NSObject<UNUserNotificationCenterDelegate>
 + (instancetype)inst;
 - (instancetype)init;
 - (void)serve;
@@ -26,27 +100,6 @@ static void start_daemon();
 - (void)localPush:(NSString*)title msg:(NSString*)msg;
 @end
 
-static NSMutableDictionary* cache_kv = nil;
-id getlocalKV(NSString* key) {
-    if (cache_kv == nil) {
-        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
-    }
-    if (cache_kv == nil) {
-        return nil;
-    }
-    return cache_kv[key];
-}
-
-void setlocalKV(NSString* key, id val) {
-    if (cache_kv == nil) {
-        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
-        if (cache_kv == nil) {
-            cache_kv = [NSMutableDictionary new];
-        }
-    }
-    cache_kv[key] = val;
-    [cache_kv writeToFile:@CONF_PATH atomically:YES];
-}
 
 static io_service_t getIOPMPSServ() {
     static io_service_t serv = IO_OBJECT_NULL;
@@ -72,7 +125,7 @@ static NSDictionary* getBatSlimInfo(NSDictionary* info) {
     NSArray* keep = @[
         @"Amperage", @"AppleRawCurrentCapacity", @"BatteryInstalled", @"BootVoltage", @"CurrentCapacity", @"CycleCount", @"DesignCapacity", @"ExternalChargeCapable", @"ExternalConnected",
         @"InstantAmperage", @"IsCharging", @"NominalChargeCapacity", @"PostChargeWaitSeconds", @"PostDischargeWaitSeconds", @"Serial", @"Temperature",
-        @"UpdateTime", @"Voltage"];
+        @"UpdateTime", @"VirtualTemperature", @"Voltage"];
     for (NSString* key in info) {
         if ([keep containsObject:key]) {
             filtered_info[key] = info[key];
@@ -103,12 +156,12 @@ static NSDictionary* getBatSlimInfo(NSDictionary* info) {
 }
 
 static int getBatInfoWithServ(io_service_t serv, NSDictionary* __strong* pinfo) {
-    CFMutableDictionaryRef prop = nil;
-    IORegistryEntryCreateCFProperties(serv, &prop, kCFAllocatorDefault, 0);
-    if (prop == nil) {
+    CFMutableDictionaryRef props = nil;
+    IORegistryEntryCreateCFProperties(serv, &props, kCFAllocatorDefault, 0);
+    if (props == nil) {
         return -2;
     }
-    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
+    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)props;
     *pinfo = getBatSlimInfo(info);
     return 0;
 }
@@ -118,12 +171,12 @@ static int getBatInfo(NSDictionary* __strong* pinfo, BOOL slim=YES) {
     if (serv == IO_OBJECT_NULL) {
         return -1;
     }
-    CFMutableDictionaryRef prop = nil;
-    IORegistryEntryCreateCFProperties(serv, &prop, kCFAllocatorDefault, 0);
-    if (prop == nil) {
+    CFMutableDictionaryRef props = nil;
+    IORegistryEntryCreateCFProperties(serv, &props, kCFAllocatorDefault, 0);
+    if (props == nil) {
         return -2;
     }
-    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)prop;
+    NSMutableDictionary* info = (__bridge_transfer NSMutableDictionary*)props;
     if (slim) {
         *pinfo = getBatSlimInfo(info);
     } else {
@@ -148,6 +201,14 @@ static int setInflowStatus(BOOL flag) {
 }
 
 static BOOL isAdaptorConnect(NSDictionary* info, NSNumber* disableInflow) { // 是否连接电源
+    if (gUPSPS != nil) { // UPS电源
+        // 使用SBC时ExternalConnected/ExternalChargeCapable一直为false
+        return YES;
+    }
+    NSNumber* InstantAmperage = info[@"InstantAmperage"];
+    if (InstantAmperage.intValue >= 0) { // 有电流流入则有电源
+        return YES;
+    }
     // 某些充电器ExternalConnected为false,而禁流时ExternalConnected/ExternalChargeCapable均为false
     if (disableInflow.boolValue) { // 禁流模式下只能通过电源信息判断, 某些时候系统会缓存该信息导致不准确
         NSDictionary* AdapterDetails = info[@"AdapterDetails"];
@@ -245,7 +306,10 @@ static void performAcccharge(BOOL flag) {
             if (acc_charge_bright.boolValue) {
                 float val = getBrightness();
                 cache_status[@"acc_charge_bright"] = @(val);
-                setAutoBrightEnable(NO);
+                if (isAutoBrightEnable()) {
+                    setAutoBrightEnable(NO);
+                    cache_status[@"acc_charge_bright_auto"] = @YES;
+                }
                 setBrightness(0.0);
             }
             if (acc_charge_lpm.boolValue) {
@@ -266,7 +330,9 @@ static void performAcccharge(BOOL flag) {
                     NSNumber* acc_charge_bright = cache_status[@"acc_charge_bright"];
                     setBrightness(acc_charge_bright.floatValue);
                 }
-                setAutoBrightEnable(YES);
+                if (cache_status[@"acc_charge_bright_auto"] != nil) {
+                    setAutoBrightEnable(YES);
+                }
             }
             if (acc_charge_lpm.boolValue) {
                 setLPMEnable(NO);
@@ -279,7 +345,7 @@ static void performAcccharge(BOOL flag) {
 static NSString* getMsgForLang(NSString* msgid, NSString* lang) {
     static NSDictionary* messages = nil;
     if (messages == nil) {
-        NSString* bundlePath = [getAppEXEPath() stringByDeletingLastPathComponent];
+        NSString* bundlePath = [getSelfExePath() stringByDeletingLastPathComponent];
         NSString* langPath = [bundlePath stringByAppendingString:@"/www/lang.json"];
         NSData* data = [NSData dataWithContentsOfFile:langPath];
         messages = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -323,63 +389,25 @@ static void updateDBData(const char* tbl, int tid, NSDictionary* info) {
     }
 }
 
-static void initDB() {
+static void initDB(NSString* batId) {
     @autoreleasepool {
-        sqlite3* cdb = NULL;
-        if (sqlite3_open(DB_PATH, &cdb) != SQLITE_OK) {
-            return;
-        }
-        char* err;
-        const char* tbls[] = {"min5", "hour", "day", "month", NULL};
-        for (int i = 0; tbls[i]; i++) {
-            char sql[256];
-            sprintf(sql, "create table if not exists %s(id integer primary key, data text)", tbls[i]);
-            if (sqlite3_exec(cdb, sql, NULL, NULL, &err) != SQLITE_OK) {
-                sqlite3_close(cdb);
+        if (!db) {
+            sqlite3* cdb = NULL;
+            if (sqlite3_open(DB_PATH, &cdb) != SQLITE_OK) {
                 return;
             }
+            db = cdb;
         }
-        db = cdb;
-        // 迁移老数据
-        NSArray* arr = getlocalKV(@"stat_min5");
-        if (arr != nil && arr.count > 0) {
-            for (NSDictionary* item in arr) {
-                NSMutableDictionary* mitem = item.mutableCopy;
-                NSString* key = mitem[@"key"];
-                [mitem removeObjectForKey:@"key"];
-                updateDBData("min5", key.intValue, mitem);
+        if (db) {
+            for (NSString* rawTbl in @[@"min5", @"hour", @"day", @"month"]) {
+                NSString* tblName = rawTbl;
+                if (batId != nil) {
+                    tblName = [NSString stringWithFormat:@"%@.%@", batId, rawTbl];
+                }
+                NSString* sql = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, data text)", tblName];
+                char* err;
+                sqlite3_exec(db, sql.UTF8String, NULL, NULL, &err);
             }
-            setlocalKV(@"stat_min5", nil);
-        }
-        arr = getlocalKV(@"stat_hour");
-        if (arr != nil && arr.count > 0) {
-            for (NSDictionary* item in arr) {
-                NSMutableDictionary* mitem = item.mutableCopy;
-                NSString* key = mitem[@"key"];
-                [mitem removeObjectForKey:@"key"];
-                updateDBData("hour", key.intValue, mitem);
-            }
-            setlocalKV(@"stat_hour", nil);
-        }
-        arr = getlocalKV(@"stat_day");
-        if (arr != nil && arr.count > 0) {
-            for (NSDictionary* item in getlocalKV(@"stat_day")) {
-                NSMutableDictionary* mitem = item.mutableCopy;
-                NSString* key = mitem[@"key"];
-                [mitem removeObjectForKey:@"key"];
-                updateDBData("day", key.intValue, mitem);
-            }
-            setlocalKV(@"stat_day", nil);
-        }
-        arr = getlocalKV(@"stat_month");
-        if (arr != nil && arr.count > 0) {
-            for (NSDictionary* item in getlocalKV(@"stat_month")) {
-                NSMutableDictionary* mitem = item.mutableCopy;
-                NSString* key = mitem[@"key"];
-                [mitem removeObjectForKey:@"key"];
-                updateDBData("month", key.intValue, mitem);
-            }
-            setlocalKV(@"stat_month", nil);
         }
     }
 }
@@ -427,17 +455,36 @@ static NSMutableDictionary* getFilteredMDic(NSDictionary* dic, NSArray* filter) 
 
 static void updateStatistics() {
     int ts = (int)time(0);
-    NSDictionary* info_h = getFilteredMDic(bat_info, @[
+    NSDictionary* info_h = nil;
+    NSDictionary* info_d = nil;
+    info_h = getFilteredMDic(bat_info, @[
         @"Amperage", @"AppleRawCurrentCapacity", @"CurrentCapacity", @"ExternalChargeCapable", @"ExternalConnected",
         @"InstantAmperage", @"IsCharging", @"Temperature", @"UpdateTime", @"Voltage"
     ]);
     updateDBData("min5", ts / 300, info_h);
     updateDBData("hour", ts / 3600, info_h);
-    NSDictionary* info_d = getFilteredMDic(bat_info, @[
+    info_d = getFilteredMDic(bat_info, @[
         @"CycleCount", @"DesignCapacity", @"NominalChargeCapacity", @"UpdateTime"
     ]);
     updateDBData("day", ts / 86400, info_d);
     updateDBData("month", ts / 2592000, info_d);
+    if (gUPSPS != nil && gUPSPS.props[@"Serial"] != nil && gUPSPS.props[@"UpdateTime"] != nil) {
+        NSString* batId = gUPSPS.props[@"Serial"];
+        NSString* tblMin5 = [batId stringByAppendingString:@".min5"];
+        info_h = getFilteredMDic(gUPSPS.props, @[
+            @"Amperage", @"AppleRawCurrentCapacity", @"CurrentCapacity", @"IncomingCurrent", @"IncomingVoltage", @"IsCharging", @"Temperature", @"UpdateTime", @"Voltage"
+        ]);
+        updateDBData(tblMin5.UTF8String, ts / 300, info_h);
+        NSString* tblHour = [batId stringByAppendingString:@".hour"];
+        updateDBData(tblHour.UTF8String, ts / 3600, info_h);
+        info_d = getFilteredMDic(gUPSPS.props, @[
+            @"CycleCount", @"MaxCapacity", @"NominalCapacity", @"UpdateTime"
+        ]);
+        NSString* tblDay = [batId stringByAppendingString:@".day"];
+        updateDBData(tblDay.UTF8String, ts / 86400, info_d);
+        NSString* tblMonth = [batId stringByAppendingString:@".month"];
+        updateDBData(tblMonth.UTF8String, ts / 2592000, info_d);
+    }
 }
 
 static void onBatteryEventEnd() {
@@ -476,7 +523,7 @@ static void onBatteryEvent(io_service_t serv) {
         NSNumber* charge_above = getlocalKV(@"charge_above");
         NSNumber* enable_temp = getlocalKV(@"enable_temp");
         NSNumber* capacity = bat_info[@"CurrentCapacity"];
-        NSNumber* is_charging = bat_info[@"IsCharging"];
+        BOOL is_charging = [bat_info[@"IsCharging"] boolValue];
         NSNumber* is_inflow_enabled = bat_info[@"ExternalConnected"];
         NSNumber* adv_disable_inflow = getlocalKV(@"adv_disable_inflow");
         BOOL is_adaptor_connected = isAdaptorConnect(bat_info, adv_disable_inflow);
@@ -493,7 +540,7 @@ static void onBatteryEvent(io_service_t serv) {
         do {
             if (capacity.intValue <= 5) { // 电量极低,优先级=1
                 // 防止误用或意外造成无法充电
-                if (is_adaptor_connected && !is_charging.boolValue) {
+                if (is_adaptor_connected && !is_charging) {
                     NSFileLog(@"start charging for extremely low capacity %@", capacity);
                     setInflowStatus(YES);
                     setBatteryStatus(YES);
@@ -502,7 +549,7 @@ static void onBatteryEvent(io_service_t serv) {
                 break;
             }
             if (capacity.intValue >= charge_above.intValue) { // 停充-电量高,优先级=2
-                if (is_charging.boolValue) {
+                if (is_charging) {
                     NSFileLog(@"stop charging for high capacity %@ >= %@", capacity, charge_above);
                     setBatteryStatus(NO);
                     performAction(@"stop_charge");
@@ -515,7 +562,7 @@ static void onBatteryEvent(io_service_t serv) {
                 break;
             }
             if (enable_temp.boolValue && temperature >= charge_temp_above) { // 停充-温度高,优先级=3
-                if (is_charging.boolValue) {
+                if (is_charging) {
                     NSFileLog(@"stop charging for high temperature %lf >= %lf", temperature, charge_temp_above);
                     setBatteryStatus(NO);
                     performAction(@"stop_charge");
@@ -534,7 +581,7 @@ static void onBatteryEvent(io_service_t serv) {
                         NSFileLog(@"enable inflow for low capacity %@ <= %@", capacity, charge_below);
                         setInflowStatus(YES);
                     }
-                    if (!is_charging.boolValue) {
+                    if (!is_charging) {
                         NSFileLog(@"start charging for low capacity %@ <= %@", capacity, charge_below);
                         setBatteryStatus(YES);
                         performAction(@"start_charge");
@@ -550,7 +597,7 @@ static void onBatteryEvent(io_service_t serv) {
                             NSFileLog(@"enable inflow for low temperature %lf < %lf", temperature, charge_temp_below);
                             setInflowStatus(YES);
                         }
-                        if (!is_charging.boolValue) {
+                        if (!is_charging) {
                             NSFileLog(@"start charging for low temperature %lf < %lf", temperature, charge_temp_below);
                             setBatteryStatus(YES);
                             performAction(@"start_charge");
@@ -564,7 +611,7 @@ static void onBatteryEvent(io_service_t serv) {
                         NSFileLog(@"enable inflow for plug in");
                         setInflowStatus(YES);
                     }
-                    if (!is_charging.boolValue) {
+                    if (!is_charging) {
                         NSFileLog(@"start charging for plug in");
                         setBatteryStatus(YES);
                         performAction(@"start_charge");
@@ -574,7 +621,7 @@ static void onBatteryEvent(io_service_t serv) {
                 }
             } else if ([mode isEqualToString:@"edge_trigger"]) {
                 if (isAdaptorNewConnect(old_bat_info, bat_info, adv_disable_inflow)) {
-                    if (!is_charging.boolValue) {
+                    if (!is_charging) {
                         NSFileLog(@"stop charging for plug in");
                         setBatteryStatus(NO);
                     }
@@ -647,6 +694,7 @@ static void initConf(BOOL reset) {
         NSMutableDictionary* def_mdic = def_dic.mutableCopy;
         [def_mdic addEntriesFromDictionary:@{
             @"enable": @NO,
+            @"disable_smart_charge": @YES, // Disable "Optimized Battery Charging" within Settings app
             @"mode": @"charge_on_plug",
             @"update_freq": @1,
             @"lang": @"en",
@@ -670,7 +718,9 @@ static void showFloatwnd(BOOL flag) {
             NSDictionary* param = @{
                 @"close": getUnusedFds(),
             };
-            spawn(@[getAppEXEPath(), @"floatwnd"], nil, nil, &floatwnd_pid, SPAWN_FLAG_NOWAIT, param);
+            NSString* bundlePath = [getSelfExePath() stringByDeletingLastPathComponent];
+            NSString* appExePath = [bundlePath stringByAppendingPathComponent:@"ChargeLimiter"];
+            spawn(@[appExePath, @"floatwnd"], nil, nil, &floatwnd_pid, SPAWN_FLAG_NOWAIT, param);
         }
     } else { // close
         if (floatwnd_pid != -1) {
@@ -685,7 +735,7 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
     if ([api isEqualToString:@"get_conf"]) {
         NSString* key = nsreq[@"key"];
         if (key == nil) {
-            NSMutableDictionary* kv = [cache_kv mutableCopy];
+            NSMutableDictionary* kv = [getAllKV() mutableCopy];
             kv[@"enable"] = @(g_enable);
             kv[@"floatwnd"] = @(g_enable_floatwnd);
             //kv[@"dark"] = @(isDarkMode());  daemon获取到的结果不随系统变化,需要从app获取
@@ -722,6 +772,13 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
             g_enable = [val boolValue];
             if (!g_enable) {
                 resetBatteryStatus();
+            } else { // 启用时检查
+                NSNumber* val = getlocalKV(@"disable_smart_charge");
+                if (val.boolValue) {
+                    if (isSmartChargeEnable()) {
+                        setSmartChargeEnable(NO);
+                    }
+                }
             }
         } else if ([key isEqualToString:@"action"]) {
             if ([val isEqualToString:@"noti"]) {
@@ -753,8 +810,16 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
             @"status": @0,
         };
     } else if ([api isEqualToString:@"get_bat_info"]) {
+        if (gUPSPS.props != nil) {
+            return @{
+                @"status": @0,
+                @"data": bat_info,
+                @"data_ups": gUPSPS.props,
+            };
+        }
         return @{
             @"status": @0,
+            @"enable": @(g_enable), // for floatwnd
             @"data": bat_info,
         };
     } else if ([api isEqualToString:@"get_statistics"]) {
@@ -784,15 +849,221 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
         return @{
             @"status": @(status)
         };
-    } else if ([api isEqualToString:@"set_pb"]) {
-        NSString* val = nsreq[@"val"];
-        UIPasteboard* pb = [UIPasteboard generalPasteboard];
-        pb.string = val;
     }
     return @{
         @"status": @-10
     };
 }
+
+static void processUPSEventSource(UPSDataSlim* upsPS, CFTypeRef typeRef) {
+    CFRunLoopTimerRef timer = nil;
+    CFRunLoopSourceRef source = nil;
+    if (CFGetTypeID(typeRef) == CFArrayGetTypeID()) {
+        NSArray* arrayRef = (__bridge_transfer NSArray*)typeRef;
+        for (CFIndex i = 0; i < arrayRef.count; i++) {
+            CFTypeRef typeRefI = (__bridge CFTypeRef)arrayRef[i];
+            if (CFGetTypeID(typeRefI) == CFRunLoopTimerGetTypeID()) {
+                timer = (CFRunLoopTimerRef)typeRefI;
+            } else if (CFGetTypeID(typeRefI) == CFRunLoopSourceGetTypeID()) {
+                source = (CFRunLoopSourceRef)typeRefI;
+            }
+        }
+    } else if (CFGetTypeID(typeRef) == CFRunLoopTimerGetTypeID()) {
+        timer = (CFRunLoopTimerRef)typeRef;
+    } else if (CFGetTypeID(typeRef) == CFRunLoopSourceGetTypeID()) {
+        source = (CFRunLoopSourceRef)typeRef;
+    }
+    if (timer != nil) {
+        upsPS.timer = timer;
+        CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer, kCFRunLoopDefaultMode);
+    }
+    if (source != nil) {
+        upsPS.source = source;
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopDefaultMode);
+    }
+}
+
+static void releaseUPSBattery(UPSDataSlim* upsPS) {
+    if (upsPS == nil) {
+        return;
+    }
+    if (upsPS.interface != NULL) {
+        (*upsPS.interface)->Release(upsPS.interface);
+    }
+    if (upsPS.source) {
+        CFRunLoopRemoveSource(CFRunLoopGetCurrent(), upsPS.source, kCFRunLoopDefaultMode);
+        CFRelease(upsPS.source);
+    }
+    if (upsPS.timer) {
+        CFRunLoopRemoveTimer(CFRunLoopGetCurrent(), upsPS.timer, kCFRunLoopDefaultMode);
+        CFRelease(upsPS.timer);
+    }
+    if (upsPS.noti != MACH_PORT_NULL) {
+        IOObjectRelease(upsPS.noti);
+    }
+}
+
+static void addUPSBattery(void* refCon, io_iterator_t iterator) {
+    @autoreleasepool {
+        static CFUUIDRef kIOUPSPlugInTypeID             = CFUUIDCreateFromString(NULL, CFSTR("40A57A4E-26A0-11D8-9295-000A958A2C78"));
+        static CFUUIDRef kIOUPSPlugInInterfaceID        = CFUUIDCreateFromString(NULL, CFSTR("63F8BFC4-26A0-11D8-88B4-000A958A2C78"));
+        static CFUUIDRef kIOUPSPlugInInterfaceID_v140   = CFUUIDCreateFromString(NULL, CFSTR("E60E0799-9AA6-49DF-B55B-A5C94BA07A4A"));
+        static CFUUIDRef kIOCFPlugInInterfaceID         = CFUUIDCreateFromString(NULL, CFSTR("C244E858-109C-11D4-91D4-0050E4C6426F"));
+        io_object_t upsDevice = MACH_PORT_NULL;
+        while ((upsDevice = IOIteratorNext(iterator))) {
+            IOReturn kr = 0;
+            HRESULT result = S_FALSE;
+            IOCFPlugInInterface** plugInInterface = NULL;
+            IOUPSPlugInInterface_v140** upsPlugInInterface = NULL;
+            SInt32 score;
+            kr = IOCreatePlugInInterfaceForService(upsDevice, kIOUPSPlugInTypeID, kIOCFPlugInInterfaceID, &plugInInterface, &score);
+            if (kr == kIOReturnSuccess && plugInInterface != NULL) {
+                UPSDataSlim* upsPS = [UPSDataSlim new];
+                result = (*plugInInterface)->QueryInterface(plugInInterface, CFUUIDGetUUIDBytes(kIOUPSPlugInInterfaceID_v140), (LPVOID*)&upsPlugInInterface);
+                if (result == S_OK && upsPlugInInterface != nil) {
+                    CFTypeRef typeRef = nil;
+                    (*upsPlugInInterface)->createAsyncEventSource(upsPlugInInterface, &typeRef);
+                    if (typeRef != nil) {
+                        processUPSEventSource(upsPS, typeRef);
+                    }
+                } else {
+                    result = (*plugInInterface)->QueryInterface(plugInInterface, CFUUIDGetUUIDBytes(kIOUPSPlugInInterfaceID), (LPVOID*)&upsPlugInInterface);
+                }
+                if (result == S_OK && upsPlugInInterface != NULL) {
+                    gUPSPS = upsPS;
+                    gUPSPS.interface = upsPlugInInterface;
+                    CFMutableDictionaryRef props = nil;
+                    IORegistryEntryCreateCFProperties(upsDevice, &props, kCFAllocatorDefault, 0);
+                    if (props != nil) {
+                        [gUPSPS updateProps:(__bridge NSDictionary*)props isEvent:NO];
+                    }
+                    [gUPSPS initDB];
+                    CFDictionaryRef upsEvent = nil;
+                    kr = (*upsPlugInInterface)->getEvent(upsPlugInInterface, &upsEvent);
+                    if (kr == kIOReturnSuccess && upsEvent != nil) {
+                        [gUPSPS updateProps:(__bridge NSDictionary*)upsEvent isEvent:NO];
+                    }
+                    (*upsPlugInInterface)->setEventCallback(upsPlugInInterface, [](void* target, IOReturn kr, void* refcon, void* sender, CFDictionaryRef event) {
+                        @autoreleasepool {
+                            if (gUPSPS != nil && event != nil) {
+                                [gUPSPS updateProps:(__bridge NSDictionary*)event isEvent:NO];
+                            }
+                        }
+                    }, NULL, NULL);
+                    io_object_t noti = IO_OBJECT_NULL;
+                    IOServiceAddInterestNotification(gNotifyPort, upsDevice, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
+                        @autoreleasepool {
+                            if (type == kIOMessageServiceIsTerminated) {
+                                NSFileLog(@"detect ups battery unplug");
+                                releaseUPSBattery(gUPSPS);
+                                gUPSPS = nil;
+                            }
+                        }
+                    }, nil, &noti);
+                    gUPSPS.noti = noti;
+                    NSFileLog(@"detect ups battery plug in");
+                }
+                (*plugInInterface)->Release(plugInInterface);
+            }
+            IOObjectRelease(upsDevice);
+            if (gUPSPS != nil) {
+                break;
+            }
+        }
+    }
+}
+
+void detectUPSBattery() {
+    @autoreleasepool {
+        if (gUPSPS != nil) { // 存在电池则忽略
+            return;
+        }
+        NSDictionary* dic = @{
+            @"IOProviderClass": @"IOHIDDevice",
+            @"DeviceUsagePairs": @[
+                @{ // kDeviceTypeAccessoryBattery
+                    @"DeviceUsagePage": @kHIDPage_AppleVendor,
+                    @"DeviceUsage": @kHIDUsage_AppleVendor_AccessoryBattery,
+                }, @{ // kDeviceTypeAccessoryBattery
+                    @"DeviceUsagePage": @kHIDPage_PowerDevice,
+                    @"DeviceUsage": @kHIDUsage_PD_PeripheralDevice,
+                }, @{ // kDeviceTypeBatteryCase
+                    @"DeviceUsagePage": @kHIDPage_BatterySystem,
+                    @"DeviceUsage": @kHIDUsage_BS_PrimaryBattery,
+                },
+            ]
+        };
+        io_iterator_t gAddedIter = MACH_PORT_NULL;
+        kern_return_t kr = IOServiceAddMatchingNotification(gNotifyPort, kIOMatchedNotification, (__bridge_retained CFDictionaryRef)dic, addUPSBattery, NULL, &gAddedIter);
+        if (kr == kIOReturnSuccess) {
+            if (gAddedIter != MACH_PORT_NULL) {
+                addUPSBattery(NULL, gAddedIter);
+                IOObjectRelease(gAddedIter);
+            }
+        }
+    }
+}
+
+@implementation UPSDataSlim
+- (instancetype)init {
+    self = [super init];
+    self.noti = IO_OBJECT_NULL;
+    self.source = nil;
+    self.timer = nil;
+    self.props = [NSMutableDictionary dictionary];
+    return self;
+}
+- (void)initDB {
+    NSString* serial = self.props[@"Serial"];
+    if (serial != nil) {
+        initDB(serial);
+    }
+}
+- (void)updateProps:(NSDictionary*)propsSrc isEvent:(BOOL)event {
+    NSDictionary* keep = @{
+        @"Authenticated": @"Authenticated",
+        @"Manufacturer": @"Manufacturer",
+        @"ModelNumber": @"ModelNumber",
+        @"PrimaryUsagePage": @"UsagePage",
+        @"PrimaryUsage": @"Usage",
+        @"Product": @"Name",
+        @"ProductID": @"ProductID",
+        @"ReportInterval": @"ReportInterval",
+        @"SerialNumber": @"Serial",
+        @"Transport": @"Transport",
+        @"VendorID": @"VendorID",
+        @"VersionNumber": @"VersionNumber",
+        @"AppleRawCurrentCapacity": @"AppleRawCurrentCapacity",
+        @"BatteryCaseChargingVoltage": @"BatteryCaseChargingVoltage",
+        @"Cell0Voltage": @"Cell0Voltage",
+        @"Cell1Voltage": @"Cell1Voltage",
+        @"Current": @"Amperage",
+        @"CurrentCapacity": @"CurrentCapacity",
+        @"CycleCount": @"CycleCount",
+        @"IncomingCurrent": @"IncomingCurrent",
+        @"IncomingVoltage": @"IncomingVoltage",
+        @"IsCharging": @"IsCharging",
+        @"MaxCapacity": @"MaxCapacity",
+        @"NominalCapacity": @"NominalCapacity",
+        @"PowerSourceState": @"PowerSourceState",
+        @"Temperature": @"Temperature",
+        @"Voltage": @"Voltage",
+    };
+    for (NSString* rawkey in propsSrc) {
+        NSString* key = [rawkey stringByReplacingOccurrencesOfString:@" " withString:@""];
+        if (keep[key] == nil) {
+            continue;
+        } else {
+            key = keep[key];
+        }
+        id val = propsSrc[rawkey];
+        self.props[key] = val;
+    }
+    if (event) {
+        self.props[@"UpdateTime"] = @(time(0));
+    }
+}
+@end
 
 @implementation Service {
     NSString* bid;
@@ -848,7 +1119,7 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
 }
 - (void)serve {
     initConf(NO);
-    initDB();
+    initDB(nil);
     static GCDWebServer* _webServer = nil;
     if (_webServer == nil) {
         if (localPortOpen(GSERV_PORT)) {
@@ -874,79 +1145,62 @@ NSDictionary* handleReq(NSDictionary* nsreq) {
             exit(0);
         }
         getBatInfo(&bat_info);
-        IONotificationPortRef port = IONotificationPortCreate(kIOMasterPortDefault);
-        CFRunLoopSourceRef runSrc = IONotificationPortGetRunLoopSource(port);
+        gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
+        CFRunLoopSourceRef runSrc = IONotificationPortGetRunLoopSource(gNotifyPort);
         CFRunLoopAddSource(CFRunLoopGetCurrent(), runSrc, kCFRunLoopDefaultMode);
         io_service_t serv = getIOPMPSServ();
         if (serv != IO_OBJECT_NULL) {
-            io_object_t noti = IO_OBJECT_NULL;
-            IOServiceAddInterestNotification(port, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) {
+            IOServiceAddInterestNotification(gNotifyPort, serv, "IOGeneralInterest", [](void* refcon, io_service_t service, uint32_t type, void* args) { // type == kIOPMMessageBatteryStatusHasChanged
                 @synchronized (Service.inst) {
+                    detectUPSBattery(); // 在USB插拔事件中更新
                     onBatteryEvent(service);
                 }
-            }, nil, &noti);
+            }, nil, &iopmpsNoti);
+            detectUPSBattery();
         }
         [LSApplicationWorkspace.defaultWorkspace addObserver:self];
         isBlueEnable(); // init
         isLPMEnable();
+        isSmartChargeEnable();
     }
 }
 @end
 
-static void start_daemon() {
-    @autoreleasepool {
-        if (g_jbtype == JBTYPE_TROLLSTORE) {
-            NSTimer* start_daemon_timer = [NSTimer timerWithTimeInterval:10 repeats:YES block:^(NSTimer* timer) {
-                @autoreleasepool {
-                    if (!localPortOpen(GSERV_PORT)) {
-                        spawn(@[getAppEXEPath(), @"daemon"], nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
-                    }
-                }
-            }];
-            [start_daemon_timer fire];
-            [NSRunLoop.currentRunLoop addTimer:start_daemon_timer forMode:NSDefaultRunLoopMode];
-        }
-    }
-}
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) { // daemon_main
     @autoreleasepool {
         g_jbtype = getJBType();
         if (argc == 1) {
-            start_daemon();
-            return UIApplicationMain(argc, argv, nil, @"AppDelegate");
-        } else if (argc > 1) {
-            if (0 == strcmp(argv[1], "daemon")) {
-                g_serv_boot = (int)time(0);
-                if (g_jbtype == JBTYPE_TROLLSTORE) {
-                    signal(SIGHUP, SIG_IGN);
-                    signal(SIGTERM, SIG_IGN); // 防止App被Kill以后daemon退出
-                } else {
-                    platformize_me(); // for jailbreak
-                    set_mem_limit(getpid(), 80);
+            NSFileLog(@"CLv%@ start pid=%d", NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"], getpid());
+            g_serv_boot = (int)time(0);
+            if (g_jbtype == JBTYPE_TROLLSTORE) {
+                signal(SIGHUP, SIG_IGN);
+                signal(SIGTERM, SIG_IGN); // 防止App被Kill以后daemon退出
+            } else {
+                platformize_me(); // for jailbreak
+                set_mem_limit(getpid(), 80);
+            }
+            [Service.inst serve];
+            atexit_b(^{
+                resetBatteryStatus();
+                if (iopmpsNoti != IO_OBJECT_NULL) {
+                    IOObjectRelease(iopmpsNoti);
+                    iopmpsNoti = IO_OBJECT_NULL;
                 }
-                [Service.inst serve];
-                atexit_b(^{
-                    resetBatteryStatus();
-                    showFloatwnd(NO);
-                    uninitDB();
-                    [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
-                });
-                NSFileLog(@"CLv%@ start", NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"]);
-                [NSRunLoop.mainRunLoop run];
-                NSFileLog(@"daemon unexpected");
-                return 0;
-            } else if (0 == strcmp(argv[1], "floatwnd")) {
-                start_daemon();
-                g_wind_type = 1;
-                static id<UIApplicationDelegate> appDelegate = [AppDelegate new];
-                UIApplicationInstantiateSingleton(HUDMainApplication.class);
-                static UIApplication* app = [UIApplication sharedApplication];
-                [app setDelegate:appDelegate];
-                [app __completeAndRunAsPlugin];
-                CFRunLoopRun();
-                return 0;
-            } else if (0 == strcmp(argv[1], "reset")) { // 越狱下卸载前重置
+                releaseUPSBattery(gUPSPS);
+                if (gNotifyPort != 0) {
+                    IONotificationPortDestroy(gNotifyPort);
+                    gNotifyPort = 0;
+                }
+                showFloatwnd(NO);
+                uninitDB();
+                [LSApplicationWorkspace.defaultWorkspace removeObserver:Service.inst];
+            });
+            [NSRunLoop.mainRunLoop run];
+            NSFileLog(@"daemon unexpected");
+            return 0;
+        } else if (argc > 1) {
+            if (0 == strcmp(argv[1], "reset")) { // 越狱下卸载前重置
                 resetBatteryStatus();
                 return 0;
             } else if (0 == strcmp(argv[1], "watch_bat_info")) {
@@ -957,6 +1211,15 @@ int main(int argc, char** argv) {
                     [NSThread sleepForTimeInterval:1.0];
                     spawn(@[@"clear"], nil, nil, nil, 0, nil);
                 }
+                return 0;
+            } else if (0 == strcmp(argv[1], "set_charge")) {
+                bool flag = argv[2][0] - '0';
+                setChargeStatus(flag);
+                return 0;
+            } else if (0 == strcmp(argv[1], "set_inflow")) {
+                bool flag = argv[2][0] - '0';
+                setInflowStatus(flag);
+                return 0;
             }
         }
         return -1;

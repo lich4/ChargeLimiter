@@ -1,9 +1,19 @@
 #include "ui.h"
 #include "utils.h"
 
-extern int g_wind_type;
-NSDictionary* handleReq(NSDictionary* nsreq);
-id getlocalKV(NSString* key);
+static int g_jbtype     = -1;
+static int g_wind_type  = 0; // 1: HUD
+
+static void daemonRun(NSArray* nsreq);
+
+static BOOL isDarkMode() {
+    if (@available(iOS 13, *)) {
+        if (UITraitCollection.currentTraitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
 @implementation HUDMainWindow
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -33,15 +43,9 @@ static AppDelegate* _app = nil;
     NSURL* url = urlContext.URL; // cl:///(charge|nocharge)(/exit)
     for (NSString* cmd in url.pathComponents) {
         if ([cmd isEqualToString:@"charge"]) {
-            handleReq(@{
-                @"api": @"set_charge_status",
-                @"flag": @YES,
-            });
+            daemonRun(@[@"set_charge", @"1"]);
         } else if ([cmd isEqualToString:@"nocharge"]) {
-            handleReq(@{
-                @"api": @"set_charge_status",
-                @"flag": @NO,
-            });
+            daemonRun(@[@"set_charge", @"0"]);
         } else if ([cmd hasPrefix:@"exit"]) {
             int n = 1;
             if (cmd.length > 4) {
@@ -244,19 +248,30 @@ static AppDelegate* _app = nil;
 - (void)webViewDidFinishLoad:(UIWebView*)webview {
     [_mainWnd addSubview:webview];
     [_mainWnd bringSubviewToFront:webview];
-    static BOOL isFirstLoad = YES;
-    if (isFirstLoad) {
-        [webview stringByEvaluatingJavaScriptFromString:@"window.location.reload()"];
-        isFirstLoad = NO;
-    } else {
-        [self speedUpWebView: webview];
-        if (isDarkMode()) {
-            [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
-        } else {
-            [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(false)"];
+    if (@available(iOS 17.0, *)) {
+        static BOOL ios17plusInit = NO;
+        if (!ios17plusInit) { // 修复iOS17 UIWebView无法滑动
+            ios17plusInit = YES;
+            [webview stringByEvaluatingJavaScriptFromString:@"window.location.reload()"];
+            return;
         }
-        [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
     }
+    [self speedUpWebView:webview];
+    if (isDarkMode()) {
+        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(true)"];
+    } else {
+        [webview stringByEvaluatingJavaScriptFromString:@"window.app.switch_dark(false)"];
+    }
+    [webview stringByEvaluatingJavaScriptFromString:@"window.source='CL'"];
+    JSContext* context = [webview valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
+    context[@"set_pb"] = ^{
+        @autoreleasepool {
+            NSArray* args = [JSContext currentArguments];
+            JSValue* val = args[0];
+            UIPasteboard* pb = [UIPasteboard generalPasteboard];
+            pb.string = val.toString;
+        }
+    };
 }
 - (void)webView:(UIWebView*)webview didFailLoadWithError:(NSError*)error {
     NSString* surl = webview.request.URL.absoluteString;
@@ -361,4 +376,55 @@ static void* make_sym_callable(void *ptr) {
     // 避免悬浮窗滑动崩溃
 }
 @end
+
+
+void daemonRun(NSArray* argv) {
+    NSString* bundlePath = [getSelfExePath() stringByDeletingLastPathComponent];
+    NSString* daemonPath = [bundlePath stringByAppendingPathComponent:@"ChargeLimiterDaemon"];
+    NSMutableArray* mArgv = [NSMutableArray array];
+    [mArgv addObject:daemonPath];
+    if (argv != nil) {
+        [mArgv addObjectsFromArray:argv];
+    }
+    spawn(mArgv, nil, nil, 0, SPAWN_FLAG_ROOT | SPAWN_FLAG_NOWAIT);
+}
+
+static void start_daemon() {
+    @autoreleasepool {
+        if (g_jbtype == JBTYPE_TROLLSTORE) {
+            NSTimer* start_daemon_timer = [NSTimer timerWithTimeInterval:10 repeats:YES block:^(NSTimer* timer) {
+                @autoreleasepool {
+                    if (!localPortOpen(GSERV_PORT)) {
+                        daemonRun(nil);
+                    }
+                }
+            }];
+            [start_daemon_timer fire];
+            [NSRunLoop.currentRunLoop addTimer:start_daemon_timer forMode:NSDefaultRunLoopMode];
+        }
+    }
+}
+
+int main(int argc, char** argv) { // ChargeLimiter
+    @autoreleasepool {
+        g_jbtype = getJBType();
+        if (argc == 1) {
+            start_daemon();
+            return UIApplicationMain(argc, argv, nil, @"AppDelegate");
+        } else if (argc > 1) {
+            if (0 == strcmp(argv[1], "floatwnd")) {
+                start_daemon();
+                g_wind_type = 1;
+                static id<UIApplicationDelegate> appDelegate = [AppDelegate new];
+                UIApplicationInstantiateSingleton(HUDMainApplication.class);
+                static UIApplication* app = [UIApplication sharedApplication];
+                [app setDelegate:appDelegate];
+                [app __completeAndRunAsPlugin];
+                CFRunLoopRun();
+                return 0;
+            }
+        }
+        return -1;
+    }
+}
 

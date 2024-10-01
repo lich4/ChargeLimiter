@@ -34,6 +34,7 @@ const App = {
         },
         get_bat_info_cb: function(jdata) {
             if (jdata.status == 0) {
+                this.enable = jdata.enable;
                 this.bat_info = jdata.data;
             }
         },

@@ -163,11 +163,13 @@ const App = {
             lang: get_local_val("conf", "lang", "en"),
             sysver: "",
             devmodel: "",
+            disable_smart_charge: true,
             floatwnd: false,
             floatwnd_auto: false,
             mode: "charge_on_plug",
             msg_list: [],
             bat_info: {},
+            upsbat_info: {},
             adaptor_info: {},
             charge_below: 20,
             charge_above: 80,
@@ -207,6 +209,7 @@ const App = {
             actions: null,
             cuffmods: null,
             show_tips: {
+                enable: false,
                 setting: true,
                 floatwnd_auto: false,
                 lang: false,
@@ -304,6 +307,7 @@ const App = {
             this.daemon_alive = true;
             if (jdata.status == 0) {
                 this.bat_info = jdata.data;
+                this.upsbat_info = jdata.data_ups;
                 this.adaptor_info = jdata.data.AdapterDetails;
             } else {
                 this.msg_list.push({
@@ -343,6 +347,14 @@ const App = {
                 });
                 this.enable = v;
             }
+        },
+        set_disable_smart_charge: function(v) {
+            this.ipc_send_wrapper({
+                api: "set_conf",
+                key: "disable_smart_charge",
+                val: v,
+            });
+            this.disable_smart_charge = v;
         },
         set_floatwnd: function(v) {
             this.ipc_send_wrapper({
@@ -548,11 +560,43 @@ const App = {
                 this.wait_daemon_alive();
             }
         },
+        is_charge: function() {
+            if (this.bat_info.IsCharging) {
+                return true;
+            }
+            if (this.upsbat_info) {
+                if (this.bat_info.InstantAmperage > 10) { // -:放电 0-5mA:停充 +:充电  小板可能控流不精确因此取10mA
+                    return true;
+                }
+            }
+            return false;
+        },
+        is_inflow: function() {
+            if (this.bat_info.ExternalConnected) {
+                return true;
+            }
+            if (this.upsbat_info) {
+                if (this.bat_info.InstantAmperage >= 0) { // -:放电 0-5mA:停充 +:充电  停充时由于硬件供电因此也有电流流入
+                    return true;
+                }
+            }
+            return false;
+        },
         get_health: function(item) {
-            return (item["NominalChargeCapacity"] / item["DesignCapacity"] * 100).toFixed(2);
+            return (item.NominalChargeCapacity / item.DesignCapacity * 100).toFixed(2);
         },
         get_hardware_capacity: function() {
             var v = (this.bat_info.AppleRawCurrentCapacity / this.bat_info.NominalChargeCapacity * 100).toFixed(2);
+            return v + "%";
+        },
+        get_ups_cur_capcity: function(item) {
+            return (item.CurrentCapacity / item.NominalCapacity * 100).toFixed(2);
+        },
+        get_ups_health: function(item) {
+            return (item.NominalCapacity / item.MaxCapacity * 100).toFixed(2);
+        },
+        get_ups_hardware_capacity: function() {
+            var v = (this.upsbat_info.AppleRawCurrentCapacity / this.upsbat_info.NominalCapacity * 100).toFixed(2);
             return v + "%";
         },
         get_adaptor_desc: function() {
@@ -592,6 +636,17 @@ const App = {
                 that.get_bat_info();
                 that.get_conf();
             }, v * 1000);
+        },
+        get_ups_temp_desc: function() {
+            var centigrade = this.upsbat_info.Temperature;
+            if (centigrade == null) {
+                return;
+            }
+            if (this.temp_mode == 0) {
+                return centigrade.toFixed(1) + "°C";
+            } else if (this.temp_mode == 1) {
+                return t_c_to_f(centigrade).toFixed(1) + "°F";
+            }
         },
         get_temp_desc: function() {
             var centigrade = this.bat_info.Temperature / 100;
@@ -687,16 +742,14 @@ const App = {
             delete copy_bat_info["Serial"];
             var data = JSON.stringify({
                 "Battery": copy_bat_info,
+                "UPSBattery": this.upsbat_info,
                 "System": {
                     sysver: this.sysver,
                     devmodel: this.devmodel,
                 },
                 "Config": this.conf,
             }, null, 2);
-            this.ipc_send_wrapper({
-                api: "set_pb",
-                val: data,
-            });
+            set_pb(data);
             this.msg_list.push({
                 "id": get_id(), 
                 "title": this.$t("suc"), 

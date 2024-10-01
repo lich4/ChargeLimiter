@@ -6,6 +6,14 @@ todos:
 * Start daemon on system reboot
 * Floating window on iOS12
 
+1.7版本更新日志:
+* 增加对SBC的支持
+* App服务分离, 防止越狱环境下某些插件导致服务崩溃
+
+1.7 ChangeLog:
+* Support SBC
+* Seperate Daemon from App, to make it compatible with some tweaks
+
 1.6.1版本更新日志:
 * 增加对有线充电宝的支持
 * 增加阿拉伯语
@@ -14,6 +22,7 @@ todos:
 1.6.1 ChangeLog:
 * Support wired power banks
 * Arabic language added
+* Add UI support for iOS17.0
 
 1.6版本更新日志:
 * 增加温度模拟(即Powercuff)及峰值性能状态管理功能

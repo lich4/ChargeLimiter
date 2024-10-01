@@ -1,9 +1,9 @@
 #!/bin/bash
 
 chown -R root:wheel /Applications/ChargeLimiter.app
-chmod +s /Applications/ChargeLimiter.app/ChargeLimiter
+chmod +s /Applications/ChargeLimiter.app/ChargeLimiterDaemon
 chown root:wheel /Library/LaunchDaemons/chaoge.ChargeLimiter.plist
-killall -9 ChargeLimiter
+killall -9 ChargeLimiter ChargeLimiterDaemon
 launchctl load /Library/LaunchDaemons/chaoge.ChargeLimiter.plist
 uicache mobile; uicache --path /Applications/ChargeLimiter.app
 

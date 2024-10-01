@@ -10,7 +10,7 @@ function run_at {
     popd
 }
 
-codesign --remove "${APP}"
+codesign --remove-signature "${APP}"
 if [ -e "${APP}/_CodeSignature" ]; then
     rm -rf "${APP}/_CodeSignature"
 fi

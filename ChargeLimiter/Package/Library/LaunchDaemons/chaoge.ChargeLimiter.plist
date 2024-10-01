@@ -7,11 +7,10 @@
 	<key>Label</key>
 	<string>chaoge.ChargeLimiter</string>
 	<key>Program</key>
-	<string>/Applications/ChargeLimiter.app/ChargeLimiter</string>
+	<string>/Applications/ChargeLimiter.app/ChargeLimiterDaemon</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Applications/ChargeLimiter.app/ChargeLimiter</string>
-		<string>daemon</string>
+		<string>/Applications/ChargeLimiter.app/ChargeLimiterDaemon</string>
 	</array>
 	<key>ExecuteAllowed</key>
 	<true/>

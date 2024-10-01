@@ -7,11 +7,10 @@
 	<key>Label</key>
 	<string>chaoge.ChargeLimiter</string>
 	<key>Program</key>
-	<string>/var/jb/Applications/ChargeLimiter.app/ChargeLimiter</string>
+	<string>/var/jb/Applications/ChargeLimiter.app/ChargeLimiterDaemon</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/var/jb/Applications/ChargeLimiter.app/ChargeLimiter</string>
-		<string>daemon</string>
+		<string>/var/jb/Applications/ChargeLimiter.app/ChargeLimiterDaemon</string>
 	</array>
 	<key>ExecuteAllowed</key>
 	<true/>

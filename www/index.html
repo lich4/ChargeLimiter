@@ -241,13 +241,18 @@
       <el-card class="box-card mx-3 mb-2 px-2" shadow="never" v-if="show_tips['setting']">
         <el-row class="py-2 col-item">
           <el-label>{{$t("enable")}}</el-label>
+          <span class="el-icon-edit-outline page-icon-sm" @click="show_tips['enable']=!show_tips['enable'];"></span>
           <el-switch :value="enable" class="right" @change="set_enable"></el-switch>
+        </el-row>
+        <el-row class="mb-2 subtitle" v-if="show_tips['enable']">
+          <el-label>{{$t("disable_smart_charge")}}</el-label>
+          <el-switch :value="disable_smart_charge" class="right" @change="set_disable_smart_charge"></el-switch>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <div class="py-2 col-item">
           <el-row>
             <el-label>{{$t("floatwnd")}}</el-label>
-            <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['floatwnd_auto']=!show_tips['floatwnd_auto'];"></span>
+            <span class="el-icon-edit-outline page-icon-sm" @click="show_tips['floatwnd_auto']=!show_tips['floatwnd_auto'];"></span>
             <el-switch :value="floatwnd" class="right" @change="set_floatwnd"></el-switch>
           </el-row>
           <el-row class="mt-2 subtitle" v-if="show_tips['floatwnd_auto']">
@@ -525,7 +530,7 @@
           <el-row class="click">
             <el-label>{{$t("IsCharging")}}</el-label>
             <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['charge']=!show_tips['charge']"></span>
-            <el-switch :value="bat_info.IsCharging" class="right" @change="set_charge_status"></el-switch>
+            <el-switch :value="is_charge()" class="right" @change="set_charge_status"></el-switch>
           </el-row>
           <el-row class="subtitle" v-if="show_tips['charge']">
             {{$t('charge_btn_desc')}}
@@ -550,6 +555,11 @@
         <el-row class="py-2 col-item">
           <el-label>{{$t("NominalChargeCapacity")}}</el-label>
           <el-label class="right">{{bat_info.NominalChargeCapacity}}</el-label>
+        </el-row>
+        <el-divider class="my-0" direction="horizontal"></el-divider>
+        <el-row class="py-2 col-item">
+          <el-label>{{$t("AppleRawCurrentCapacity")}}</el-label>
+          <el-label class="right">{{bat_info.AppleRawCurrentCapacity}}</el-label>
         </el-row>
         <el-divider class="my-0" direction="horizontal"></el-divider>
         <el-row class="py-2 col-item">
@@ -582,6 +592,132 @@
           <el-label class="right">{{bat_info.Serial}}</el-label>
         </el-row>
       </el-card>
+      <template v-if="upsbat_info">
+        <el-row class="mx-4 px-1 pt-2">
+          <span class="subtitle">{{$t("upsbatinfo")}}</span>
+        </el-row>
+        <el-card class="box-card mx-3 mb-2 px-2" shadow="never">
+          <el-row class="py-2 col-item">
+            <el-col :span="12">
+              <el-label>{{$t("CurrentCapacity")}}
+              </el-label>
+            </el-col>
+            <el-col :span="12">
+              <el-progress :text-inside="true" :stroke-width="24" :percentage="get_ups_cur_capcity(upsbat_info)" color="#34c759" text-color="white"></el-progress>
+            </el-col>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-col :span="12">
+              <el-label>{{$t("Temperature")}}</el-label>
+            </el-col>
+            <el-col :span="12">
+              <el-progress :text-inside="true" :stroke-width="24" :percentage="upsbat_info.Temperature+30" :format="get_ups_temp_desc" color="#f8801b" text-color="white"></el-progress>
+            </el-col>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <div class="py-2 col-item">
+            <el-row class="click">
+              <el-label>{{$t("IsCharging")}}</el-label>
+              <el-switch :value="upsbat_info.IsCharging" class="right" disabled></el-switch>
+            </el-row>
+          </div>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("CycleCount")}}</el-label>
+            <el-label class="right">{{upsbat_info.CycleCount}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("MaxCapacity")}}</el-label>
+            <el-label class="right">{{upsbat_info.MaxCapacity}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("NominalChargeCapacity")}}</el-label>
+            <el-label class="right">{{upsbat_info.NominalCapacity}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("AppleRawCurrentCapacity")}}</el-label>
+            <el-label class="right">{{upsbat_info.AppleRawCurrentCapacity}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("HardwareCapacity")}}</el-label>
+            <el-label class="right">{{get_ups_hardware_capacity()}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("Amperage")}}</el-label>
+            <el-label class="right">{{upsbat_info.Amperage}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("IncomingCurrent")}}</el-label>
+            <el-label class="right">{{upsbat_info.IncomingCurrent}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("ChargeVoltage")}}</el-label>
+            <el-label class="right">{{upsbat_info.BatteryCaseChargingVoltage/1000}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("Voltage")}}</el-label>
+            <el-label class="right">{{upsbat_info.Voltage/1000}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("IncomingVoltage")}}</el-label>
+            <el-label class="right">{{upsbat_info.IncomingVoltage/1000}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("CellVoltage")}}</el-label>
+            <el-label class="right">{{upsbat_info.Cell0Voltage/1000 + " " + upsbat_info.Cell1Voltage/1000}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("PowerSourceState")}}</el-label>
+            <el-label class="right">{{upsbat_info.PowerSourceState}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <template v-if="upsbat_info.Manufacturer">
+            <el-row class="py-2 col-item">
+              <el-label>{{$t("Manufacturer")}}</el-label>
+              <el-label class="right">{{upsbat_info.Manufacturer}}</el-label>
+            </el-row>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+          </template>
+          <template v-if="upsbat_info.Name">
+            <el-row class="py-2 col-item">
+              <el-label>{{$t("Name")}}</el-label>
+              <el-label class="right">{{upsbat_info.Name}}</el-label>
+            </el-row>
+            <el-divider class="my-0" direction="horizontal"></el-divider>
+          </template>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("ModelNumber")}}</el-label>
+            <el-label class="right">{{upsbat_info.ModelNumber}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{"ProductID"}}</el-label>
+            <el-label class="right">{{upsbat_info.VendorID + "/" + upsbat_info.ProductID}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{"Usage"}}</el-label>
+            <el-label class="right">{{upsbat_info.UsagePage + "/" +upsbat_info.Usage}}</el-label>
+          </el-row>
+          <el-divider class="my-0" direction="horizontal"></el-divider>
+          <el-row class="py-2 col-item">
+            <el-label>{{$t("Serial")}}</el-label>
+            <el-label class="right">{{upsbat_info.Serial}}</el-label>
+          </el-row>
+        </el-card>
+      </template>
       <el-row class="mx-4 px-1 pt-2">
         <span class="subtitle">{{$t("adaptorinfo")}}</span>
       </el-row>
@@ -616,7 +752,7 @@
           <el-row class="click">
             <el-label>{{$t("ExternalConnected")}}</el-label>
             <span class="el-icon-warning-outline page-icon-sm" @click="show_tips['inflow']=!show_tips['inflow']"></span>
-            <el-switch :value="bat_info.ExternalConnected" class="right" @change="set_inflow_status"></el-switch>
+            <el-switch :value="is_inflow()" class="right" @change="set_inflow_status"></el-switch>
           </el-row>
           <el-row class="subtitle" v-if="show_tips['inflow']">
             {{$t('inflow_btn_desc')}}

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-/var/jb/Applications/ChargeLimiter.app/ChargeLimiter reset
+/var/jb/Applications/ChargeLimiter.app/ChargeLimiterDaemon reset
 launchctl unload /var/jb/Library/LaunchDaemons/chaoge.ChargeLimiter.plist
-killall -9 ChargeLimiter
+killall -9 ChargeLimiter ChargeLimiterDaemon
 uicache mobile
 
 exit 0

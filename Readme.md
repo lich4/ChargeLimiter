@@ -5,8 +5,10 @@
 &emsp;&emsp;ChargeLimiter(CL)是针对iOS开发的AlDente替代工具,适用于长时间过充情况下保护电池健康度.  
 &emsp;&emsp;支持有根越狱(???-arm.deb)/无根越狱(???-arm64.deb )/巨魔(???.tipa),目前支持iOS12-17.0(注意: 巨魔环境下安装新版之前请先卸载旧版)
 &emsp;&emsp;测试过的环境: iPhone6/7+iOS12/13 Checkra1n/Unc0ver/Odyssey; iPhone7/X/11+iOS15/16 Palera1n/Dopamine/TrollStore.  
-&emsp;&emsp;v1.4.1功能可以满足大多数用户需求，v1.5兼容不支持停充的电池，v1.6兼容充电电流过大的电池    
-&emsp;&emsp;CL是开放式项目,如果有兴趣参与或者对CL有建议的的欢迎参提交代码.CL纯属偶然兴趣而开发,最开始是作者自己玩的,后来觉得其他人会需要才开源分享.CL承诺永久免费且无广告,但因为使用CL导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用CL即为默认同意本条款.     
+&emsp;&emsp;v1.4.1功能可以满足大多数用户需求，v1.5兼容不支持停充的电池，v1.6兼容充电电流过大的电池, v1.7兼容SBC    
+&emsp;&emsp;CL是开放式项目,如果有兴趣参与或者对CL有建议的的欢迎参提交代码.    
+&emsp;&emsp;CL纯属偶然兴趣而开发,CL的完美运行强依赖软硬件环境, 作者没有义务保证每个人都完美使用.   如果你的软硬件环境不兼容则不建议使用.    
+&emsp;&emsp;CL承诺永久免费且无广告,但因为使用CL导致系统或硬件方面的影响(或认为会有影响的)作者不负任何责任,用户使用CL即为默认同意本条款.     
 
 ![](https://raw.githubusercontent.com/lich4/ChargeLimiter/main/banner.jpg)
 
@@ -15,6 +17,7 @@
 * 由于缺少开发环境和设备, CL可能不兼容iOS<=11.x.
 * 悬浮窗暂不支持iOS<=12.x.
 * DEB版本CL可能会由于某些tweak导致启动卡屏,这并非CL本身的bug,这些tweak注入到com.apple.UIKit,可以在此目录寻找:/Library/MobileSubstrate/DynamicLibraries(有根),或/var/jb/Library/MobileSubstrate/DynamicLibraries(无根).
+* 因为系统自身机制原因, 高温模拟在锁屏时失效, 这一点作者认为可行只是时间成本大, 未来有待增强. 另外高温模拟的参数定制未来也有待加入.
 
 ## 常见问题
 
@@ -30,10 +33,10 @@ CL支持第三方电池吗?
 * CL支持正版电池也支持大部分第三方品牌电池
 
 使用CL后能增加健康度吗？
-* 个人认为健康度递减是自然过程,软件更不可能直接修复硬件.不过有些用户使用CL一个月后确实健康度涨了.
+* 个人认为健康度递减是自然过程,软件更不可能直接修复硬件,有些用户使用CL前期健康度会涨. 几个月的实测发现涨跌与使用程度有关.
 * 大部分使用者会明显延缓电池健康度下降速度.
 * 个别用户在使用CL后出现健康度下降更快的情况,请立即停用并卸载.
-* 停充状态下一直连电源的情况下(非禁流),正常情况下电池电流为0,健康度永久不掉.
+* 停充且一直连电源的情况下(非禁流),理想情况下电池电流为0,健康度永久不掉.
 
 为什么手机无法停充或恢复充电?(小白经常遇到的问题)
 * CL并非傻瓜式工具,如果开启了温控请根据实际情况调整温度上下限,否则到达上限会停止充电,下限又无法达到自然无法充电.
@@ -42,6 +45,7 @@ CL支持第三方电池吗?
 * 电池由于过热导致硬件停充功能失效,导致CL无法生效. 而电池冷却后硬件停充功能会恢复. 请注意大部分处于高温的的电池仍然可以正常使用CL. 
 * 新电池未激活则有几率导致硬件停充失效.常见品牌激活方法见本页
 * 如果是iPad,如果确定充电状态正常但电量不增加,且电源显示为pd charger,可以尝试重新插拔或更换质量较好的充电线和充电头,直到电源处显示usb brick
+* 如果你的巨魔环境足够稳定, CL服务可以正常运行数月以上, 但如果iCloud半夜同步强杀进程, 或半越狱不稳定导致用户空间重启, 或其他可能导致CL服务失效的情况, 表现为一夜充满, 这并非软件Bug, CL为此提供了尽力而为的保活能力, 包括scheme/悬浮窗拉起服务. 如果你的巨魔不稳定可以使用越狱版本CL. 
 
 我的电池&小板硬件是否支持CL停充?
 * 唯一测试方式就是在关闭全局开关的情况下手动控制(开或关)"正在充电"按钮,若120秒内不变(关或开),就是电池或小板存在问题而非软件BUG,以下将硬件无法支持简称"失控"
@@ -57,11 +61,17 @@ CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 * 充电状态下,使用低功率充电头充电
 * 购买手机散热器
 
+怎样使用电池最好?
+* 见官方文档<https://www.apple.com.cn/batteries/maximizing-performance/>
+* 避免极端高温和低温使用
+* 避免长时间过充
+* 避免电量耗尽
+
 遇到问题时如何自行诊断?
 * 可以参照5分钟图和日志(/var/root/aldente.log)。例如：发现5分钟图存在1小时以上的数据缺失，就可能是掉后台了。
 
 如何找到耗电应用?
-* 可以借助观察5分钟图或者Helium的实时电流数据，来检测开启某项系统功能或运行某App会增加多少电流。
+* 可以借助观察5分钟图或者Helium的实时电流数据，来检测开启某项系统功能或运行某App会增加多少电流
 
 ## 测试电池兼容性
 
@@ -92,7 +102,7 @@ CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 ## 充电宝兼容性
 
 &emsp;&emsp;CL可以和充电宝配合使用，停充模式下充电宝优先为手机供电，充电宝电量耗尽后再由手机电池供电，对长途旅行的用户更为有意义，充电宝的容量性价比也远高于手机电池。注意：
-* 无线充电时，如果充电功率不够有可能消耗电池电量，所以如果手机自身耗电较大就不适合这种充电方式
+* 无线充电时，如果充电功率不够有可能消耗电池电量，不推荐CL搭配无线充电使用
 * 大部分有线充电宝支持"休眠模式"，在电流低于某个阈值一段时间后，会自动关闭自身电源。这种模式下使用CL，充电宝可能在手机锁屏后由于电流过小导致充电宝自动关闭电源, 造成无CL无法正常工作
 * 大部分有线充电宝支持"小电流模式"，双击或长按电源键后进入小电流模式，这种模式在低电流时不会自动关闭电源，这种模式下CL在手机锁屏后也可以正常工作。注意有的充电宝几小时后会自动退出小电流模式
 
@@ -100,10 +110,10 @@ CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 
 * iPhone8+存在120秒设定充电状态延迟. iPad可能也存在.
 * 停充模式不会更新系统状态栏的充电标志,实际充电状态可以在看爱思助手或者CL查看.禁流模式会改变系统状态栏的充电标志(iPhone8+), 禁流模式在"高级-停充时启用禁流"中设定。
-* 对于巨魔环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/...),将导致CL失效.
+* 对于巨魔环境,因任何原因导致的服务被杀(比如重启系统/重启用户空间/半越狱不稳定/iCloud夜间同步/其他巨魔App...),将导致CL失效. 
 * CL的设计思路就是减少充电次数,因此不会连着usb就自发充电,也不会无故自动恢复充电,充电/停充都有触发条件,请仔细查看本页说明.
-* 系统自带电池优化会导致CL失效,CL会自动关闭自带优化(但系统设置里不会显示).如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).
-* 停充过久会导致小板统计有误和其他奇奇怪怪的问题, 建议一个月至少满充满放一次
+* 系统自带电池优化会导致CL失效,建议关闭.如果不使用CL需在系统设置中手动重置电池优化开关(先关后开).
+* 新电池请先激活再使用CL, 否则有几率出现硬件停充失效问题。停充过久会出现小板统计有误和硬件停充失效问题, 建议一个月至少满充满放一次.
 
 ## 使用说明
 
@@ -150,7 +160,7 @@ CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 
 ### 阈值设定
 
-* 有研究表明电量在20%-80%之间,温度在10°C-35°C之间,对电池寿命影响最小.因此CL阈值默认设定为20/80/10/35,长期过充/电量耗尽/高温对电池会产生不良影响.    
+* CL阈值默认设定为20/80/10/35, 你需要根据实际情况设置否则可能无法正常工作.
 * 温度阈值的设定,可根据"历史统计-小时数据"的温度数据设置合适的阈值.   
 * 设定阈值和实际触发值不一定完全相同,例如设定80%上限结果到81%停充,大部分手机差距在0-1%,极少数3-5%,差异值与120秒延迟有关,与充电速度有关,也与电池质量有关.停充后如果存在微弱电流可能造成差值;另外健康度的突然变化也会影响电量;新电池未激活直接使用CL也会导致停充后有较大电流.
 * 电量上限阈值的设定,如果是短期停充,此上限可以根据自己需要设置;如果是iPad长年连电停充,则此上限可以设置为最佳停充电量,最佳停充电确定方法如下:将电量充满,关闭所有耗电App和功能然后静置,让电量自然降低,等待一天后此电量就是最佳停充电量.
@@ -173,7 +183,7 @@ CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 
 ### 电池信息
 
-* 健康度,与爱思助手保持一致,CL健康度是根据最大实际容量计算的.通常新电池健康度都会超过100%,而系统设置显示的健康度不会超过100%,但设置里只显示100%,所以健康度100%到99%的过程较长.注意健康度在长期停充的状态下可能有突然大幅度下降和统计不准确的情况,此时禁用CL并正常充电几次即可恢复.
+* 健康度,与爱思助手保持一致,CL健康度是根据最大实际容量计算的.通常新电池健康度都会超过100%,而系统设置显示的健康度不会超过100%,,所以健康度100%到99%的过程较长.注意健康度在长期停充的状态下可能有突然大幅度下降和统计不准确的情况,此时禁用CL并正常充电几次即可恢复.
 * 硬件电量,一般情况下和系统电量接近,如果差值过大则可能是未校准或质量问题导致.硬件电量比系统电量更准确,硬件电量可能会大于100%也可能为负值,硬件电量大于100%时为过充此时系统电量为100%,为负时为电池亏电,此时系统电量为0%.
 * 电流以"瞬时电流"为准,电池电流为正说明从充电器流入电池,电池电流为负说明电池为设备供电.使用CL且停充状态下电池电流一般为0,此时电流流经电池为设备供电,电池起到闭合电路作用(可以理解为导线),此时对电池的损耗应小于仅使用电池为设备供电.禁流状态下电池电流一般为负.
 
@@ -197,6 +207,7 @@ CL(及类似功能的软件)可以不依赖越狱或巨魔类工具吗?
 注意: 
 * iPhone8+存在至多120秒延迟
 * 可以在个人自动化中的电量事件使用上述指令实现指定电量开始/停止充电,也可以和其他模式结合实现开机自启(比如打开某App时触发)
+* 快捷指令拉起服务需要在非锁屏状态下生效
 
 集成快捷指令(iOS16+): <https://www.icloud.com/shortcuts/2ec3aed94f414378918f3e082b7bf6b0>
 
@@ -381,7 +392,7 @@ Will the battery health percentage increase after using CL for a period of time?
 * Keep connecting to a power source and enable ChargeInhibit(without DisableInflow) as long as possible, the normal amperage should be 0mA, and the health of battery will never drop.
 
 Why does my iDevice unable to charge or discharge(Most questions from freshman)?
-* CL is not a fully-automatic tool, please set the threshhold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
+* CL is not a fully-automatic tool, please set the threshold carefully according to the actual temperature if temperature control is enabled, or CL will surely stop charging and won't re-charge any more.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, but will start charging for re-connecting to a power source.
 * A battery with low health may cause the failure of ChargeInhibit/DisableInflow. In this case, ChargeInhibit/DisableInflow works fine after a system reboot, but would fail after tens of minutes. CL is unavailable for this kind of battery. Please notice there are only a few cases about the failure among all the batteries with low health.
 * An overheated battery may cause the failure of ChargeInhibit. In this case, it will resume as normal as the battery get colder. Please notice there are only a few cases about the failure among all the batteries overheated.
@@ -396,6 +407,12 @@ How to cool down the battery in summer?
 * Lower power usage of iDevice hardware with "Powercuff" capability in CL, it will reduce the charging wattage in the same time. 
 * Use a charger of lower Watt to charge.
 * Use a heat dissipation or sth.
+
+What is the best way to keep the battery healthy?
+* Refer to <https://www.apple.com.cn/batteries/maximizing-performance/>
+* Avoid use in extremely high or low temperature
+* Avoid long time overcharged
+* Avoid out of power
 
 How can I debug CL myself when sth. goes wrong?
 * View the data in 5min chart and the log(/var/root/aldente.log) to verify the history data of charge/discharge.
@@ -419,10 +436,10 @@ Official document: <https://www.apple.com.cn/batteries/maximizing-performance/>
 
 ## Compatibility with battery banks
 
-CL can be used with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power after the power bank run out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
+CL can be used together with a power bank. iDevice will be powered by the power bank in the first place in ChargeInhibit mode, and the battery of iDevice will supply power after the power bank running out of power. This is meaningful for users who plans to make a long journey, and power bank have more capacity and lower price than battery. Notice:
 * If the wattage is insufficient in wireless charging, then battery may supply power simultaneously.  If the phone itself consumes a lot of power than the charger can supply, then it is not suitable to use a wireless charger.
 * Most wired power banks support "sleep mode", in which the power bank will automatically turns off power after the current falls below a certain threshold for a period of time. When using CL in this mode, the power bank may turn off the power due to low amperage after the phone is locked, and CL will not able to re-charge any more due to power source disconnection in this case.
-* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the powwr bank will not automatically turn off the power when the current is low. CL will work perfect in this mode after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
+* Most wired power banks support "small current mode" by Double-click or long press the power button, in which the power bank will not automatically turn off the power when the current is low. CL will work perfect in this mode after the screen locked. Please notice that some power banks will automatically exit the "small current mode" after a few hours.
 
 ## Notice
 
@@ -430,7 +447,7 @@ CL can be used with a power bank. iDevice will be powered by the power bank in t
 * In ChargeInhibit mode, The lightning icon of system status bar will not be updated, and the actual charging status can be found in 3utools(and similar) or CL, while it will be updated in DisableInflow mode(iPhone8+), this mode is enabled in "Advanced-Control inflow".
 * For TrollStore, if the daemon(of CL) get killed in any condition(such as system-reboot/userspace-reboot/...), CL will become invalid for not being able to restart daemon itself automatically.
 * CL is designed to minimize the charging count, so it won't start charging or recover charging for connecting to a power source in "Plug and charge" mode, it will only start/stop charging under certain conditions as show behind.
-* CL is not compatible with "Optimized Battery Charging" of Settings.app. sCL will disable it automatically(won't shown in Settings.app). Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
+* CL is not compatible with "Optimized Battery Charging" of Settings.app. you'd better disable it. Please re-enable in Settings.app after disabling CL if necessary. It's not recommend to use CL on newest iDevice,  "Optimized Battery Charging" is already perfect from iPhone15.
 * If the iDevice stay in ChargeInhibit mode for too long time, the hardware statistics may be incorrect. It's recommend to charge/discharge the battery once a month at least.
 
 ## Instruction
@@ -476,10 +493,10 @@ triggers precedence from high to low:
 * Update frequency is data updating speed of UI, both App UI and floating window.
 * Lower frequency, more power maybe saved. Insensitive to most users with 1sec, it's up to you.
 
-### The threshhold 
+### The thresholds
 
-* Some studies shown that capacity between 20%-80%, and temperature is between 10°C-35°C, is better for battery. Therefore, the default threshold is set to 20/80/10/35. Long-time-overcharged/Out of power/High temperature will do harm to the battery.
-* Please set temperature threshhold according to "History-Hourly Data".
+* The default threshold is set to 20/80/10/35, you need to adjust them yourself to get CL work as expected.
+* Please set temperature threshold according to "History-Hourly Data".
 * The real value stop on trigger is not necessarily equal to the target value, the differ is 0-1% in most situations, a few users got 3-5% , the differ has sth. to do with the "120 seconds delay", charging speed, and battery hardware itself. If weak amperage occurs after stopping charging, the differ maybe higher than 3%. besides, A suddenly change of the battery health may cause this situation; A new battery without activation may cause this situation.
 
 ### Action
@@ -538,11 +555,11 @@ curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-ty
 |floatwnd                                  |boolean         |Floating window                                                                      |
 |floatwnd_auto                         |boolean         |Floating window auto hide                                                      |
 |mode                                       |string     |Mode,"charge_on_plug" or "edge_trigger"                             |
-|charge_below                         |integer         |Capacity threshhold                                                                |
-|charge_above                         |integer         |Capacity threshhold                                                               |
+|charge_below                         |integer         |Capacity threshold                                                                |
+|charge_above                         |integer         |Capacity threshold                                                               |
 |enable_temp                           |boolean         |Temperature control                                                               |
-|charge_temp_above               |integer         |Temperature threshhold                                                         |
-|charge_temp_below               |integer         |Temperature threshhold                                                         |
+|charge_temp_above               |integer         |Temperature threshold                                                         |
+|charge_temp_below               |integer         |Temperature threshold                                                         |
 |acc_charge                             |boolean         |Speedup charging                                                                 |
 |acc_charge_airmode              |boolean         |Airplane mode                                                                       |
 |acc_charge_wifi                      |boolean         |WiFi                                                                                       |

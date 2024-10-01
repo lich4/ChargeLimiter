@@ -3,6 +3,10 @@
 #include <sys/sysctl.h>
 #include <notify.h>
 
+extern "C" {
+CFTypeRef MGCopyAnswer(CFStringRef str);
+}
+
 int platformize_me() {
     int ret = 0;
     #define FLAG_PLATFORMIZE (1 << 1)
@@ -333,7 +337,7 @@ BOOL localPortOpen(int port) {
 }
 
 extern "C" int _NSGetExecutablePath(char* buf, uint32_t* bufsize);
-NSString* getAppEXEPath() {
+NSString* getSelfExePath() {
     char exe[256];
     uint32_t bufsize = sizeof(exe);
     _NSGetExecutablePath(exe, &bufsize);
@@ -366,9 +370,6 @@ int getJBType() {
         return JBTYPE_ROOTLESS;
     }
     if ([path containsString:@".app/"]) { // for App
-        if ([path hasPrefix:@"/Applications"]) {
-            return JBTYPE_ROOT;
-        }
         NSArray* parts = [path componentsSeparatedByString:@"/"];
         if (parts.count < 4) {
             return JBTYPE_UNKNOWN;
@@ -382,10 +383,11 @@ int getJBType() {
             return JBTYPE_ROOTHIDE;
         }
         return JBTYPE_UNKNOWN;
-    } else { // for Tweak/Daemon
+    } else if ([path containsString:@"LaunchDaemons/"]) { // for Daemon
         return JBTYPE_ROOT;
-        // todo
     }
+    return JBTYPE_ROOT;
+    // todo
 }
 
 void NSFileLog(NSString* fmt, ...) {
@@ -406,23 +408,14 @@ void NSFileLog(NSString* fmt, ...) {
     [handle closeFile];
 }
 
-BOOL isDarkMode() {
-    if (@available(iOS 13, *)) {
-        if (UITraitCollection.currentTraitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
 NSString* getAppVer() {
     static NSString* ver = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     return ver;
 }
 
 NSString* getSysVer() {
-    static NSString* ver = UIDevice.currentDevice.systemVersion;
-    return ver;
+    CFTypeRef val = MGCopyAnswer(CFSTR("ProductVersion"));
+    return (__bridge_transfer NSString*)val;
 }
 
 NSOperatingSystemVersion getSysVerInt() {
@@ -541,7 +534,8 @@ NSArray* getFrontMostBid() {
                 //  com.apple.CarPlaySplashScreen
                 //  com.apple.CarPlayTemplateUIHost
                 //  com.apple.ScreenshotServicesService??
-                if (bid != nil && ![bid isEqualToString:@"com.apple.springboard"] && ![bid hasPrefix:@"com.apple.Accessibility"] && ![bid hasPrefix:@"com.apple.CarPlay"]) {
+                if (bid != nil && ![bid isEqualToString:@"com.apple.springboard"] && ![bid hasPrefix:@"com.apple.Accessibility"] &&
+                    ![bid hasPrefix:@"com.apple.CarPlay"]) {
                     [allFrontMostBid addObject:bid];
                 }
             }
@@ -695,7 +689,7 @@ void setLPMEnable(BOOL flag) {
 static id getLocMan() {
     static Class man = nil;
     if (man == nil) {
-        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/Frameworks/CoreLocation.framework/CoreLocation"];
+        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/Frameworks/CoreLocation.framework"];
         [b load];
         man = objc_getClass("CLLocationManager");
     }
@@ -741,6 +735,13 @@ void setBrightness(float val) {
     initBrightness();
     BrightnessCreate(kCFAllocatorDefault);
     BrightnessSet(val, 1);
+}
+
+BOOL isAutoBrightEnable() {
+    // This seems not work: CFPreferencesGetAppBooleanValue(CFSTR("BKEnableALS"), CFSTR("com.apple.backboardd"), &val);
+    NSDictionary* backboardPref = [NSDictionary dictionaryWithContentsOfFile:@"/private/var/mobile/Library/Preferences/com.apple.backboardd.plist"];
+    NSNumber* nsVal = backboardPref[@"BKEnableALS"];
+    return nsVal != nil && nsVal.boolValue;
 }
 
 void setAutoBrightEnable(BOOL flag) {
@@ -836,4 +837,75 @@ void setPPMSimulationMode(NSString* mode) {
         ppm_mode = mode;
     }
 }
+
+@interface PowerUISmartChargeClient
+- (instancetype)initWithClientName:(NSString*)name;
+- (int)isSmartChargingCurrentlyEnabled:(NSError**)err;
+- (BOOL)disableSmartCharging:(NSError**)err;
+- (BOOL)enableSmartCharging:(NSError**)err;
+- (BOOL)temporarilyDisableSmartCharging:(NSError**)err;
+@end
+
+static PowerUISmartChargeClient* getSmartChargeClient() {
+    static PowerUISmartChargeClient* client = nil;
+    if (client == nil) {
+        NSBundle* b = [NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/PowerUI.framework"];
+        [b load];
+        client = [[objc_getClass("PowerUISmartChargeClient") alloc] initWithClientName:@"Settings"];
+    }
+    return client;
+}
+
+BOOL isSmartChargeEnable() {
+    PowerUISmartChargeClient* client = getSmartChargeClient();
+    NSError* err = nil;
+    int status = [client isSmartChargingCurrentlyEnabled:&err];
+    NSLog(@"status=%d %@", status, client);
+    if (err != nil) {
+        NSLog(@"err=%@", err);
+        return NO;
+    }
+    return status != 0; // 0:disable 1:enable 2:fullcharge 3:temporarily_disable
+}
+
+void setSmartChargeEnable(BOOL flag) {
+    PowerUISmartChargeClient* client = getSmartChargeClient();
+    BOOL status = isSmartChargeEnable();
+    if (status == flag) {
+        return;
+    }
+    NSError* err = nil;
+    if (flag) {
+        [client enableSmartCharging:&err];
+    } else {
+        [client disableSmartCharging:&err];
+    }
+}
+
+/* ---------------- App ---------------- */
+static NSMutableDictionary* cache_kv = nil;
+id getlocalKV(NSString* key) {
+    if (cache_kv == nil) {
+        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
+    }
+    if (cache_kv == nil) {
+        return nil;
+    }
+    return cache_kv[key];
+}
+
+void setlocalKV(NSString* key, id val) {
+    if (cache_kv == nil) {
+        cache_kv = [NSMutableDictionary dictionaryWithContentsOfFile:@CONF_PATH];
+        if (cache_kv == nil) {
+            cache_kv = [NSMutableDictionary new];
+        }
+    }
+    cache_kv[key] = val;
+    [cache_kv writeToFile:@CONF_PATH atomically:YES];
+}
+NSDictionary* getAllKV() {
+    return cache_kv;
+}
+/* ---------------- App ---------------- */
 
