@@ -66,6 +66,22 @@
 	<true/>
 	<key>SBAppUsesLocalNotifications</key>
 	<true/>
+	<key>com.apple.private.usernotifications.bundle-identifiers</key>
+    <array>
+        <string>chaoge.ChargeLimiter</string>
+    </array>
+	<key>com.apple.usernotification.proxy</key>
+	<true/>
+	<key>com.apple.private.usernotifications.bundle-identifiers</key>
+	<true/>
+	<key>com.apple.localnotification.schedulingproxy</key>
+	<true/>
+	<key>com.apple.usernotification.notificationregistrarproxy</key>
+	<true/>
+	<key>com.apple.usernotification.notificationschedulerproxy</key>
+	<true/>
+	<key>get-task-allow</key>
+	<true/>
 	<key>com.apple.runningboard.process-state</key>
 	<true/>
 </dict>
