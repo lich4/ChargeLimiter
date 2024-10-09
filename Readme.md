@@ -351,6 +351,7 @@ curl http://localhost:1230 -d '{"api":"get_conf","key":"enable"}' -H "content-ty
 * Elfulanopr提供的图标
 * Olivertzeng提供的繁体中文
 * Nawaf提供的阿拉伯语
+* Trickbox0411提供的越南语
 * InnovatorPrime提供的夜间模式
 * Cast提供的快捷指令
 
@@ -680,6 +681,7 @@ Add new language: modify `www/lang.json` `www/help_en.md` and submit to github o
 * Icon from Elfulanopr
 * Traditional Chinese language from Olivertzeng
 * Arab language from Nawaf
+* Vietnamese language from Trickbox0411 
 * Dark mode from InnovatorPrime 
 * Shortcut from Cast
 

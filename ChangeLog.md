@@ -9,10 +9,12 @@ todos:
 1.7版本更新日志:
 * 增加对SBC的支持
 * App服务分离, 防止越狱环境下某些插件导致服务崩溃
+* 增加越南语
 
 1.7 ChangeLog:
 * Support SBC
 * Seperate Daemon from App, to make it compatible with some tweaks
+* Vietnamese language added
 
 1.6.1版本更新日志:
 * 增加对有线充电宝的支持

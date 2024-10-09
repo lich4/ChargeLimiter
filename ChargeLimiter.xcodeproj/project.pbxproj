@@ -11,57 +11,76 @@
 		182AAAF62B916632006BBE9A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
 		1839C1D12B8C250C00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		1839C1D22B8C251600FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
-		1839C1D32B8C251D00FCFDEB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18257CBC2B88652600DC5F70 /* CoreGraphics.framework */; };
 		1839C1D92B8C657400FCFDEB /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
-		1839C1DA2B8C657800FCFDEB /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
-		184EA9A42B7A373300D0981D /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
 		184EA9A52B7A373300D0981D /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
 		184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
 		184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
-		184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
-		184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
-		184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
 		184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1878864E2B5199EC00E48B28 /* UIKit.framework */; };
 		184EA9AF2B7A373300D0981D /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
 		184EA9B02B7A373300D0981D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
 		184EA9B12B7A373300D0981D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
 		184EA9B22B7A373300D0981D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		1860F2C42B5809510094AAC8 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
-		18658A7B2BCBD93600207EF3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */; };
-		18658A822BCF771800207EF3 /* ui.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18658A812BCF771800207EF3 /* ui.mm */; };
 		18658A8F2BD2716000207EF3 /* ui.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18658A812BCF771800207EF3 /* ui.mm */; };
-		18658A902BD2716600207EF3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */; };
 		1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
 		1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
-		1870F6042B85A96100B3660F /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
-		1870F6052B85A96100B3660F /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
-		1870F6072B85A96100B3660F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
-		1870F6082B85A96100B3660F /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
-		1870F6092B85A96100B3660F /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
-		1870F60A2B85A96100B3660F /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
-		1870F60B2B85A96100B3660F /* GraphicsServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */; };
-		1870F60C2B85A96100B3660F /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
-		1870F60D2B85A96100B3660F /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
-		1870F60E2B85A96100B3660F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1878864E2B5199EC00E48B28 /* UIKit.framework */; };
-		1870F6112B85A96100B3660F /* www in Resources */ = {isa = PBXBuildFile; fileRef = 187886522B519A5B00E48B28 /* www */; };
-		1870F6122B85A96100B3660F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
-		1870F6132B85A96100B3660F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
-		1870F6142B85A96100B3660F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		1878863B2B51976A00E48B28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 187886392B51976A00E48B28 /* Main.storyboard */; };
 		1878863D2B51976B00E48B28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1878863C2B51976B00E48B28 /* Assets.xcassets */; };
 		187886402B51976B00E48B28 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1878863E2B51976B00E48B28 /* LaunchScreen.storyboard */; };
-		187886432B51976B00E48B28 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* main.mm */; };
 		187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
 		187886552B519B2100E48B28 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1878864E2B5199EC00E48B28 /* UIKit.framework */; };
-		18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
+		18C123B02C8C08B300FAAC6C /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
+		18C123B32C8C08B300FAAC6C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
+		18C123B62C8C08B300FAAC6C /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
+		18C123B82C8C08B300FAAC6C /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
+		18C123BB2C8C08B300FAAC6C /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */; };
+		18C123BC2C8C08B300FAAC6C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
+		18C123BD2C8C08B300FAAC6C /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
+		18C123CB2C8C08CB00FAAC6C /* daemon.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* daemon.mm */; };
+		18C123CC2C8C08CB00FAAC6C /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
+		18C123CF2C8C08CB00FAAC6C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187886532B519B1600E48B28 /* CFNetwork.framework */; };
+		18C123D12C8C08CB00FAAC6C /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
+		18C123D22C8C08CB00FAAC6C /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
+		18C123D42C8C08CB00FAAC6C /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184FE8032B70BE8100525080 /* UserNotifications.framework */; };
+		18C123D52C8C08CB00FAAC6C /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
+		18C123D72C8C08CB00FAAC6C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
+		18C123D82C8C08CB00FAAC6C /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */; };
+		18C123D92C8C08CB00FAAC6C /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
+		18C123E72C8C099600FAAC6C /* ui.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18658A812BCF771800207EF3 /* ui.mm */; };
+		18C123E82C8C09A400FAAC6C /* daemon.mm in Sources */ = {isa = PBXBuildFile; fileRef = 187886422B51976B00E48B28 /* daemon.mm */; };
+		18C123EA2C8C135F00FAAC6C /* libMobileGestalt.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C123E92C8C135F00FAAC6C /* libMobileGestalt.tbd */; };
+		18C123EB2C8C136E00FAAC6C /* libMobileGestalt.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C123E92C8C135F00FAAC6C /* libMobileGestalt.tbd */; };
+		18C123ED2C8C14B200FAAC6C /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
+		18C123EE2C8C14CD00FAAC6C /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
+		18C123F02C8C168100FAAC6C /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C123EF2C8C168100FAAC6C /* JavaScriptCore.framework */; };
+		18C123F12C8C168E00FAAC6C /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C123EF2C8C168100FAAC6C /* JavaScriptCore.framework */; };
+		18C123F22C8C16A700FAAC6C /* libMobileGestalt.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C123E92C8C135F00FAAC6C /* libMobileGestalt.tbd */; };
+		18C123F32C8C16C200FAAC6C /* libMobileGestalt.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C123E92C8C135F00FAAC6C /* libMobileGestalt.tbd */; };
+		18C123F42C8C16D600FAAC6C /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
+		18C123F52C8C16DA00FAAC6C /* IOKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C632B6CE41800793FA9 /* IOKit.tbd */; };
 		18C50C662B6D2D5D00793FA9 /* utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18C50C652B6D2D5D00793FA9 /* utils.mm */; };
-		18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C772B6DFD5500793FA9 /* GCDWebServers.framework */; };
-		18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C792B6DFD6000793FA9 /* libz.tbd */; };
 		18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C50C7B2B6DFD8000793FA9 /* CoreServices.framework */; };
 		18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
 		18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */; };
 		18EEB6F82B7BCAA100DCC561 /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EEB6F72B7BCAA100DCC561 /* splash.png */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		18E9C4BF2C8C34F500946CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 187886252B51976A00E48B28 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 18C123AE2C8C08B300FAAC6C;
+			remoteInfo = ChargeLimiterDaemon;
+		};
+		18E9C4C12C8C350300946CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 187886252B51976A00E48B28 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 18C123C92C8C08CB00FAAC6C;
+			remoteInfo = ChargeLimiterDaemon_rootless;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1806F2F32B94AF11007CFED2 /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
@@ -80,13 +99,13 @@
 		1867403A2BB6AC1E00BB3382 /* ChangeLog.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ChangeLog.md; sourceTree = "<group>"; };
 		1867D8832B91A1D40006A073 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = GraphicsServices.tbd; sourceTree = "<group>"; };
-		1870F6192B85A96100B3660F /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1877493C2C5544C9006184AA /* libdobby.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdobby.a; path = ../../../../../opt/lib/libdobby.a; sourceTree = "<group>"; };
 		1878862D2B51976A00E48B28 /* ChargeLimiter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1878863A2B51976A00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1878863C2B51976B00E48B28 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1878863F2B51976B00E48B28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		187886412B51976B00E48B28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		187886422B51976B00E48B28 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		187886422B51976B00E48B28 /* daemon.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = daemon.mm; sourceTree = "<group>"; };
 		1878864E2B5199EC00E48B28 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		187886522B519A5B00E48B28 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 		187886532B519B1600E48B28 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -94,6 +113,10 @@
 		18826C072BFCF00A00F7D88D /* Package_rootless */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Package_rootless; sourceTree = "<group>"; };
 		1899585D2B81A77800C93B46 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		18B757232B57FDB2008A67D1 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
+		18C123C82C8C08B300FAAC6C /* ChargeLimiterDaemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiterDaemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18C123E42C8C08CB00FAAC6C /* ChargeLimiterDaemon_rootless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeLimiterDaemon_rootless.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18C123E92C8C135F00FAAC6C /* libMobileGestalt.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libMobileGestalt.tbd; path = usr/lib/libMobileGestalt.tbd; sourceTree = SDKROOT; };
+		18C123EF2C8C168100FAAC6C /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		18C50C632B6CE41800793FA9 /* IOKit.tbd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.text-based-dylib-definition"; path = IOKit.tbd; sourceTree = "<group>"; };
 		18C50C652B6D2D5D00793FA9 /* utils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = utils.mm; sourceTree = "<group>"; };
 		18C50C672B6D2D6E00793FA9 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
@@ -114,30 +137,13 @@
 				184EA9A72B7A373300D0981D /* CFNetwork.framework in Frameworks */,
 				1839C1D22B8C251600FCFDEB /* CoreGraphics.framework in Frameworks */,
 				184EA9A82B7A373300D0981D /* CoreServices.framework in Frameworks */,
-				184EA9A92B7A373300D0981D /* GCDWebServers.framework in Frameworks */,
+				18C123F12C8C168E00FAAC6C /* JavaScriptCore.framework in Frameworks */,
 				184EA9AC2B7A373300D0981D /* UIKit.framework in Frameworks */,
 				182AAAF62B916632006BBE9A /* UserNotifications.framework in Frameworks */,
 				18D0C4302B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				1870F5FE2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
-				184EA9AA2B7A373300D0981D /* libz.tbd in Frameworks */,
-				18658A902BD2716600207EF3 /* libsqlite3.tbd in Frameworks */,
-				184EA9AB2B7A373300D0981D /* IOKit.tbd in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1870F6062B85A96100B3660F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1870F6072B85A96100B3660F /* CFNetwork.framework in Frameworks */,
-				1839C1D32B8C251D00FCFDEB /* CoreGraphics.framework in Frameworks */,
-				1870F6082B85A96100B3660F /* CoreServices.framework in Frameworks */,
-				1870F6092B85A96100B3660F /* BackBoardServices.tbd in Frameworks */,
-				1870F60A2B85A96100B3660F /* GCDWebServers.framework in Frameworks */,
-				1870F60B2B85A96100B3660F /* GraphicsServices.tbd in Frameworks */,
-				1870F60C2B85A96100B3660F /* libz.tbd in Frameworks */,
-				1870F60D2B85A96100B3660F /* IOKit.tbd in Frameworks */,
-				1870F60E2B85A96100B3660F /* UIKit.framework in Frameworks */,
+				18C123F52C8C16DA00FAAC6C /* IOKit.tbd in Frameworks */,
+				18C123F22C8C16A700FAAC6C /* libMobileGestalt.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,14 +154,45 @@
 				187886542B519B1600E48B28 /* CFNetwork.framework in Frameworks */,
 				1839C1D12B8C250C00FCFDEB /* CoreGraphics.framework in Frameworks */,
 				18C50C7C2B6DFD8000793FA9 /* CoreServices.framework in Frameworks */,
-				18C50C782B6DFD5500793FA9 /* GCDWebServers.framework in Frameworks */,
+				18C123F02C8C168100FAAC6C /* JavaScriptCore.framework in Frameworks */,
 				187886552B519B2100E48B28 /* UIKit.framework in Frameworks */,
 				182AAAF52B91661B006BBE9A /* UserNotifications.framework in Frameworks */,
 				18D0C42F2B7FC64F006A7AB7 /* BackBoardServices.tbd in Frameworks */,
 				1870F5FD2B83B8F100B3660F /* GraphicsServices.tbd in Frameworks */,
-				18658A7B2BCBD93600207EF3 /* libsqlite3.tbd in Frameworks */,
-				18C50C7A2B6DFD6000793FA9 /* libz.tbd in Frameworks */,
-				18C50C642B6CE41800793FA9 /* IOKit.tbd in Frameworks */,
+				18C123F42C8C16D600FAAC6C /* IOKit.tbd in Frameworks */,
+				18C123F32C8C16C200FAAC6C /* libMobileGestalt.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C123B22C8C08B300FAAC6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C123B32C8C08B300FAAC6C /* CFNetwork.framework in Frameworks */,
+				18C123EE2C8C14CD00FAAC6C /* CoreServices.framework in Frameworks */,
+				18C123B62C8C08B300FAAC6C /* GCDWebServers.framework in Frameworks */,
+				18C123B82C8C08B300FAAC6C /* UserNotifications.framework in Frameworks */,
+				18C123ED2C8C14B200FAAC6C /* BackBoardServices.tbd in Frameworks */,
+				18C123BD2C8C08B300FAAC6C /* IOKit.tbd in Frameworks */,
+				18C123EA2C8C135F00FAAC6C /* libMobileGestalt.tbd in Frameworks */,
+				18C123BB2C8C08B300FAAC6C /* libsqlite3.tbd in Frameworks */,
+				18C123BC2C8C08B300FAAC6C /* libz.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C123CE2C8C08CB00FAAC6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C123CF2C8C08CB00FAAC6C /* CFNetwork.framework in Frameworks */,
+				18C123D12C8C08CB00FAAC6C /* CoreServices.framework in Frameworks */,
+				18C123D22C8C08CB00FAAC6C /* GCDWebServers.framework in Frameworks */,
+				18C123D42C8C08CB00FAAC6C /* UserNotifications.framework in Frameworks */,
+				18C123D52C8C08CB00FAAC6C /* BackBoardServices.tbd in Frameworks */,
+				18C123D92C8C08CB00FAAC6C /* IOKit.tbd in Frameworks */,
+				18C123EB2C8C136E00FAAC6C /* libMobileGestalt.tbd in Frameworks */,
+				18C123D82C8C08CB00FAAC6C /* libsqlite3.tbd in Frameworks */,
+				18C123D72C8C08CB00FAAC6C /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,7 +220,8 @@
 			children = (
 				1878862D2B51976A00E48B28 /* ChargeLimiter.app */,
 				184EA9B72B7A373300D0981D /* ChargeLimiter.app */,
-				1870F6192B85A96100B3660F /* ChargeLimiter.app */,
+				18C123C82C8C08B300FAAC6C /* ChargeLimiterDaemon.app */,
+				18C123E42C8C08CB00FAAC6C /* ChargeLimiterDaemon_rootless.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -201,10 +239,10 @@
 				18C50C632B6CE41800793FA9 /* IOKit.tbd */,
 				18D0C42E2B7FC64F006A7AB7 /* BackBoardServices.tbd */,
 				1870F5FC2B83B8F100B3660F /* GraphicsServices.tbd */,
-				187886422B51976B00E48B28 /* main.mm */,
-				18C50C672B6D2D6E00793FA9 /* utils.h */,
+				187886422B51976B00E48B28 /* daemon.mm */,
 				18658A812BCF771800207EF3 /* ui.mm */,
 				18658A832BCF772D00207EF3 /* ui.h */,
+				18C50C672B6D2D6E00793FA9 /* utils.h */,
 				18C50C652B6D2D5D00793FA9 /* utils.mm */,
 				18658A842BCF7A0200207EF3 /* common.h */,
 			);
@@ -214,6 +252,9 @@
 		187886492B5199D800E48B28 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18C123EF2C8C168100FAAC6C /* JavaScriptCore.framework */,
+				18C123E92C8C135F00FAAC6C /* libMobileGestalt.tbd */,
+				1877493C2C5544C9006184AA /* libdobby.a */,
 				18658A7A2BCBD93600207EF3 /* libsqlite3.tbd */,
 				18257CBC2B88652600DC5F70 /* CoreGraphics.framework */,
 				1899585D2B81A77800C93B46 /* MessageUI.framework */,
@@ -247,28 +288,11 @@
 			buildRules = (
 			);
 			dependencies = (
+				18E9C4C22C8C350300946CB8 /* PBXTargetDependency */,
 			);
 			name = ChargeLimiter_rootless;
 			productName = ChargeLimiter;
 			productReference = 184EA9B72B7A373300D0981D /* ChargeLimiter.app */;
-			productType = "com.apple.product-type.application";
-		};
-		1870F6022B85A96100B3660F /* ChargeLimiter_roothide */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 1870F6162B85A96100B3660F /* Build configuration list for PBXNativeTarget "ChargeLimiter_roothide" */;
-			buildPhases = (
-				1870F6032B85A96100B3660F /* Sources */,
-				1870F6062B85A96100B3660F /* Frameworks */,
-				1870F6102B85A96100B3660F /* Resources */,
-				1870F6152B85A96100B3660F /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ChargeLimiter_roothide;
-			productName = ChargeLimiter;
-			productReference = 1870F6192B85A96100B3660F /* ChargeLimiter.app */;
 			productType = "com.apple.product-type.application";
 		};
 		1878862C2B51976A00E48B28 /* ChargeLimiter */ = {
@@ -283,10 +307,45 @@
 			buildRules = (
 			);
 			dependencies = (
+				18E9C4C02C8C34F500946CB8 /* PBXTargetDependency */,
 			);
 			name = ChargeLimiter;
 			productName = ChargeLimiter;
 			productReference = 1878862D2B51976A00E48B28 /* ChargeLimiter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		18C123AE2C8C08B300FAAC6C /* ChargeLimiterDaemon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18C123C52C8C08B300FAAC6C /* Build configuration list for PBXNativeTarget "ChargeLimiterDaemon" */;
+			buildPhases = (
+				18C123AF2C8C08B300FAAC6C /* Sources */,
+				18C123B22C8C08B300FAAC6C /* Frameworks */,
+				18C123C42C8C08B300FAAC6C /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChargeLimiterDaemon;
+			productName = ChargeLimiter;
+			productReference = 18C123C82C8C08B300FAAC6C /* ChargeLimiterDaemon.app */;
+			productType = "com.apple.product-type.application";
+		};
+		18C123C92C8C08CB00FAAC6C /* ChargeLimiterDaemon_rootless */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18C123E12C8C08CB00FAAC6C /* Build configuration list for PBXNativeTarget "ChargeLimiterDaemon_rootless" */;
+			buildPhases = (
+				18C123CA2C8C08CB00FAAC6C /* Sources */,
+				18C123CE2C8C08CB00FAAC6C /* Frameworks */,
+				18C123E02C8C08CB00FAAC6C /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChargeLimiterDaemon_rootless;
+			productName = ChargeLimiter;
+			productReference = 18C123E42C8C08CB00FAAC6C /* ChargeLimiterDaemon_rootless.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -319,7 +378,8 @@
 			targets = (
 				1878862C2B51976A00E48B28 /* ChargeLimiter */,
 				184EA9A22B7A373300D0981D /* ChargeLimiter_rootless */,
-				1870F6022B85A96100B3660F /* ChargeLimiter_roothide */,
+				18C123AE2C8C08B300FAAC6C /* ChargeLimiterDaemon */,
+				18C123C92C8C08CB00FAAC6C /* ChargeLimiterDaemon_rootless */,
 			);
 		};
 /* End PBXProject section */
@@ -334,18 +394,6 @@
 				184EA9B02B7A373300D0981D /* Assets.xcassets in Resources */,
 				184EA9B12B7A373300D0981D /* LaunchScreen.storyboard in Resources */,
 				184EA9B22B7A373300D0981D /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1870F6102B85A96100B3660F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1839C1DA2B8C657800FCFDEB /* splash.png in Resources */,
-				1870F6112B85A96100B3660F /* www in Resources */,
-				1870F6122B85A96100B3660F /* Assets.xcassets in Resources */,
-				1870F6132B85A96100B3660F /* LaunchScreen.storyboard in Resources */,
-				1870F6142B85A96100B3660F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,7 +427,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function on_pkg {\n    echo on_pkg\n}\nexport -f on_pkg\n\nfunction build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\nbuild_tipa\n#build_deb\n\n";
+			shellScript = "function on_pkg {\n    echo on_pkg\n}\nexport -f on_pkg\n\nfunction build_deb {\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nfunction build_tipa {\n    $PWD/md-trollstore\n}\n\n#build_tipa\nbuild_deb\n\n";
 			showEnvVarsInLog = 0;
 		};
 		184EA9B32B7A373300D0981D /* ShellScript */ = {
@@ -397,9 +445,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function build_deb {\n    cp -rfp ${CODESIGNING_FOLDER_PATH} ${PROJECT_DIR}/ChargeLimiter_rootless/Package/Applications/\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nbuild_deb\n";
+			shellScript = "function build_deb {\n    echo cp -rfp ${CODESIGNING_FOLDER_PATH} ${PROJECT_DIR}/${PROJECT_NAME}/Package_rootless${INSTALL_PATH}/\n    cp -rfp ${CODESIGNING_FOLDER_PATH} ${PROJECT_DIR}/${PROJECT_NAME}/Package_rootless${INSTALL_PATH}/\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nbuild_deb\n";
 		};
-		1870F6152B85A96100B3660F /* ShellScript */ = {
+		18C123C42C8C08B300FAAC6C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -414,8 +462,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "function build_deb {\n    cp -rfp ${CODESIGNING_FOLDER_PATH} ${PROJECT_DIR}/ChargeLimiter_roothide/Package/Applications/\n    /opt/MonkeyDev/bin/md --xcbp\n}\n\nbuild_deb\n";
-			showEnvVarsInLog = 0;
+			shellScript = "BIN_PATH=${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}\nCODE_SIGN_ENTITLEMENTS=${PROJECT_DIR}/ChargeLimiter/ChargeLimiter.entitlements\nldid -S${CODE_SIGN_ENTITLEMENTS} ${BIN_PATH}\ncp -f ${BIN_PATH} ${TARGET_BUILD_DIR}/ChargeLimiter.app/ChargeLimiterDaemon # for trollstore\n\n";
+		};
+		18C123E02C8C08CB00FAAC6C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "BIN_PATH=${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}\nCODE_SIGN_ENTITLEMENTS=${PROJECT_DIR}/ChargeLimiter/ChargeLimiter.entitlements\nldid -S${CODE_SIGN_ENTITLEMENTS} ${BIN_PATH}\ncp -f ${BIN_PATH} ${TARGET_BUILD_DIR}/ChargeLimiter.app/ChargeLimiterDaemon\n\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -424,18 +488,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				184EA9A42B7A373300D0981D /* main.mm in Sources */,
 				184EA9A52B7A373300D0981D /* utils.mm in Sources */,
 				18658A8F2BD2716000207EF3 /* ui.mm in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1870F6032B85A96100B3660F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1870F6042B85A96100B3660F /* main.mm in Sources */,
-				1870F6052B85A96100B3660F /* utils.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -443,13 +497,43 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				187886432B51976B00E48B28 /* main.mm in Sources */,
 				18C50C662B6D2D5D00793FA9 /* utils.mm in Sources */,
-				18658A822BCF771800207EF3 /* ui.mm in Sources */,
+				18C123E72C8C099600FAAC6C /* ui.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C123AF2C8C08B300FAAC6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C123B02C8C08B300FAAC6C /* utils.mm in Sources */,
+				18C123E82C8C09A400FAAC6C /* daemon.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C123CA2C8C08CB00FAAC6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C123CC2C8C08CB00FAAC6C /* utils.mm in Sources */,
+				18C123CB2C8C08CB00FAAC6C /* daemon.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		18E9C4C02C8C34F500946CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 18C123AE2C8C08B300FAAC6C /* ChargeLimiterDaemon */;
+			targetProxy = 18E9C4BF2C8C34F500946CB8 /* PBXContainerItemProxy */;
+		};
+		18E9C4C22C8C350300946CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 18C123C92C8C08CB00FAAC6C /* ChargeLimiterDaemon_rootless */;
+			targetProxy = 18E9C4C12C8C350300946CB8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		187886392B51976A00E48B28 /* Main.storyboard */ = {
@@ -474,6 +558,10 @@
 		184EA9B52B7A373300D0981D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
@@ -494,7 +582,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.7;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -514,6 +602,10 @@
 		184EA9B62B7A373300D0981D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
@@ -534,7 +626,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.7;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -551,91 +643,11 @@
 			};
 			name = Release;
 		};
-		1870F6172B85A96100B3660F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_BITCODE = NO;
-				HEADER_SEARCH_PATHS = (
-					/opt/theos/vendor/include,
-					/opt/include,
-				);
-				INFOPLIST_FILE = ChargeLimiter/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/opt/lib,
-					"$(PROJECT_DIR)/ChargeLimiter",
-				);
-				MARKETING_VERSION = 1.6;
-				MonkeyDevBuildPackageOnAnyBuild = YES;
-				MonkeyDevDeviceIP = 127.0.0.1;
-				MonkeyDevInstallOnAnyBuild = YES;
-				MonkeyDevPath = /opt/MonkeyDev;
-				MonkeyDevTheosPath = /opt/theos_rootless;
-				OTHER_CFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
-				PRODUCT_NAME = ChargeLimiter;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
-				THEOS_PACKAGE_SCHEME = roothide;
-				TROLLSTORE_DEVICE_IP = 192.168.0.35;
-				VALID_ARCHS = arm64;
-			};
-			name = Debug;
-		};
-		1870F6182B85A96100B3660F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_BITCODE = NO;
-				HEADER_SEARCH_PATHS = (
-					/opt/theos/vendor/include,
-					/opt/include,
-				);
-				INFOPLIST_FILE = ChargeLimiter/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/opt/lib,
-					"$(PROJECT_DIR)/ChargeLimiter",
-				);
-				MARKETING_VERSION = 1.6;
-				MonkeyDevBuildPackageOnAnyBuild = YES;
-				MonkeyDevDeviceIP = 127.0.0.1;
-				MonkeyDevInstallOnAnyBuild = YES;
-				MonkeyDevPath = /opt/MonkeyDev;
-				MonkeyDevTheosPath = /opt/theos_rootless;
-				OTHER_CFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
-				PRODUCT_NAME = ChargeLimiter;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
-				THEOS_PACKAGE_SCHEME = roothide;
-				TROLLSTORE_DEVICE_IP = 192.168.0.35;
-				VALID_ARCHS = arm64;
-			};
-			name = Release;
-		};
 		187886442B51976B00E48B28 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = arm64e;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
@@ -701,7 +713,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = arm64e;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
@@ -761,6 +773,10 @@
 		187886472B51976B00E48B28 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
@@ -781,7 +797,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.7;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -791,13 +807,17 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.156;
+				TROLLSTORE_DEVICE_IP = 192.168.43.11;
 			};
 			name = Debug;
 		};
 		187886482B51976B00E48B28 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
@@ -818,7 +838,7 @@
 					/opt/lib,
 					"$(PROJECT_DIR)/ChargeLimiter",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.7;
 				MonkeyDevBuildPackageOnAnyBuild = YES;
 				MonkeyDevDeviceIP = 127.0.0.1;
 				MonkeyDevInstallOnAnyBuild = YES;
@@ -828,7 +848,179 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TROLLSTORE_DEVICE_IP = 192.168.0.156;
+				TROLLSTORE_DEVICE_IP = 192.168.43.11;
+			};
+			name = Release;
+		};
+		18C123C62C8C08B300FAAC6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/ChargeLimiter",
+				);
+				MARKETING_VERSION = 1.7;
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 192.168.1.12;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos;
+				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TROLLSTORE_DEVICE_IP = 192.168.1.21;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		18C123C72C8C08B300FAAC6C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = "${TARGET_NAME}/${TARGET_NAME}.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/ChargeLimiter",
+				);
+				MARKETING_VERSION = 1.7;
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 192.168.1.12;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos;
+				PRODUCT_BUNDLE_IDENTIFIER = "chaoge.${TARGET_NAME}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TROLLSTORE_DEVICE_IP = 192.168.1.21;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		18C123E22C8C08CB00FAAC6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/ChargeLimiter",
+				);
+				MARKETING_VERSION = 1.7;
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 127.0.0.1;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos_rootless;
+				OTHER_CFLAGS = "-DTHEOS_PACKAGE_INSTALL_PREFIX=\"/var/jb\"";
+				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				THEOS_PACKAGE_SCHEME = rootless;
+				TROLLSTORE_DEVICE_IP = 192.168.0.112;
+				VALID_ARCHS = arm64;
+			};
+			name = Debug;
+		};
+		18C123E32C8C08CB00FAAC6C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					arm64e,
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = ChargeLimiter/ChargeLimiter.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/opt/theos/vendor/include,
+					/opt/include,
+				);
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/lib,
+					"$(PROJECT_DIR)/ChargeLimiter",
+				);
+				MARKETING_VERSION = 1.7;
+				MonkeyDevBuildPackageOnAnyBuild = YES;
+				MonkeyDevDeviceIP = 127.0.0.1;
+				MonkeyDevInstallOnAnyBuild = YES;
+				MonkeyDevPath = /opt/MonkeyDev;
+				MonkeyDevTheosPath = /opt/theos_rootless;
+				OTHER_CFLAGS = "-DTHEOS_PACKAGE_INSTALL_PREFIX=\"/var/jb\"";
+				PRODUCT_BUNDLE_IDENTIFIER = chaoge.ChargeLimiter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				THEOS_PACKAGE_SCHEME = rootless;
+				TROLLSTORE_DEVICE_IP = 192.168.0.112;
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};
@@ -840,15 +1032,6 @@
 			buildConfigurations = (
 				184EA9B52B7A373300D0981D /* Debug */,
 				184EA9B62B7A373300D0981D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		1870F6162B85A96100B3660F /* Build configuration list for PBXNativeTarget "ChargeLimiter_roothide" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1870F6172B85A96100B3660F /* Debug */,
-				1870F6182B85A96100B3660F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -867,6 +1050,24 @@
 			buildConfigurations = (
 				187886472B51976B00E48B28 /* Debug */,
 				187886482B51976B00E48B28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		18C123C52C8C08B300FAAC6C /* Build configuration list for PBXNativeTarget "ChargeLimiterDaemon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18C123C62C8C08B300FAAC6C /* Debug */,
+				18C123C72C8C08B300FAAC6C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		18C123E12C8C08CB00FAAC6C /* Build configuration list for PBXNativeTarget "ChargeLimiterDaemon_rootless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18C123E22C8C08CB00FAAC6C /* Debug */,
+				18C123E32C8C08CB00FAAC6C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
